@@ -15,3 +15,7 @@ To use blackcanvasglobal.com instead, add the domain under **Settings → Pages 
 ## Contact form
 
 The brief form opens the visitor's email app with the brief addressed to info@blackcanvasglobal.com. To have briefs arrive in the inbox automatically, connect the form to a form service or to the website platform used for blackcanvasglobal.com.
+
+## Email signature
+
+`email/` holds the company email signature: `logo.gif` (the animated logo, 400×165, shown at 200×83), `logo.png` (a still version) and `signature.html`, the HTML for a Microsoft 365 "Apply disclaimers" mail-flow rule. The `%%DisplayName%%`, `%%Title%%` and `%%MobilePhone%%` tokens fill in from each sender's Microsoft 365 profile.
