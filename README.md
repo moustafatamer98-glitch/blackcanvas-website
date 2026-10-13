@@ -18,4 +18,4 @@ The brief form opens the visitor's email app with the brief addressed to info@bl
 
 ## Email signature
 
-`email/` holds the company email signature: `logo.gif` (the animated logo, 534×220, shown at 235×97), `logo.png` (a still version) and `signature.html`, the HTML for a Microsoft 365 "Apply disclaimers" mail-flow rule. The `%%DisplayName%%`, `%%Title%%` and `%%MobilePhone%%` tokens fill in from each sender's Microsoft 365 profile.
+`email/` holds the company email signature: `logo.gif` (the animated logo, 534×220, shown at 180×74), `logo.png` (a still version) and `signature.html`, the HTML for a Microsoft 365 "Apply disclaimers" mail-flow rule. The `%%DisplayName%%`, `%%Title%%` and `%%MobilePhone%%` tokens fill in from each sender's Microsoft 365 profile.
