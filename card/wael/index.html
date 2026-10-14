@@ -70,7 +70,7 @@ body{background:var(--stage);color:var(--bone);font-family:var(--f-display);font
 
 /* scan to save */
 .scan{background:var(--bone);color:var(--ink);padding:18px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center}
-.scan h2{margin:0;font-size:26px;text-wrap:balance}
+.scan{align-items:center}.scan h2{margin:0;font-size:26px;text-wrap:balance}
 .scan p{margin:8px 0 0;font-size:14px;line-height:1.45;color:#45454A}
 .qr{width:132px;height:132px;max-width:100%;background:var(--bone)}
 .qr svg{display:block;width:100%;height:100%}
@@ -139,7 +139,6 @@ body{background:var(--stage);color:var(--bone);font-family:var(--f-display);font
   <section class="scan" aria-labelledby="scanh">
     <div>
       <h2 class="display" id="scanh">Scan to save</h2>
-      <p id="scanp">Point any phone camera at the code. It saves Moustafa's name, title, number and email to contacts.</p>
     </div>
     <div class="qr" id="qr" role="img" aria-label="Contact QR code"></div>
   </section>
@@ -186,7 +185,6 @@ body{background:var(--stage);color:var(--bone);font-family:var(--f-display);font
     $('v-tel').textContent = p.telShow; $('a-tel').href = 'tel:' + p.tel;
     $('v-wa').textContent = p.telShow; $('a-wa').href = 'https://wa.me/' + p.tel.replace('+','');
     $('v-mail').textContent = p.mail; $('a-mail').href = 'mailto:' + p.mail;
-    $('scanp').textContent = 'Point any phone camera at the code. It saves ' + p.first + '’s name, title, number and email to contacts.';
     $('qr').innerHTML = QR[id];
     $('qr').setAttribute('aria-label', 'QR code that saves ' + p.first + ' ' + p.last + '’s contact');
   }
