@@ -23,6 +23,7 @@ The brief form opens the visitor's email app with the brief addressed to info@bl
 - blackcanvasglobal.com/card/moustafa/
 - blackcanvasglobal.com/card/yara/
 - blackcanvasglobal.com/card/wael/
+- blackcanvasglobal.com/card/farha/
 
 Each folder has the page (`index.html`) and the person's contact file (`.vcf`), used by the "Save to contacts" button. The QR code on each page holds the same contact details, so scanning it saves the contact without opening a link. The pages are marked `noindex` so phone numbers stay out of search results. To change someone's details, edit their `index.html` (the `PEOPLE` entry and the QR code) and their `.vcf` file.
 
