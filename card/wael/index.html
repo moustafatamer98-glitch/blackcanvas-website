@@ -57,16 +57,6 @@ body{background:var(--stage);color:var(--bone);font-family:var(--f-display);font
 .role{color:var(--ember);font-size:2.9cqw;margin-top:2.4cqw}
 .hero-foot{display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--f-mono);font-size:2.7cqw;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
 
-/* heat tagline */
-.heat{all:unset;box-sizing:border-box;position:relative;display:block;cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;border:1px solid var(--line);padding:18px 18px 16px;background:var(--panel)}
-.heat:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
-.tag{font-size:34px}
-.tag .l2{display:block;padding-left:1.1em;color:transparent;-webkit-text-stroke:1px var(--ember)}
-.tag .sq{width:.22em;height:.22em;margin-left:.06em}
-.cover{position:absolute;inset:0;background:var(--stage);display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);transition:opacity 1.2s linear}
-.heat.warm .cover{opacity:0}
-.heat.done .cover{visibility:hidden}
-.cover svg{flex:none}
 
 /* scan to save */
 .scan{background:var(--bone);color:var(--ink);padding:18px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center}
@@ -91,7 +81,7 @@ body{background:var(--stage);color:var(--bone);font-family:var(--f-display);font
 .foot a{color:var(--muted);text-decoration:none}
 .foot a:hover{color:var(--bone)}
 
-@media (prefers-reduced-motion:reduce){.cover{transition:none}.people button,.rows a,.rows button{transition:none}}
+@media (prefers-reduced-motion:reduce){.people button,.rows a,.rows button{transition:none}}
 
 .save{display:flex;align-items:center;justify-content:center;gap:10px;min-height:56px;background:var(--ember);color:var(--ink);text-decoration:none;font-family:var(--f-mono);font-size:13px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;transition:background .2s}
 .save:hover{background:#FF6A3D}
@@ -127,14 +117,6 @@ body{background:var(--stage);color:var(--bone);font-family:var(--f-display);font
   </section>
 
   <a class="save" href="wael-almalki-black-canvas.vcf" download="wael-almalki-black-canvas.vcf"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4"></circle><path d="M2 21c0-3.9 3.1-7 7-7s7 3.1 7 7"></path><path d="M19 8v6"></path><path d="M16 11h6"></path></svg>Save to contacts</a>
-
-  <button type="button" class="heat" id="heat" aria-label="Hold to reveal the tagline">
-    <div class="display tag"><span>Your vision,</span><span class="l2">Our canvas<span class="sq"></span></span></div>
-    <span class="cover mono" aria-hidden="true">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 13V6a2 2 0 0 1 4 0v5"></path><path d="M12 10a2 2 0 0 1 4 0v2"></path><path d="M16 11a2 2 0 0 1 4 0v4a7 7 0 0 1-7 7h-1a7 7 0 0 1-6-3.5L4 16a1.8 1.8 0 0 1 3-2l1 1"></path></svg>
-      Hold to warm
-    </span>
-  </button>
 
   <section class="scan" aria-labelledby="scanh">
     <div>
@@ -190,16 +172,6 @@ body{background:var(--stage);color:var(--bone);font-family:var(--f-display);font
   }
 
   show("wael");
-
-  // hold-to-warm tagline, like the heat-reactive ink on the printed card
-  var heat = $('heat'), t0 = 0, timer = null;
-  function warm(){ if (heat.classList.contains('done')) return; t0 = Date.now(); heat.classList.add('warm');
-    timer = setTimeout(function(){ heat.classList.add('done'); heat.setAttribute('aria-label','Tagline: Your vision, our canvas.'); }, 1200); }
-  function cool(){ if (heat.classList.contains('done')) return; clearTimeout(timer); heat.classList.remove('warm'); }
-  heat.addEventListener('pointerdown', function(e){ e.preventDefault(); warm(); });
-  ['pointerup','pointerleave','pointercancel'].forEach(function(ev){ heat.addEventListener(ev, cool); });
-  heat.addEventListener('contextmenu', function(e){ e.preventDefault(); });
-  heat.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clearTimeout(timer); heat.classList.add('warm','done'); heat.setAttribute('aria-label','Tagline: Your vision, our canvas.'); } });
 
   // copy buttons
   document.querySelectorAll('[data-copy]').forEach(function(b){
