@@ -747,16 +747,17 @@ const work=[
 const W_BY=Object.fromEntries(work.map(w=>[w.t,w]));
 const services=[
  ['Sports Events','Races, tournaments, fan zones and opening shows.','Glory In Giza'],
- ['Exhibitions','Trade shows, pavilions and stands, designed and run.','Saudi Pavilion, Expo 2020'],
+ ['Exhibitions & Conferences','Pavilions, stands, summits and forums, from floor plan to stage.','Saudi Pavilion, Expo 2020'],
  ['Product Launches','Reveals built to make headlines on day one.',null],
- ['Conferences','Summits and forums, from agenda to stage.',null],
  ['Galas','High-end dinners and celebrations, flawlessly hosted.',null],
  ['Award Ceremonies','Formats, run of show and the big-night moment.','Ring Magazine Awards'],
  ['Festivals','Multi-stage music and cultural festivals at scale.','MDL SS25'],
  ['Corporate Events','Town halls, offsites and milestone celebrations.',null],
+ ['Private Events','Weddings, birthdays and private celebrations, hosted with care.',null],
  ['Brand Activations','Experiential campaigns that put brands in hands.','Qassim Baja × Toyota']
 ];
-const single=t=>t.replace(/s$/,'');
+const single=t=>({'Exhibitions & Conferences':'Exhibition or conference'})[t]||t.replace(/s$/,'');
+const withA=t=>(/^[aeiou]/i.test(t)?'an ':'a ')+t;
 
 /* ---------- animated logo ---------- */
 const Logo=(()=>{
@@ -988,7 +989,7 @@ $('#svc').innerHTML=services.map(([t,d,rel],i)=>{
     <button class="row" type="button" aria-expanded="false" aria-controls="svcp${i}"><span class="n">${pad(i+1)}</span><span class="t">${t}</span><span class="d">${d}</span><span class="pm" aria-hidden="true">+</span></button>
     <div class="panel" id="svcp${i}" role="region" aria-label="${t}"><div><div class="inner${w?'':' nopic'}">
       ${w?`<div class="pic" role="img" aria-label="${w.alt}" style="background-image:url('${w.img}')"></div>`:''}
-      <div class="txt"><p>${d}</p>${w?`<span class="rel">From our work: <b>${w.t}</b>, ${w.city} ${w.y}</span>`:''}<button class="btn spark plan" type="button" data-i="${i}">Plan a ${single(t).toLowerCase()}</button></div>
+      <div class="txt"><p>${d}</p>${w?`<span class="rel">From our work: <b>${w.t}</b>, ${w.city} ${w.y}</span>`:''}<button class="btn spark plan" type="button" data-i="${i}">Plan ${withA(single(t).toLowerCase())}</button></div>
     </div></div></div></li>`}).join('');
 $('#svc').addEventListener('click',e=>{
   const plan=e.target.closest('.plan');
