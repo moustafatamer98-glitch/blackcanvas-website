@@ -220,6 +220,23 @@ select.status-sel option{color:var(--text);background:var(--panel)}
 .legend{display:flex;gap:16px;font-size:12px;color:var(--muted);align-items:center;flex-wrap:wrap}
 .legend i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
 
+/* ---------- remove buttons ---------- */
+.card-x{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:6px;border:1px solid var(--line2);background:var(--panel);color:var(--muted);display:grid;place-items:center;cursor:pointer;opacity:0;transition:opacity .15s;z-index:2;padding:0}
+.card-x svg{width:15px;height:15px}
+.card:hover .card-x,.card:focus-within .card-x{opacity:1}
+.card-x:hover{color:var(--red);border-color:var(--red)}
+.card.has-x .row:first-child{padding-right:36px}
+@media (hover:none){.card-x{opacity:1}}
+.ev-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+/* ---------- confirm dialog ---------- */
+.modal{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.65)}
+.modal-box{width:min(440px,100%);background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal-box h2{font-size:16px}
+.modal-box p{margin:0;color:var(--muted)}
+.modal-box ul{margin:0;padding-left:18px;color:var(--text)}
+.modal-box .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:4px}
+.btn.danger-solid{background:var(--red);border-color:var(--red);color:#0B0B0C}
+.btn.danger-solid:hover{filter:brightness(1.08)}
 /* ---------- drawer / modal ---------- */
 .scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;opacity:0;pointer-events:none;transition:opacity .15s}
 .scrim.on{opacity:1;pointer-events:auto}
@@ -399,6 +416,7 @@ const ICON = {
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>',
   left:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>',
   x:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>',
   print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
 };
 
@@ -687,13 +705,14 @@ function eventGrid() {
     : `<div class="empty"><b>No events yet</b>Create your first event — pick a template and the delivery checklist is built for you.<br><br><button class="btn primary" data-act="newEvent">${ICON.plus} New event</button></div>`;
   return `<div class="grid">${ps.map(p => {
     const s = stats(p.id), ph = phaseInfo(p);
-    return `<button class="card" data-act="open" data-id="${esc(p.id)}">
+    return `<div class="card has-x" role="link" tabindex="0" data-act="open" data-id="${esc(p.id)}">
+      <button class="card-x" data-act="removeEvent" data-id="${esc(p.id)}" title="Remove event" aria-label="Remove ${esc(p.name)}">${ICON.trash}</button>
       <div class="row"><span class="pill s-${esc(p.status)}">${esc(label(STATUSES, p.status))}</span>${p.code ? `<span class="tag">${esc(p.code)}</span>` : ''}</div>
       <div><div class="name">${esc(p.name)}</div><div class="muted" style="font-size:13px;margin-top:3px">${esc([p.client, p.venue, p.city].filter(Boolean).join(' · ') || '—')}</div></div>
       <div class="row" style="font-size:13px"><span class="num">${esc(fmtRange(p.dates?.showStart, p.dates?.showEnd))}</span><span class="${ph.now === 'show' ? '' : 'muted'}" style="${ph.now === 'show' ? 'color:var(--orange);font-weight:700' : ''}">${esc(ph.label)}</span></div>
       <div class="bar"><i style="width:${s.pct}%"></i></div>
       <div class="row"><div class="meta"><span>${s.done}/${s.total} done</span>${s.late ? `<span class="bad">${s.late} overdue</span>` : ''}</div>${p.producer ? avatar(p.producer) : ''}</div>
-    </button>`;
+    </div>`;
   }).join('')}</div>`;
 }
 
@@ -717,7 +736,8 @@ function viewEvent(r) {
       <h1>${esc(p.name)}</h1>
       <div class="muted" style="margin-top:6px">${esc([p.client, p.venue, p.city].filter(Boolean).join(' · ') || 'Add client and venue in Details')}</div>
     </div>
-    <div class="countdown"><div class="big num">${esc(ph.big)}</div><div class="eyebrow" style="margin-top:6px">${esc(ph.unit)}</div></div>
+    <div class="countdown"><div class="big num">${esc(ph.big)}</div><div class="eyebrow" style="margin-top:6px">${esc(ph.unit)}</div>
+      <div class="ev-actions no-print"><button class="btn sm danger" data-act="removeEvent" data-id="${esc(p.id)}">${ICON.trash} Remove event</button></div></div>
   </div>
   <div class="phases">
     <div class="phase ${ph.now === 'build' ? 'now' : ''}"><div class="eyebrow">Build / load-in</div><div class="d num">${a.build ? esc(fmt(a.build)) : '—'}</div></div>
@@ -867,7 +887,7 @@ function tabDetails(p) {
       <button class="btn primary" data-act="saveDetails" data-id="${esc(p.id)}">Save details</button>
       <span class="dim" style="font-size:12px">Changing dates doesn’t move existing task due dates.</span>
       <div style="flex:1"></div>
-      <button class="btn danger" data-act="deleteEvent" data-id="${esc(p.id)}">Delete event</button>
+      <button class="btn danger" data-act="removeEvent" data-id="${esc(p.id)}">${ICON.trash} Remove event</button>
     </div>
   </div>`;
 }
@@ -1058,7 +1078,7 @@ function taskDrawer(task, projectId) {
       o.createdAt ||= new Date().toISOString();
       closeDrawer(); await save('tasks', o.id, o, isNew ? 'Task added' : 'Task saved');
     },
-    onDelete: isNew ? null : async () => { if (!confirm('Delete this task?')) return; closeDrawer(); try { await Backend.del('tasks', t.id); render(); toast('Task deleted'); } catch (e) { failed(e); } },
+    onDelete: isNew ? null : async () => { if (await confirmDialog({ title: 'Delete this task?', body: `<p>“${esc(t.title)}” will be removed for everyone.</p>`, ok: 'Delete task', danger: true }) !== 'ok') return; closeDrawer(); try { await Backend.del('tasks', t.id); render(); toast('Task deleted'); } catch (e) { failed(e); } },
   });
   drawerState.checklist = t.checklist;
   renderChecklist();
@@ -1125,7 +1145,7 @@ function tplDrawer(tpl) {
       if (!o.name) return toast('Name the template', true);
       closeDrawer(); await save('templates', o.id, o, 'Template saved');
     },
-    onDelete: isNew ? null : async () => { if (!confirm(`Delete template “${t.name}”? Events already created are not affected.`)) return; closeDrawer(); try { await Backend.del('templates', t.id); render(); } catch (e) { failed(e); } },
+    onDelete: isNew ? null : async () => { if (await confirmDialog({ title: `Delete template “${t.name}”?`, body: '<p>Events already created from it are not affected.</p>', ok: 'Delete template', danger: true }) !== 'ok') return; closeDrawer(); try { await Backend.del('templates', t.id); render(); } catch (e) { failed(e); } },
     extra: isNew ? '' : '<button class="btn" data-act="dupTpl">Duplicate</button>',
   });
   drawerState.items = t.items.map(i => ({ ...i }));
@@ -1232,10 +1252,22 @@ const actions = {
     const err = checkDates(o.dates); if (err) return toast(err, true);
     save('projects', o.id, o, 'Details saved');
   },
-  deleteEvent: async el => {
-    const p = db.projects.get(el.dataset.id);
-    if (prompt(`This deletes “${p.name}” with all its tasks, schedule and contacts. Type DELETE to confirm.`) !== 'DELETE') return;
-    try { await Backend.delProject(p.id); go('#/'); toast('Event deleted'); } catch (e) { failed(e); }
+  removeEvent: async el => {
+    const p = db.projects.get(el.dataset.id); if (!p) return;
+    const n = c => [...db[c].values()].filter(x => x.projectId === p.id).length;
+    const nt = n('tasks'), ns = n('schedule'), nc = n('contacts');
+    const closed = ['closed', 'lost'].includes(p.status);
+    const r = await confirmDialog({
+      title: `Remove “${p.name}”?`,
+      body: `<p>This permanently deletes the event for the whole team, including:</p>
+        <ul><li>${plural(nt, 'task')}</li><li>${plural(ns, 'schedule item')}</li><li>${plural(nc, 'contact')}</li></ul>
+        <p>It can’t be undone.${closed ? '' : ' If the event is finished or cancelled, you can close it instead and keep its history.'}</p>`,
+      ok: 'Remove event', danger: true, alt: closed ? null : 'Close it instead',
+    });
+    if (r === 'alt') return save('projects', p.id, { ...p, status: 'closed' }, 'Event closed');
+    if (r !== 'ok') return;
+    const onEvent = route().view === 'event';
+    try { await Backend.delProject(p.id); if (onEvent) go('#/'); render(); toast('Event removed'); } catch (e) { failed(e); }
   },
   newSched: el => schedDrawer(null, el.dataset.id),
   sched: el => { const s = db.schedule.get(el.dataset.id); s && schedDrawer(s); },
@@ -1279,6 +1311,7 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && drawerState) return closeDrawer();
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('[role=link][data-act]')) { e.preventDefault(); e.target.click(); return; }
   if (e.key === 'Enter' && e.target.dataset.enter && !e.isComposing) { e.preventDefault(); actions[e.target.dataset.enter](e.target); }
 });
 $('#scrim').addEventListener('click', closeDrawer);
@@ -1296,6 +1329,22 @@ document.addEventListener('drop', e => {
   if (o.status === 'done') { o.doneAt = new Date().toISOString(); o.doneBy = me; } else { delete o.doneAt; delete o.doneBy; }
   save('tasks', o.id, o);
 });
+
+/* ---------------- confirm dialog ---------------- */
+function confirmDialog({ title, body, ok = 'Confirm', danger = false, alt = null }) {
+  return new Promise(resolve => {
+    const m = document.createElement('div');
+    m.className = 'modal'; m.setAttribute('role', 'alertdialog'); m.setAttribute('aria-modal', 'true');
+    m.innerHTML = `<div class="modal-box"><h2>${esc(title)}</h2>${body}
+      <div class="acts"><button class="btn ghost" data-r="cancel">Cancel</button>${alt ? `<button class="btn" data-r="alt">${esc(alt)}</button>` : ''}<button class="btn ${danger ? 'danger-solid' : 'primary'}" data-r="ok">${esc(ok)}</button></div></div>`;
+    const done = r => { m.remove(); document.removeEventListener('keydown', key, true); resolve(r); };
+    const key = e => { if (e.key === 'Escape') { e.stopPropagation(); done('cancel'); } };
+    m.addEventListener('click', e => { const b = e.target.closest('[data-r]'); if (b) done(b.dataset.r); else if (e.target === m) done('cancel'); });
+    document.addEventListener('keydown', key, true);
+    document.body.appendChild(m);
+    m.querySelector('[data-r=cancel]').focus();
+  });
+}
 
 /* ---------------- toast ---------------- */
 let toastT;
