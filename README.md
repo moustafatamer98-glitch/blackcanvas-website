@@ -35,25 +35,29 @@ Each folder has the page (`index.html`) and the person's contact file (`.vcf`), 
 - `portal/billing/`: the billing app.
 - `portal/config.js`: the Supabase project URL and publishable key. Both are meant to be public.
 - `portal/portal.js`, `portal/brand.js`, `portal/vendor/`: shared sign-in helper, logo artwork and the Supabase library.
-- `supabase/setup.sql`: the database table and access rules.
+- `supabase/setup.sql`: the database tables and access rules.
+- `supabase/functions/portal-invite/`: the Edge Function admins use to send invites.
 
 When you change `brand.js`, `config.js` or `portal.js`, raise the `?v=` tag on their `<script>` links in both portal pages. GitHub Pages caches files for about 10 minutes, and the new tag makes browsers load the new version straight away.
 
-Sign-in and data run on [Supabase](https://supabase.com). The access rules only let signed-in team members read or change data: any `@blackcanvasglobal.com` account, plus emails listed in the `portal_members` table. The code is public in this repository, but the data isn't.
+Sign-in and data run on [Supabase](https://supabase.com). Access is per app: each person has a row in the `portal_access` table listing the apps they may open (`billing`, `crew`, `projects`) and whether they're an admin. The database enforces it: billing data is only readable and writable by people with the `billing` app, so hiding a tile isn't the only protection. The code is public in this repository, but the data isn't.
 
 ### Set up (once)
 
 1. Create a free project at supabase.com (region: closest to Saudi Arabia, such as Frankfurt or Mumbai).
-2. **SQL Editor → New query**: paste `supabase/setup.sql` and run it.
-3. **Authentication → Sign In / Providers → Email**: turn **off** "Allow new users to sign up". Only people you invite can then have an account.
-4. **Authentication → URL Configuration**: set **Site URL** to `https://blackcanvasglobal.com/portal/` and add `https://blackcanvasglobal.com/portal/**` under **Redirect URLs**.
-5. **Project Settings → API Keys**: copy the Project URL and the publishable key into `portal/config.js`. Never use the secret or `service_role` key.
+2. **SQL Editor → New query**: paste `supabase/setup.sql` and run it. Then run the "First admin" lines at the end of that file with your own email, so you can open Team access.
+3. **Edge Functions**: deploy `supabase/functions/portal-invite/` with JWT verification turned off (the function checks the caller itself).
+4. **Authentication → Sign In / Providers → Email**: turn **off** "Allow new users to sign up". Only people you invite can then have an account.
+5. **Authentication → URL Configuration**: set **Site URL** to `https://blackcanvasglobal.com/portal/` and add `https://blackcanvasglobal.com/portal/**` under **Redirect URLs**.
+6. **Project Settings → API Keys**: copy the Project URL and the publishable key into `portal/config.js`. Never use the secret or `service_role` key.
 
 ### Add a team member
 
-**Authentication → Users → Add user → Send invitation** with their email. They get an email, follow the link, enter their name and a password, and land on the apps screen. The portal shows that name instead of their email; anyone can change theirs by clicking it at the top right of the apps screen. If their email isn't `@blackcanvasglobal.com`, also add it to the `portal_members` table (**Table Editor → portal_members → Insert row**).
+Admins open **Team access** from the apps screen, enter the person's email, tick their apps and click **Add person**. With "Email them an invite now" ticked, the invite goes out straight away; otherwise use **Send invite** on their row later. They follow the link, enter their name and a password, and see only the apps you ticked. Untick or tick apps at any time; changes apply immediately. **Remove** takes all their access away.
 
-To remove someone, delete them under **Authentication → Users**.
+Invites are sent by the `portal-invite` Edge Function (`supabase/functions/portal-invite/`), which only works for admins.
+
+Supabase's built-in email sender only reaches members of your Supabase organization and allows a few emails an hour. To invite anyone reliably, set up your own sender under **Authentication → Emails → SMTP Settings** (for example your Microsoft 365 mailbox or a service such as Resend).
 
 ## Email signature
 
