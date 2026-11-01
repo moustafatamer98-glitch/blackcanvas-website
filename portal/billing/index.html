@@ -433,7 +433,7 @@ async function remove(coll, id) {
 function dbErr(e) {
   setSave("Not saved");
   const c = e?.code || "", m = e?.message || "";
-  if (c === "42501" || /row-level security/i.test(m)) { S.canWrite = false; toast("Your account isn't on the Black Canvas team list, so changes can't be saved. Ask an admin to add you."); render(); }
+  if (c === "42501" || /row-level security/i.test(m)) { S.canWrite = false; toast("Your account no longer has access to Billing, so changes can't be saved. Ask a portal admin."); render(); }
   else if (c === "PGRST301" || c === "PGRST303" || /jwt/i.test(m)) { toast("Your sign-in has expired. Taking you to sign in…"); setTimeout(() => location.replace("../?next=billing"), 1600); }
   else toast("Couldn't save just now. Check your connection; your next change will try again.");
 }
@@ -449,7 +449,10 @@ async function initStore() {
   S.user = session.user;
   sb.auth.getUser().then(r => { if (r.data && r.data.user) { S.user = r.data.user; const n = $("#modeNote"); if (n) n.textContent = BCPortal.displayName(S.user) + (S.canWrite ? "" : " · view only"); } });
   sb.auth.onAuthStateChange((ev, ses) => { if (ev === "SIGNED_OUT" || (!ses && ev !== "INITIAL_SESSION")) location.replace("../"); });
-  try { const { data: member } = await sb.rpc("is_portal_member"); if (member === false) S.canWrite = false; } catch (e) { /* the save itself will decide */ }
+  try {
+    const { data: allowed, error } = await sb.rpc("has_app", { p_app: "billing" });
+    if (!error && allowed === false) { location.replace("../?noaccess=billing"); return; }
+  } catch (e) { /* the access rules on the data still apply */ }
   S.mode = "db"; render();
   let loading = true; const pending = [];
   sb.channel("records-billing")

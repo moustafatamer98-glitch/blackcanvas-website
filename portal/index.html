@@ -95,6 +95,44 @@ footer{border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-botto
 footer .wrap{min-height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 footer a{text-decoration:none;color:var(--muted)}
 footer a:hover{color:var(--fg)}
+button.tile{font:inherit;text-align:left;cursor:pointer}
+button.tile:hover{border-color:var(--fg)}
+button.tile:hover .go{transform:translateX(4px)}
+.apps-note{margin:0 0 20px;max-width:640px}
+
+/* team access */
+.acc-head{display:flex;flex-direction:column;gap:18px;align-items:flex-start;margin-bottom:32px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.panel h2{margin:0}
+.add-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:12px}
+@media (max-width:620px){.add-grid{grid-template-columns:minmax(0,1fr)}}
+.checks{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
+.ck{display:inline-flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;white-space:nowrap}
+input[type=checkbox]{width:18px;height:18px;padding:0;margin:0;accent-color:var(--ember);cursor:pointer;flex:none}
+input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
+.add-foot{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;justify-content:space-between}
+.acc-list{margin-top:28px;border-top:1.5px solid var(--fg)}
+.acc-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(4,110px) 190px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.acc-row.head{padding:10px 0}
+.acc-row.head span{font:500 10px/1.25 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.acc-row .c{display:flex;justify-content:center}
+.acc-row .c .ml{display:none}
+.who-cell b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who-cell small{display:block;color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who-cell .you{font:500 9.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--line-strong);border-radius:99px;padding:3px 6px;margin-left:6px;color:var(--muted);vertical-align:2px}
+.acts{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.btn.danger:hover{color:var(--bad);border-color:var(--bad)}
+.btn.confirm{color:var(--bad);border-color:var(--bad)}
+.row-msg{grid-column:1 / -1;margin:0;font-size:13px}
+.row-msg.ok{color:var(--good)} .row-msg.err{color:var(--bad)}
+@media (max-width:860px){
+  .acc-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px}
+  .acc-row.head{display:none}
+  .acc-row .who-cell,.acc-row .acts{grid-column:1 / -1}
+  .acc-row .acts{justify-content:flex-start}
+  .acc-row .c{justify-content:flex-start}
+  .acc-row .c .ml{display:inline}
+}
 @media (prefers-reduced-motion: reduce){.go{transition:none}}
 </style>
 </head>
@@ -158,26 +196,63 @@ footer a:hover{color:var(--fg)}
           <p class="msg err" id="nameErr" role="alert" hidden style="width:100%"></p>
         </form></div>
     </div>
-    <div class="tiles">
-      <a class="tile" href="billing/" id="tBilling">
+    <p class="msg apps-note" id="appsNote" role="status" hidden></p>
+    <div class="tiles" id="tiles">
+      <a class="tile" href="billing/" id="tBilling" data-app="billing" hidden>
         <span class="ic"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5h22l10 10v36H12z"/><path d="M34 5v10h10"/><path d="M19 25h18M19 32h18M19 39h10"/><rect x="34" y="40" width="8" height="8" fill="#F04E23" stroke="none"/></svg></span>
         <div><h2>Billing</h2></div>
         <p>Quotes and tax invoices in SAR, with VAT, ZATCA QR and PDF export.</p>
         <div class="foot"><span class="chip" style="color:var(--good);border-color:currentColor">Live</span><span class="go">Open →</span></div>
       </a>
-      <div class="tile soon" aria-disabled="true">
+      <div class="tile soon" aria-disabled="true" data-app="crew" hidden>
         <span class="ic"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="20" cy="18" r="7"/><path d="M6 46c0-9 6-15 14-15s14 6 14 15"/><circle cx="38" cy="20" r="6"/><path d="M36 31c8 0 14 5 14 14"/><rect x="44" y="6" width="8" height="8" fill="#F04E23" stroke="none"/></svg></span>
         <div><h2>Crew assignment</h2></div>
         <p>Assign crew to shows, shifts and roles.</p>
         <div class="foot"><span class="chip">Coming soon</span></div>
       </div>
-      <div class="tile soon" aria-disabled="true">
+      <div class="tile soon" aria-disabled="true" data-app="projects" hidden>
         <span class="ic"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="5" y="7" width="13" height="42"/><rect x="22" y="7" width="13" height="30"/><rect x="39" y="7" width="13" height="20"/><path d="M9 15h5M9 22h5M26 15h5M43 15h5"/><rect x="24" y="41" width="9" height="9" fill="#F04E23" stroke="none"/></svg></span>
         <div><h2>Project management</h2></div>
         <p>Plan projects, milestones and tasks from pitch to load-out.</p>
         <div class="foot"><span class="chip">Coming soon</span></div>
       </div>
+      <button class="tile" type="button" data-app="admin" id="tAccess" hidden>
+        <span class="ic"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="10" y="24" width="36" height="26"/><path d="M18 24v-7a10 10 0 0 1 20 0v7"/><rect x="24" y="33" width="8" height="8" fill="#F04E23" stroke="none"/></svg></span>
+        <div><h2>Team access</h2></div>
+        <p>Invite people and choose which apps each person can open.</p>
+        <div class="foot"><span class="chip">Admin</span><span class="go">Manage →</span></div>
+      </button>
     </div>
+  </section>
+
+  <section id="vAccess" hidden>
+    <div class="acc-head">
+      <button class="link" type="button" id="accBack">← Apps</button>
+      <h1 class="disp">Team <span class="o">access<span class="sq"></span></span></h1>
+      <p class="lede">Choose which apps each person can open. Changes apply straight away, and people only see the apps you tick.</p>
+    </div>
+
+    <form class="panel" id="fAdd" novalidate>
+      <h2 class="label">Add a person</h2>
+      <div class="add-grid">
+        <label class="fld" for="aEmail"><span class="fl">Email</span><input id="aEmail" type="email" autocomplete="off" placeholder="name@blackcanvasglobal.com" required></label>
+        <label class="fld" for="aNote"><span class="fl">Name or role (optional)</span><input id="aNote" type="text" autocomplete="off" maxlength="80" placeholder="e.g. Wael Almalki, Operations"></label>
+      </div>
+      <div class="checks" role="group" aria-label="Apps">
+        <span class="fl">Apps</span>
+        <label class="ck" for="aBilling"><input type="checkbox" id="aBilling" value="billing">Billing</label>
+        <label class="ck" for="aCrew"><input type="checkbox" id="aCrew" value="crew">Crew assignment</label>
+        <label class="ck" for="aProjects"><input type="checkbox" id="aProjects" value="projects">Project management</label>
+        <label class="ck" for="aAdmin"><input type="checkbox" id="aAdmin">Admin</label>
+      </div>
+      <div class="add-foot">
+        <label class="ck" for="aInvite"><input type="checkbox" id="aInvite" checked>Email them an invite now</label>
+        <button class="btn ember" type="submit" id="aBtn">Add person</button>
+      </div>
+      <p class="msg" id="aMsg" role="status" hidden></p>
+    </form>
+
+    <div class="acc-list" id="accList" aria-live="polite"><p class="label" style="padding:16px 0">Loading the team…</p></div>
   </section>
 
 </div></main>
@@ -192,8 +267,10 @@ footer a:hover{color:var(--fg)}
 "use strict";
 (function () {
   var $ = function (s) { return document.querySelector(s); };
-  var VIEWS = ["vLoading", "vSetup", "vSignIn", "vForgot", "vSetPw", "vApps"];
-  function show(id) { VIEWS.forEach(function (v) { $("#" + v).hidden = v !== id; }); var f = $("#" + id + " input"); if (f && id !== "vApps") f.focus(); }
+  var VIEWS = ["vLoading", "vSetup", "vSignIn", "vForgot", "vSetPw", "vApps", "vAccess"];
+  function show(id) { VIEWS.forEach(function (v) { $("#" + v).hidden = v !== id; }); var f = $("#" + id + " input"); if (f && id !== "vApps" && id !== "vAccess") f.focus(); }
+  var esc = function (t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
+  var APPS = [["billing", "Billing"], ["crew", "Crew assignment"], ["projects", "Project management"]];
   function msg(el, text, kind) { el.textContent = text; el.className = "msg " + (kind || "err"); el.hidden = !text; }
   function busy(btn, on, label) { btn.disabled = on; if (label) btn.textContent = label; }
 
@@ -204,6 +281,7 @@ footer a:hover{color:var(--fg)}
   var linkType = hash.get("type");               // "invite" or "recovery" from email links
   var linkError = hash.get("error_description");
   var next = params.get("next") === "billing" ? "billing/" : "";
+  var noAccess = params.get("noaccess");
 
   var sb = BCPortal.client();
   if (!sb) { show("vSetup"); return; }
@@ -225,11 +303,29 @@ footer a:hover{color:var(--fg)}
     $("#whoName").textContent = name;
     $("#hello").textContent = (h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening") + ", " + first;
   }
+  var access = { apps: [], is_admin: false };
   function enterApps(session) {
-    if (next) { location.replace(next); return; }
     me = session.user;
-    $("#who").hidden = false; paintName(); show("vApps");
+    $("#who").hidden = false; paintName();
     sb.auth.getUser().then(function (r) { if (r.data && r.data.user) { me = r.data.user; paintName(); } });
+    sb.rpc("my_access").then(function (r) {
+      if (r.error) { show("vApps"); msg($("#appsNote"), "Couldn't load your apps. Reload the page to try again."); return; }
+      access = r.data || access;
+      if (next && access.apps.indexOf("billing") >= 0) { location.replace(next); return; }
+      paintTiles();
+      if (location.hash === "#access" && access.is_admin) openAccess(); else show("vApps");
+    });
+  }
+  function paintTiles() {
+    var any = false;
+    document.querySelectorAll("#tiles [data-app]").forEach(function (t) {
+      var on = t.dataset.app === "admin" ? access.is_admin : access.apps.indexOf(t.dataset.app) >= 0;
+      t.hidden = !on; if (on) any = true;
+    });
+    var label = { billing: "Billing", crew: "Crew assignment", projects: "Project management" }[noAccess];
+    if (!any) msg($("#appsNote"), "Your account doesn't have any apps yet. Ask a portal admin to give you access.", "err");
+    else if (label) msg($("#appsNote"), "Your account doesn't have access to " + label + ". Ask a portal admin if you need it.", "err");
+    else msg($("#appsNote"), "");
   }
 
   var settingPassword = linkType === "invite" || linkType === "recovery";
@@ -310,6 +406,111 @@ footer a:hover{color:var(--fg)}
       me = r.data.user; paintName(); $("#fName").hidden = true;
     });
   });
+  /* ---------- Team access (admins) ---------- */
+  var team = [], confirmTimer = 0;
+  function openAccess() {
+    if (!access.is_admin) return;
+    if (location.hash !== "#access") history.replaceState(null, "", location.pathname + location.search + "#access");
+    show("vAccess"); loadTeam();
+  }
+  function closeAccess() { history.replaceState(null, "", location.pathname + location.search); show("vApps"); }
+  function loadTeam() {
+    sb.from("portal_access").select("email,apps,is_admin,note").order("email").then(function (r) {
+      if (r.error) { $("#accList").innerHTML = '<p class="msg err" style="margin-top:16px">Couldn\'t load the team. Reload the page to try again.</p>'; return; }
+      team = r.data || []; paintTeam();
+    });
+  }
+  function myEmail() { return ((me && me.email) || "").toLowerCase(); }
+  function paintTeam() {
+    var head = '<div class="acc-row head"><span>Person</span>' + APPS.map(function (a) { return '<span style="text-align:center">' + a[1] + "</span>"; }).join("") + '<span style="text-align:center">Admin</span><span></span></div>';
+    if (!team.length) { $("#accList").innerHTML = head + '<p class="label" style="padding:16px 0">No one yet.</p>'; return; }
+    $("#accList").innerHTML = head + team.map(function (p, i) {
+      var mine = p.email === myEmail();
+      var cell = function (key, label, checked, disabled) {
+        return '<label class="c" for="ac-' + i + "-" + key + '"><input type="checkbox" id="ac-' + i + "-" + key + '" data-i="' + i + '" data-k="' + key + '"' + (checked ? " checked" : "") + (disabled ? " disabled" : "") + ' aria-label="' + esc(label + " for " + p.email) + '"><span class="ml">&nbsp;' + label + "</span></label>";
+      };
+      var name = p.note || p.email.split("@")[0];
+      return '<div class="acc-row" data-row="' + i + '"><div class="who-cell"><b>' + esc(name) + (mine ? '<span class="you">You</span>' : "") + "</b><small>" + esc(p.email) + "</small></div>" +
+        APPS.map(function (a) { return cell(a[0], a[1], p.apps.indexOf(a[0]) >= 0, false); }).join("") +
+        cell("admin", "Admin", p.is_admin, mine) +
+        '<div class="acts">' + (mine ? "" : '<button class="btn sm" type="button" data-act="invite" data-i="' + i + '">Send invite</button><button class="btn sm danger" type="button" data-act="remove" data-i="' + i + '">Remove</button>') + "</div>" +
+        '<p class="row-msg" id="rm-' + i + '" hidden></p></div>';
+    }).join("");
+  }
+  function rowMsg(i, text, kind) { var el = $("#rm-" + i); if (!el) return; el.textContent = text; el.className = "row-msg " + (kind || "ok"); el.hidden = !text; }
+  function dbFriendly(err) {
+    var m = (err && err.message) || "";
+    if (/at least one admin/i.test(m)) return "The portal needs at least one admin. Make someone else an admin first.";
+    if (/duplicate key|already exists/i.test(m)) return "That email is already on the team list.";
+    if (/row-level security|permission/i.test(m)) return "Only portal admins can change access.";
+    return friendly(err);
+  }
+  function invite(email, i) {
+    if (i != null) rowMsg(i, "Sending…");
+    return sb.functions.invoke("portal-invite", { body: { email: email } }).then(async function (r) {
+      var out = r.data;
+      if (r.error) { try { out = await r.error.context.json(); } catch (e) { out = { error: "Couldn't send the invite. Try again." }; } }
+      var text = out && out.status === "invited" ? "Invite sent to " + email + "."
+        : out && out.status === "link_sent" ? email + " already has an account, so they've been sent a link to set their password."
+        : (out && out.error) || "Couldn't send the invite. Try again.";
+      var ok = out && (out.status === "invited" || out.status === "link_sent");
+      if (i != null) rowMsg(i, text, ok ? "ok" : "err");
+      return { ok: ok, text: text };
+    });
+  }
+  $("#tAccess").addEventListener("click", openAccess);
+  $("#accBack").addEventListener("click", closeAccess);
+  $("#accList").addEventListener("change", function (e) {
+    var t = e.target; if (!t.matches("input[type=checkbox][data-k]")) return;
+    var i = +t.dataset.i, p = team[i], k = t.dataset.k, patch;
+    if (k === "admin") patch = { is_admin: t.checked };
+    else { var apps = p.apps.filter(function (a) { return a !== k; }); if (t.checked) apps.push(k); patch = { apps: APPS.map(function (a) { return a[0]; }).filter(function (a) { return apps.indexOf(a) >= 0; }) }; }
+    t.disabled = true; rowMsg(i, "");
+    sb.from("portal_access").update(patch).eq("email", p.email).select().then(function (r) {
+      t.disabled = (k === "admin" && p.email === myEmail());
+      if (r.error || !r.data || !r.data.length) { t.checked = !t.checked; rowMsg(i, r.error ? dbFriendly(r.error) : "Couldn't save. Reload the page and try again.", "err"); return; }
+      team[i] = r.data[0]; rowMsg(i, "Saved.");
+      if (p.email === myEmail()) { access = { apps: team[i].apps, is_admin: team[i].is_admin }; paintTiles(); }
+      setTimeout(function () { var el = $("#rm-" + i); if (el && el.textContent === "Saved.") el.hidden = true; }, 1800);
+    });
+  });
+  $("#accList").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-act]"); if (!b) return;
+    var i = +b.dataset.i, p = team[i];
+    if (b.dataset.act === "invite") { b.disabled = true; invite(p.email, i).then(function () { b.disabled = false; }); return; }
+    if (b.dataset.act === "remove") {
+      if (!b.classList.contains("confirm")) {
+        b.classList.add("confirm"); b.textContent = "Confirm remove"; clearTimeout(confirmTimer);
+        confirmTimer = setTimeout(function () { b.classList.remove("confirm"); b.textContent = "Remove"; }, 4000);
+        return;
+      }
+      b.disabled = true;
+      sb.from("portal_access").delete().eq("email", p.email).select().then(function (r) {
+        if (r.error || !r.data || !r.data.length) { b.disabled = false; rowMsg(i, r.error ? dbFriendly(r.error) : "Couldn't remove. Reload the page and try again.", "err"); return; }
+        team.splice(i, 1); paintTeam();
+      });
+    }
+  });
+  $("#fAdd").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var email = $("#aEmail").value.trim().toLowerCase(), note = $("#aNote").value.trim();
+    var apps = ["aBilling", "aCrew", "aProjects"].filter(function (id) { return $("#" + id).checked; }).map(function (id) { return $("#" + id).value; });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg($("#aMsg"), "Enter a valid email address."); return; }
+    if (!apps.length && !$("#aAdmin").checked) { msg($("#aMsg"), "Tick at least one app."); return; }
+    if (team.some(function (p) { return p.email === email; })) { msg($("#aMsg"), "That email is already on the list below. Change their apps there."); return; }
+    busy($("#aBtn"), true, "Adding…"); msg($("#aMsg"), "");
+    sb.from("portal_access").insert({ email: email, apps: apps, is_admin: $("#aAdmin").checked, note: note || null }).select().then(function (r) {
+      if (r.error) { busy($("#aBtn"), false, "Add person"); msg($("#aMsg"), dbFriendly(r.error)); return; }
+      team.push(r.data[0]); team.sort(function (a, b) { return a.email.localeCompare(b.email); }); paintTeam();
+      var done = function (extra) {
+        busy($("#aBtn"), false, "Add person");
+        msg($("#aMsg"), email + " added." + (extra ? " " + extra.text : " Send them an invite from the list when you're ready."), extra && !extra.ok ? "err" : "ok");
+        $("#fAdd").reset(); $("#aInvite").checked = true;
+      };
+      if ($("#aInvite").checked) invite(email, null).then(done); else done(null);
+    });
+  });
+
   $("#signOut").addEventListener("click", function () { sb.auth.signOut().then(function () { location.replace(location.pathname); }); });
 })();
 </script>
