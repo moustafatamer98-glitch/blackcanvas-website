@@ -18,6 +18,15 @@
       });
       return client;
     },
+    /* The name to show for a user: their saved display name, else one made from the email
+       (mo.tamer@... -> "Mo Tamer"). */
+    displayName: function (user) {
+      var m = (user && user.user_metadata) || {};
+      var n = (m.display_name || m.full_name || m.name || "").trim();
+      if (n) return n;
+      var local = ((user && user.email) || "").split("@")[0];
+      return local.split(/[._-]+/).filter(Boolean).map(function (w) { return w.charAt(0).toUpperCase() + w.slice(1); }).join(" ");
+    },
     /* kind: "line" (one-line logo) or "stack" (stacked primary logo) */
     logoSvg: function (kind, letters, dot) {
       var L = (window.BC_LOGO || {})[kind];

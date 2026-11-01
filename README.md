@@ -49,7 +49,7 @@ Sign-in and data run on [Supabase](https://supabase.com). The access rules only 
 
 ### Add a team member
 
-**Authentication → Users → Add user → Send invitation** with their email. They get an email, follow the link, choose a password and land on the apps screen. If their email isn't `@blackcanvasglobal.com`, also add it to the `portal_members` table (**Table Editor → portal_members → Insert row**).
+**Authentication → Users → Add user → Send invitation** with their email. They get an email, follow the link, enter their name and a password, and land on the apps screen. The portal shows that name instead of their email; anyone can change theirs by clicking it at the top right of the apps screen. If their email isn't `@blackcanvasglobal.com`, also add it to the `portal_members` table (**Table Editor → portal_members → Insert row**).
 
 To remove someone, delete them under **Authentication → Users**.
 

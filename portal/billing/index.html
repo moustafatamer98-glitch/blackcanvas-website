@@ -447,6 +447,7 @@ async function initStore() {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { location.replace("../?next=billing"); return; }
   S.user = session.user;
+  sb.auth.getUser().then(r => { if (r.data && r.data.user) { S.user = r.data.user; const n = $("#modeNote"); if (n) n.textContent = BCPortal.displayName(S.user) + (S.canWrite ? "" : " · view only"); } });
   sb.auth.onAuthStateChange((ev, ses) => { if (ev === "SIGNED_OUT" || (!ses && ev !== "INITIAL_SESSION")) location.replace("../"); });
   try { const { data: member } = await sb.rpc("is_portal_member"); if (member === false) S.canWrite = false; } catch (e) { /* the save itself will decide */ }
   S.mode = "db"; render();
@@ -502,7 +503,7 @@ function go(view) {
 }
 function render() {
   $$(".tabs button").forEach(b => b.setAttribute("aria-current", b.dataset.go === UI.view ? "page" : "false"));
-  $("#modeNote").textContent = S.user ? (S.user.email || "") + (S.canWrite ? "" : " · view only") : "";
+  $("#modeNote").textContent = S.user ? BCPortal.displayName(S.user) + (S.canWrite ? "" : " · view only") : "";
   if (S.mode === "loading") return;
   const searching = document.activeElement?.id === "docSearch";
   ({ docs: renderDocs, clients: renderClients, rates: renderRates, settings: renderSettings, edit: renderEditor })[UI.view]();
