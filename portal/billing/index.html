@@ -161,6 +161,14 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 .sec-h .sec-no{font:600 12px var(--mono);color:var(--muted);width:24px}
 .sec-h input{font-weight:600}
 .sec-sub{font:500 12.5px var(--mono);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.sec-tot{display:flex;align-items:center;gap:6px;flex:none}
+.sec-tot span{font:500 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.sec-h .sec-tot input{width:132px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.sec-tot input.custom{border-color:var(--ember-text)}
+.sec-note{font-size:12.5px;color:var(--muted);padding-left:32px}
+.sec-note button{background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer;font:inherit}
+.cur-note{font-size:12.5px;color:var(--warn)}
+@media (max-width:620px){.sec-h{flex-wrap:wrap}.sec-h > input{flex:1;min-width:0}.sec-tot{margin-left:32px}.sec-note{padding-left:0}}
 .it-head,.it{display:grid;grid-template-columns:minmax(0,1fr) 58px 70px 54px 96px 100px 30px;gap:6px;align-items:start}
 .it-head span{font:500 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:2px 2px 0}
 .it-head span.r,.it .amt{text-align:right}
@@ -328,7 +336,11 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const el = html => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
 function round2(n) { n = Number(n) || 0; return Math.sign(n) * Math.round(Math.abs(n) * 100 + 1e-7) / 100; }
 const money = n => round2(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const sar = n => "SAR " + money(n);
+const CURRENCIES = [["SAR", "Saudi riyal"], ["USD", "US dollar"], ["EUR", "Euro"], ["GBP", "British pound"], ["AED", "UAE dirham"], ["EGP", "Egyptian pound"], ["KWD", "Kuwaiti dinar"], ["QAR", "Qatari riyal"], ["BHD", "Bahraini dinar"], ["OMR", "Omani rial"], ["JOD", "Jordanian dinar"]];
+const defCur = () => (S.settings && S.settings.currency) || "SAR";
+const curOf = d => (d && d.currency) || defCur();
+const fmtCur = (n, c) => c + " " + money(n);
+const curOptions = sel => CURRENCIES.map(([c, n]) => `<option value="${c}" ${c === sel ? "selected" : ""}>${c} · ${n}</option>`).join("");
 const qtyFmt = n => (n === "" || n == null) ? "" : String(round2(n)).replace(/\.0+$/, "");
 const pad = n => String(n).padStart(2, "0");
 const isoOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -345,7 +357,7 @@ const DEFAULT_SETTINGS = {
   legalNameEn: "Black Canvas", legalNameAr: "", vat: "", cr: "", addressEn: "", addressAr: "", phone: "",
   email: "info@blackcanvasglobal.com", website: "blackcanvasglobal.com",
   bankName: "", accountName: "", iban: "", swift: "",
-  quotePrefix: "BC-Q", invoicePrefix: "BC-INV", vatRate: 15, validityDays: 14, dueDays: 30,
+  quotePrefix: "BC-Q", invoicePrefix: "BC-INV", vatRate: 15, validityDays: 14, dueDays: 30, currency: "SAR",
   quotePaymentTerms: "50% advance on confirmation. Balance due 7 days before load-in. Prices are in Saudi riyals (SAR) and exclude VAT unless shown.",
   quoteTerms: "This quotation is valid until the date shown. Scope changes after confirmation are quoted separately. Third-party costs committed on the client's behalf are non-refundable if the event is cancelled. Final crew and equipment lists are confirmed at the production meeting.",
   invoicePaymentTerms: "Please pay by bank transfer to the account below and use the invoice number as the payment reference.",
@@ -356,9 +368,12 @@ const DEFAULT_SETTINGS = {
 const itemDays = it => (it.days === "" || it.days == null) ? 1 : (Number(it.days) || 0);
 const lineAmount = it => round2((Number(it.qty) || 0) * itemDays(it) * (Number(it.rate) || 0));
 const hasContent = it => (it.desc && it.desc.trim()) || lineAmount(it) !== 0;
+const secItems = s => round2((s.items || []).reduce((a, it) => a + lineAmount(it), 0));
+const secCustom = s => s.totalOverride !== "" && s.totalOverride != null && Number.isFinite(Number(s.totalOverride));
+const secTotal = s => secCustom(s) ? round2(s.totalOverride) : secItems(s);
 function totals(d) {
   let items = 0;
-  for (const s of d.sections || []) for (const it of s.items || []) items += lineAmount(it);
+  for (const s of d.sections || []) items += secTotal(s);
   items = round2(items);
   const ov = d.subtotalOverride;
   const custom = ov !== "" && ov != null && Number.isFinite(Number(ov));
@@ -372,7 +387,6 @@ function totals(d) {
   const paid = round2(Number(d.amountPaid) || 0);
   return { items, custom, subtotal, disc, taxable, vatRate, vat, total, paid, due: round2(total - paid) };
 }
-const secTotal = s => round2((s.items || []).reduce((a, it) => a + lineAmount(it), 0));
 
 /* ZATCA simplified-invoice QR: TLV (seller, VAT no., timestamp, total incl. VAT, VAT) as base64 */
 function zatcaTLV(seller, vatNo, isoTime, total, vat) {
@@ -533,14 +547,18 @@ function setupNotice() {
 function renderDocs() {
   const all = [...S.docs.values()];
   const t = todayISO(), yr = t.slice(0, 4);
-  let openQ = 0, nOpenQ = 0, awaiting = 0, nAw = 0, overdue = 0, nOv = 0, paid = 0, nPaid = 0;
+  const openQ = {}, awaiting = {}, overdue = {}, paid = {}; let nOpenQ = 0, nAw = 0, nOv = 0, nPaid = 0;
+  const add = (m, c, v) => { m[c] = round2((m[c] || 0) + v); };
   for (const d of all) {
-    const st = statusOf(d), tt = totals(d);
-    if (d.type === "quote" && st === "sent") { openQ += tt.total; nOpenQ++; }
-    if (d.type === "invoice" && st === "sent") { awaiting += tt.due; nAw++; }
-    if (d.type === "invoice" && st === "overdue") { overdue += tt.due; nOv++; }
-    if (d.type === "invoice" && st === "paid" && (d.issueDate || "").startsWith(yr)) { paid += tt.total; nPaid++; }
+    const st = statusOf(d), tt = totals(d), c = curOf(d);
+    if (d.type === "quote" && st === "sent") { add(openQ, c, tt.total); nOpenQ++; }
+    if (d.type === "invoice" && st === "sent") { add(awaiting, c, tt.due); nAw++; }
+    if (d.type === "invoice" && st === "overdue") { add(overdue, c, tt.due); nOv++; }
+    if (d.type === "invoice" && st === "paid" && (d.issueDate || "").startsWith(yr)) { add(paid, c, tt.total); nPaid++; }
   }
+  const dc = defCur();
+  const big = m => money(m[dc] || 0);
+  const others = m => { const o = Object.keys(m).filter(c => c !== dc && m[c]).map(c => fmtCur(m[c], c)); return o.length ? `<small class="num">+ ${o.join(" · ")}</small>` : ""; };
   const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
   const q = UI.q.trim().toLowerCase();
   const rows = all.filter(d => UI.filter === "all" || d.type === UI.filter)
@@ -555,14 +573,14 @@ function renderDocs() {
   else list = `<div class="list">${rows.map(d => `<button class="row" data-open="${esc(d.id)}">
       <span class="r-no">${esc(d.number)}</span>
       <span class="r-main"><b>${esc(d.client?.company || d.client?.contact || "No client yet")}</b><span>${esc(d.event?.name || (d.type === "quote" ? "Quotation" : "Invoice"))}</span></span>
-      <span class="r-date">${esc(fmtDate(d.issueDate))}</span>${pill(statusOf(d))}<span class="r-amt">${sar(totals(d).total)}</span></button>`).join("")}</div>`;
+      <span class="r-date">${esc(fmtDate(d.issueDate))}</span>${pill(statusOf(d))}<span class="r-amt">${fmtCur(totals(d).total, curOf(d))}</span></button>`).join("")}</div>`;
   $("#main").innerHTML = `${setupNotice()}
-    <section class="vhead"><div><p class="label">Quotes & invoices · SAR</p><h1 class="disp">Billing<span style="color:var(--ember)">.</span></h1></div><div class="vhead-act">${newBtns}</div></section>
+    <section class="vhead"><div><p class="label">Quotes & invoices · ${esc(defCur())}</p><h1 class="disp">Billing<span style="color:var(--ember)">.</span></h1></div><div class="vhead-act">${newBtns}</div></section>
     <div class="stats">
-      <div class="stat"><span class="label">Open quotes</span><b>${money(openQ)}</b><small>${plural(nOpenQ, "quote")} sent, incl. VAT</small></div>
-      <div class="stat"><span class="label">Awaiting payment</span><b>${money(awaiting)}</b><small>${plural(nAw, "invoice")} not yet due</small></div>
-      <div class="stat ${nOv ? "alert" : ""}"><span class="label">Overdue</span><b>${money(overdue)}</b><small>${plural(nOv, "invoice")} past due date</small></div>
-      <div class="stat"><span class="label">Paid in ${yr}</span><b>${money(paid)}</b><small>${plural(nPaid, "invoice")} settled</small></div>
+      <div class="stat"><span class="label">Open quotes · ${esc(dc)}</span><b>${big(openQ)}</b><small>${plural(nOpenQ, "quote")} sent, incl. VAT</small>${others(openQ)}</div>
+      <div class="stat"><span class="label">Awaiting payment · ${esc(dc)}</span><b>${big(awaiting)}</b><small>${plural(nAw, "invoice")} not yet due</small>${others(awaiting)}</div>
+      <div class="stat ${nOv ? "alert" : ""}"><span class="label">Overdue · ${esc(dc)}</span><b>${big(overdue)}</b><small>${plural(nOv, "invoice")} past due date</small>${others(overdue)}</div>
+      <div class="stat"><span class="label">Paid in ${yr} · ${esc(dc)}</span><b>${big(paid)}</b><small>${plural(nPaid, "invoice")} settled</small>${others(paid)}</div>
     </div>
     <div class="filters">${chip("all", "All")}${chip("quote", "Quotes")}${chip("invoice", "Invoices")}
       <input id="docSearch" type="search" placeholder="Search client, event or number" value="${esc(UI.q)}" aria-label="Search documents"></div>
@@ -586,7 +604,7 @@ function makeDoc(type) {
     clientId: "", client: { company: "", contact: "", email: "", phone: "", vat: "", cr: "", address: "" },
     event: { name: "", venue: "", dates: "", po: "" }, summary: "",
     sections: [{ id: uid(), title: "Production", items: [blankItem()] }],
-    discount: { type: "pct", value: 0 }, vatRate: Number(s.vatRate) || 15, amountPaid: 0, showRate: true, showAmount: true,
+    discount: { type: "pct", value: 0 }, vatRate: Number(s.vatRate) || 15, amountPaid: 0, showRate: true, showAmount: true, currency: s.currency || "SAR",
     paymentTerms: type === "quote" ? s.quotePaymentTerms : s.invoicePaymentTerms,
     terms: type === "quote" ? s.quoteTerms : s.invoiceTerms, notes: "", fromQuote: "", subtotalOverride: "",
     createdAt: now, updatedAt: now
@@ -631,13 +649,22 @@ function sectionsHtml(d) {
   const ro = rateOptions();
   return d.sections.map((s, si) => `<div class="sec" data-s="${si}">
     <div class="sec-h"><span class="sec-no">${pad(si + 1)}</span><input id="f-sections-${si}-title" data-f="sections.${si}.title" list="secnames" value="${esc(s.title)}" aria-label="Section name">
-      <span class="sec-sub" id="sub-${si}">${money(secTotal(s))}</span>
+      <label class="sec-tot" for="f-sections-${si}-totalOverride"><span>Total ${esc(curOf(d))}</span><input id="f-sections-${si}-totalOverride" data-f="sections.${si}.totalOverride" data-num inputmode="decimal" class="${secCustom(s) ? "custom" : ""}" placeholder="${money(secItems(s))}" value="${secCustom(s) ? qtyFmt(s.totalOverride) : ""}" title="Leave empty to add up the items, or type your own section total"></label>
       <button type="button" class="x" data-act="del-sec" data-s="${si}" aria-label="Remove section">×</button></div>
+    <div class="sec-note" id="secnote-${si}" ${secCustom(s) ? "" : "hidden"}>${secNoteHtml(s, si)}</div>
     <div class="it-head"><span>Item</span><span class="r">Qty</span><span>Unit</span><span class="r">Days</span><span class="r">Rate</span><span class="r">Amount</span><span></span></div>
     ${s.items.map((it, ii) => itemHtml(si, ii, it)).join("")}
     <div class="sec-f"><button type="button" class="btn sm" data-act="add-item" data-s="${si}">Add item</button>
       ${ro ? `<select class="rate-pick" data-s="${si}" aria-label="Add from rate card"><option value="">Add from rate card…</option>${ro}</select>` : ""}</div>
   </div>`).join("");
+}
+function secNoteHtml(s, si) {
+  return `Custom section total. The items add up to ${money(secItems(s))}. <button type="button" data-act="sec-reset" data-s="${si}">Use items total</button>`;
+}
+function refreshSection(si) {
+  const s = E.doc.sections[si]; if (!s) return;
+  const inp = $(`#f-sections-${si}-totalOverride`); if (inp) { inp.placeholder = money(secItems(s)); inp.classList.toggle("custom", secCustom(s)); }
+  const n = $("#secnote-" + si); if (n) { n.hidden = !secCustom(s); n.innerHTML = secNoteHtml(s, si); }
 }
 function tglNote(d) {
   const hidden = d.showRate === false || d.showAmount === false;
@@ -648,8 +675,8 @@ function tglNote(d) {
 function subHintHtml(d) {
   const t = totals(d);
   return t.custom
-    ? `Line items add up to ${money(t.items)}. <button type="button" class="btn sm quiet" data-act="sub-reset" style="padding:0 4px;height:auto;text-decoration:underline">Use line items total</button>`
-    : "Calculated from the line items. Type an amount to set your own.";
+    ? `The sections add up to ${money(t.items)}. <button type="button" class="btn sm quiet" data-act="sub-reset" style="padding:0 4px;height:auto;text-decoration:underline">Use sections total</button>`
+    : "Calculated from the sections. Type an amount to set your own.";
 }
 function refreshTotals() {
   $("#edTotals").innerHTML = edTotalsHtml(E.doc);
@@ -658,12 +685,12 @@ function refreshTotals() {
 }
 function edTotalsHtml(d) {
   const t = totals(d), inv = d.type === "invoice";
-  return `${t.custom ? `<div class="muted"><span>Line items</span><span>${money(t.items)}</span></div>` : ""}
+  return `${t.custom ? `<div class="muted"><span>Sections</span><span>${money(t.items)}</span></div>` : ""}
     <div><span>Subtotal${t.custom ? " (custom)" : ""}</span><span>${money(t.subtotal)}</span></div>
     ${t.disc ? `<div><span>Discount</span><span>− ${money(t.disc)}</span></div>` : ""}
     <div><span>Taxable amount</span><span>${money(t.taxable)}</span></div>
     <div><span>VAT ${qtyFmt(t.vatRate)}%</span><span>${money(t.vat)}</span></div>
-    <div class="grand"><span class="label" style="color:var(--fg)"><i class="dot"></i>Total SAR</span><b>${money(t.total)}</b></div>
+    <div class="grand"><span class="label" style="color:var(--fg)"><i class="dot"></i>Total ${esc(curOf(d))}</span><b>${money(t.total)}</b></div>
     ${inv && t.paid ? `<div><span>Paid</span><span>− ${money(t.paid)}</span></div><div><span><b>Balance due</b></span><b>${money(t.due)}</b></div>` : ""}`;
 }
 function renderEditor() {
@@ -689,7 +716,9 @@ function renderEditor() {
         <section class="card"><div class="card-h"><h2>Details</h2>${d.fromQuote ? `<span class="label">From ${esc(d.fromQuote)}</span>` : ""}</div>
           <div class="grid3">${F("Number", "number", d.number)}${F(inv ? "Invoice date" : "Issue date", "issueDate", d.issueDate, { type: "date" })}
           ${inv ? F("Due date", "dueDate", d.dueDate, { type: "date" }) : F("Valid until", "validUntil", d.validUntil, { type: "date" })}
-          ${inv ? F("Supply date", "supplyDate", d.supplyDate, { type: "date" }) + F("Client PO no.", "event.po", d.event.po) : ""}</div></section>
+          <label class="fld" for="f-currency"><span class="fl">Currency</span><select id="f-currency" data-f="currency">${curOptions(curOf(d))}</select></label>
+          ${inv ? F("Supply date", "supplyDate", d.supplyDate, { type: "date" }) + F("Client PO no.", "event.po", d.event.po) : ""}</div>
+          ${inv && curOf(d) !== "SAR" ? `<p class="cur-note" style="margin:0">Saudi tax invoices must show VAT in SAR. Keep SAR for invoices to Saudi clients.</p>` : ""}</section>
         <section class="card"><div class="card-h"><h2>Client</h2>
           <div style="display:flex;gap:8px;flex-wrap:wrap">${clientOpts ? `<select id="f-client-pick" aria-label="Choose saved client" style="width:auto;height:30px;padding:0 8px;font-size:12.5px"><option value="">Choose saved client…</option>${clientOpts}</select>` : ""}
           <button type="button" class="btn sm" data-act="save-client">${d.clientId ? "Update saved client" : "Save to clients"}</button></div></div>
@@ -701,20 +730,21 @@ function renderEditor() {
           <div class="grid2">${F("Event / project", "event.name", d.event.name, { ph: "e.g. Product launch, Riyadh" })}${F("Venue", "event.venue", d.event.venue)}
           ${F("Event dates", "event.dates", d.event.dates, { ph: "e.g. 14–16 Nov 2026" })}<span></span>
           ${F("Scope summary", "summary", d.summary, { area: true, rows: 3, cls: "span2", ph: "One or two lines on what is included" })}</div></section>
-        <section class="card"><div class="card-h"><h2>Line items</h2><span class="label">Amount = qty × days × rate</span></div>
+        <section class="card"><div class="card-h"><h2>Line items</h2><span class="label">Amount = qty × days × rate · section totals are editable</span></div>
           <div class="tgl"><span class="fl">On the document</span>
             <label for="f-showRate"><input type="checkbox" id="f-showRate" data-f="showRate" ${d.showRate !== false ? "checked" : ""}>Show unit rates</label>
             <label for="f-showAmount"><input type="checkbox" id="f-showAmount" data-f="showAmount" ${d.showAmount !== false ? "checked" : ""}>Show line amounts</label>
+            <label for="f-showSecTotals"><input type="checkbox" id="f-showSecTotals" data-f="showSecTotals" ${showSecTotals(d) ? "checked" : ""}>Show section totals</label>
             <span class="tgl-note" id="tglNote">${tglNote(d)}</span></div>
           <div id="secs" style="display:flex;flex-direction:column;gap:12px">${sectionsHtml(d)}</div>
           <div><button type="button" class="btn sm" data-act="add-sec">Add section</button></div></section>
         <section class="card"><div class="card-h"><h2>Totals</h2></div>
-          <div class="grid2">${F("Subtotal (SAR)", "subtotalOverride", qtyFmt(d.subtotalOverride), { num: true, ph: money(totals(d).items) })}
+          <div class="grid2">${F(`Subtotal (${esc(curOf(d))})`, "subtotalOverride", qtyFmt(d.subtotalOverride), { num: true, ph: money(totals(d).items) })}
             <div class="fld" style="justify-content:flex-end;min-height:100%"><span class="muted" id="subHint" style="font-size:13px">${subHintHtml(d)}</span></div></div>
           <div class="grid3">
-            <label class="fld" for="f-discount-type"><span class="fl">Discount type</span><select id="f-discount-type" data-f="discount.type"><option value="pct" ${d.discount.type !== "amt" ? "selected" : ""}>Percent</option><option value="amt" ${d.discount.type === "amt" ? "selected" : ""}>Amount (SAR)</option></select></label>
+            <label class="fld" for="f-discount-type"><span class="fl">Discount type</span><select id="f-discount-type" data-f="discount.type"><option value="pct" ${d.discount.type !== "amt" ? "selected" : ""}>Percent</option><option value="amt" ${d.discount.type === "amt" ? "selected" : ""}>Amount (${esc(curOf(d))})</option></select></label>
             ${F("Discount", "discount.value", qtyFmt(d.discount.value), { num: true })}${F("VAT %", "vatRate", qtyFmt(d.vatRate), { num: true })}
-            ${inv ? F("Already paid (SAR)", "amountPaid", qtyFmt(d.amountPaid), { num: true }) : ""}</div>
+            ${inv ? F(`Already paid (${esc(curOf(d))})`, "amountPaid", qtyFmt(d.amountPaid), { num: true }) : ""}</div>
           <div class="tot" id="edTotals">${edTotalsHtml(d)}</div></section>
         <section class="card"><div class="card-h"><h2>Terms</h2></div>
           ${F(inv ? "Payment instructions" : "Payment terms", "paymentTerms", d.paymentTerms, { area: true, rows: 3 })}
@@ -742,8 +772,11 @@ function onField(t) {
   if (m) {
     const s = E.doc.sections[+m[1]], it = s.items[+m[2]];
     $("#amt-" + m[1] + "-" + m[2]).textContent = money(lineAmount(it));
-    $("#sub-" + m[1]).textContent = money(secTotal(s));
+    refreshSection(+m[1]);
   }
+  const ms = path.match(/^sections\.(\d+)\.totalOverride$/);
+  if (ms) refreshSection(+ms[1]);
+  if (path === "currency") { touch(); renderEditor(); return; }
   if (/^(sections|discount|vatRate|amountPaid|subtotalOverride)/.test(path)) refreshTotals();
   if (path === "showRate" || path === "showAmount") $("#tglNote").textContent = tglNote(E.doc);
   touch();
@@ -779,7 +812,7 @@ const pvObserver = new ResizeObserver(() => fitPreview());
 const L2 = (en, ar) => `${en}${ar ? `<span class="ar" lang="ar">${ar}</span>` : ""}`;
 function docBlocks(d) {
   const s = S.settings, t = totals(d), inv = d.type === "invoice", taxInv = inv && !!s.vat;
-  const showRate = d.showRate !== false, showAmt = d.showAmount !== false;
+  const showRate = d.showRate !== false, showAmt = d.showAmount !== false, showSec = showSecTotals(d), c$ = esc(curOf(d));
   const B = [];
   const title = inv ? (taxInv ? ["Tax invoice", "فاتورة ضريبية"] : ["Invoice", "فاتورة"]) : ["Quotation", "عرض سعر"];
   B.push({ k: "head", h: `<div class="d-head"><img class="d-logo" src="${LOGO_DOC}" alt="Black Canvas"><div class="d-title"><div class="d-t1 f-disp">${title[0]}</div><div class="d-t2 ar" lang="ar" dir="rtl">${title[1]}</div><div class="d-no">${esc(d.number)}</div></div></div>` });
@@ -807,7 +840,7 @@ function docBlocks(d) {
       <span class="n">${si + 1}.${ii + 1}</span><span class="d"><b>${esc(it.desc)}</b>${it.detail ? `<i>${esc(it.detail)}</i>` : ""}</span>
       <span class="r">${qtyFmt(it.qty)}</span><span>${esc(it.unit)}</span><span class="r">${qtyFmt(itemDays(it))}</span>${showRate ? `<span class="r">${money(it.rate)}</span>` : ""}
       ${inv ? `<span class="r">${qtyFmt(t.vatRate)}%</span>` : ""}${showAmt ? `<span class="r a">${money(lineAmount(it))}</span>` : ""}</div>` }));
-    if (secs.length > 1 && showAmt) B.push({ k: "sub", h: `<div class="d-sub"><span class="lbl">${esc(s2.title || "Section")} subtotal</span><b>${money(secTotal(s2))}</b></div>` });
+    if (showSec && (secs.length > 1 || secCustom(s2))) B.push({ k: "sub", h: `<div class="d-sub"><span class="lbl">${esc(s2.title || "Section")} ${secs.length > 1 ? "subtotal" : "total"}</span><b>${money(secTotal(s2))}</b></div>` });
   });
   if (!secs.length) B.push({ k: "row", h: `<div class="d-row"><span class="lbl">No line items yet</span></div>` });
   B.push({ k: "totals", h: `<div class="d-totals">
@@ -815,8 +848,8 @@ function docBlocks(d) {
     ${t.disc ? `<div><span class="lbl">${L2(d.discount.type === "amt" ? "Discount" : `Discount ${qtyFmt(d.discount.value)}%`, "الخصم")}</span><span class="v">− ${money(t.disc)}</span></div>` : ""}
     <div><span class="lbl">${L2("Taxable amount", "المبلغ الخاضع للضريبة")}</span><span class="v">${money(t.taxable)}</span></div>
     <div><span class="lbl">${L2(`VAT ${qtyFmt(t.vatRate)}%`, "ضريبة القيمة المضافة")}</span><span class="v">${money(t.vat)}</span></div>
-    <div class="grand"><span class="lbl"><i class="sq"></i>${L2("Total SAR", "الإجمالي")}</span><span class="v">${money(t.total)}</span></div>
-    ${inv && t.paid ? `<div><span class="lbl">${L2("Paid", "المدفوع")}</span><span class="v">− ${money(t.paid)}</span></div><div class="due"><span class="lbl">${L2("Balance due SAR", "الرصيد المستحق")}</span><span class="v">${money(t.due)}</span></div>` : ""}
+    <div class="grand"><span class="lbl"><i class="sq"></i>${L2(`Total ${c$}`, "الإجمالي")}</span><span class="v">${money(t.total)}</span></div>
+    ${inv && t.paid ? `<div><span class="lbl">${L2("Paid", "المدفوع")}</span><span class="v">− ${money(t.paid)}</span></div><div class="due"><span class="lbl">${L2(`Balance due ${c$}`, "الرصيد المستحق")}</span><span class="v">${money(t.due)}</span></div>` : ""}
   </div>` });
   if (inv) {
     const bank = [["Bank", s.bankName], ["Account name", s.accountName || s.legalNameEn], ["IBAN", s.iban], ["SWIFT", s.swift]].filter(r => r[1]);
@@ -839,10 +872,12 @@ function docBlocks(d) {
     <div class="d-accept"><div class="lbl">Name &amp; title</div><div class="lbl">Signature &amp; stamp</div><div class="lbl">Date</div></div></div>` });
   return B;
 }
+/* Section totals on the document: on by default; older documents follow "Show line amounts". */
+function showSecTotals(d) { return d.showSecTotals != null ? d.showSecTotals !== false : d.showAmount !== false; }
 function theadHtml(d, cont) {
   const inv = d.type === "invoice";
   const h = (en, ar, r) => `<span class="${r ? "r" : ""}">${en}<i lang="ar">${ar}</i></span>`;
-  return `<div data-k="thead">${cont ? `<div class="d-cont">${esc(d.number)} · continued</div>` : ""}<div class="d-thead d-grid">${h("#", "", 0)}${h("Description", "الوصف", 0)}${h("Qty", "الكمية", 1)}${h("Unit", "الوحدة", 0)}${h("Days", "الأيام", 1)}${d.showRate !== false ? h("Rate", "سعر الوحدة", 1) : ""}${inv ? h("VAT", "الضريبة", 1) : ""}${d.showAmount !== false ? h("Amount", "المبلغ", 1) : ""}</div></div>`;
+  return `<div data-k="thead">${cont ? `<div class="d-cont">${esc(d.number)} · continued</div>` : ""}<div class="d-thead d-grid">${h("#", "", 0)}${h("Description", "الوصف", 0)}${h("Qty", "الكمية", 1)}${h("Unit", "الوحدة", 0)}${h("Days", "الأيام", 1)}${d.showRate !== false ? h(`Rate (${esc(curOf(d))})`, "سعر الوحدة", 1) : ""}${inv ? h("VAT", "الضريبة", 1) : ""}${d.showAmount !== false ? h(`Amount (${esc(curOf(d))})`, "المبلغ", 1) : ""}</div></div>`;
 }
 function footHtml() {
   const s = S.settings;
@@ -951,7 +986,7 @@ function closeModal() { const m = $("#modal"); m.hidden = true; m.innerHTML = ""
 function convertDialog() {
   const d = E.doc; flushSave();
   const adv = [...S.docs.values()].filter(x => x.type === "invoice" && x.fromQuote === d.number && x.kind === "advance" && x.status !== "void");
-  modal(`<h2 class="disp">Make invoice</h2><p>From ${esc(d.number)} · ${sar(totals(d).total)} incl. VAT</p>
+  modal(`<h2 class="disp">Make invoice</h2><p>From ${esc(d.number)} · ${fmtCur(totals(d).total, curOf(d))} incl. VAT</p>
     <label class="opt"><input type="radio" name="cv" value="full" ${adv.length ? "" : "checked"}><div><b>Full invoice</b><span>Copies every line item and the discount.</span></div></label>
     <label class="opt"><input type="radio" name="cv" value="advance"><div><b>Advance invoice</b><span>Invoice <input type="number" id="cvPct" value="50" min="1" max="100" step="1" aria-label="Advance percent">% of the taxable amount.</span></div></label>
     ${adv.length ? `<label class="opt"><input type="radio" name="cv" value="balance" checked><div><b>Balance invoice</b><span>All line items, less ${adv.map(a => esc(a.number)).join(", ")} already invoiced.</span></div></label>` : ""}
@@ -960,7 +995,7 @@ function convertDialog() {
 function convertGo() {
   const q = E.doc, kind = $("input[name=cv]:checked")?.value || "full";
   const inv = makeDoc("invoice"); const t = totals(q);
-  Object.assign(inv, { clientId: q.clientId, client: clone(q.client), event: clone(q.event), summary: q.summary, vatRate: q.vatRate, fromQuote: q.number, kind });
+  Object.assign(inv, { clientId: q.clientId, client: clone(q.client), event: clone(q.event), summary: q.summary, vatRate: q.vatRate, fromQuote: q.number, kind, currency: curOf(q) });
   if (kind === "advance") {
     const pct = Math.min(100, Math.max(1, Number($("#cvPct").value) || 50));
     inv.sections = [{ id: uid(), title: "Advance payment", items: [{ id: uid(), desc: `${qtyFmt(pct)}% advance payment`, detail: `${q.event.name || "Project"} · per quotation ${q.number}`, qty: 1, unit: "lot", days: 1, rate: round2(t.taxable * pct / 100) }] }];
@@ -1035,14 +1070,14 @@ function renderRates() {
     <div class="two"><div>${keys.length ? keys.map(k => `<div class="rgrp"><h3>${esc(k)}</h3>${groups[k].sort((a, b) => (a.desc || "").localeCompare(b.desc || "")).map(r => `<div class="rt" data-id="${esc(r.id)}">
         <div style="display:flex;gap:8px;align-items:center;min-width:0"><input id="rt-${esc(r.id)}-desc" data-rk="desc" value="${esc(r.desc)}" aria-label="Description" ${ro}>${r.example ? '<span class="tag">Example</span>' : ""}</div>
         <input id="rt-${esc(r.id)}-unit" data-rk="unit" list="units" value="${esc(r.unit)}" aria-label="Unit" ${ro}>
-        <input id="rt-${esc(r.id)}-rate" data-rk="rate" data-num inputmode="decimal" value="${qtyFmt(r.rate)}" aria-label="Rate in SAR" ${ro}>
+        <input id="rt-${esc(r.id)}-rate" data-rk="rate" data-num inputmode="decimal" value="${qtyFmt(r.rate)}" aria-label="Rate in ${esc(defCur())}" ${ro}>
         ${S.canWrite ? `<button class="x" data-act="rate-del" data-id="${esc(r.id)}" aria-label="Remove rate">×</button>` : "<span></span>"}</div>`).join("")}</div>`).join("")
       : `<div class="empty" style="padding-top:8px"><p>No rates yet. Add the items you quote often, then pick them straight into any quote.</p></div>`}</div>
     ${S.canWrite ? `<form class="card" id="rateForm" autocomplete="off"><div class="card-h"><h2>Add a rate</h2></div>
       <label class="fld" for="rf-section"><span class="fl">Section</span><input id="rf-section" name="section" list="secnames" required></label>
       <label class="fld" for="rf-desc"><span class="fl">Item</span><input id="rf-desc" name="desc" required placeholder="e.g. Production manager"></label>
       <div class="grid2"><label class="fld" for="rf-unit"><span class="fl">Unit</span><input id="rf-unit" name="unit" list="units" value="day"></label>
-      <label class="fld" for="rf-rate"><span class="fl">Rate (SAR)</span><input id="rf-rate" name="rate" inputmode="decimal" required></label></div>
+      <label class="fld" for="rf-rate"><span class="fl">Rate (${esc(defCur())})</span><input id="rf-rate" name="rate" inputmode="decimal" required></label></div>
       <div><button class="btn ember" type="submit">Add rate</button></div></form>` : ""}</div>
     <datalist id="secnames">${SECTION_NAMES.map(n => `<option value="${esc(n)}">`).join("")}</datalist><datalist id="units">${UNITS.map(n => `<option value="${n}">`).join("")}</datalist>`;
 }
@@ -1070,7 +1105,8 @@ function renderSettings() {
         ${f("bankName", "Bank")}${f("accountName", "Account name")}${f("iban", "IBAN", { ph: "SA…" })}${f("swift", "SWIFT / BIC")}</div></section>
       <section class="card"><div class="card-h"><h2>Numbering & defaults</h2></div><div class="grid3">
         ${f("quotePrefix", "Quote prefix")}${f("invoicePrefix", "Invoice prefix")}${f("vatRate", "VAT %", { num: true })}
-        ${f("validityDays", "Quote valid (days)", { num: true })}${f("dueDays", "Invoice due (days)", { num: true })}</div>
+        ${f("validityDays", "Quote valid (days)", { num: true })}${f("dueDays", "Invoice due (days)", { num: true })}
+        <label class="fld" for="st-currency"><span class="fl">Default currency</span><select id="st-currency" data-sk="currency" ${ro}>${curOptions(defCur())}</select></label></div>
         <p class="muted" style="margin:0;font-size:13px">Numbers run per year, e.g. ${esc(s.quotePrefix)}-${todayISO().slice(0, 4)}-001. Changes apply to new documents.</p></section>
       <section class="card"><div class="card-h"><h2>Default wording</h2><span class="label">Editable on each document</span></div>
         ${f("quotePaymentTerms", "Quote payment terms", { area: true })}${f("quoteTerms", "Quote terms & conditions", { area: true, rows: 4 })}
@@ -1100,6 +1136,7 @@ const ACT = {
   "convert-go": () => convertGo(),
   "del-doc": () => deleteDialog(),
   "delete-go": () => deleteGo(),
+  "sec-reset": t => { const si = +t.dataset.s, sec = E.doc.sections[si]; if (!sec) return; sec.totalOverride = ""; const f = $(`#f-sections-${si}-totalOverride`); if (f) f.value = ""; refreshSection(si); refreshTotals(); touch(); },
   "sub-reset": () => { E.doc.subtotalOverride = ""; const f = $("#f-subtotalOverride"); if (f) f.value = ""; refreshTotals(); touch(); },
   "modal-close": () => closeModal(),
   "modal-bg": (t, e) => { if (e.target === t) closeModal(); },
