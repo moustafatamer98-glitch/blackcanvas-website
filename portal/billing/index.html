@@ -1,0 +1,1151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Black Canvas Billing</title>
+<link rel="icon" href="../../card/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,400..900&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap">
+<style>
+/* Layout: sticky ink bar with the one-line logo; list views in one 1240px column; the editor splits form | live A4 pages (On Light). */
+:root{
+  --bg:#0B0B0C; --surface:#141416; --surface-2:#1D1D21; --line:#2B2B30; --line-strong:#45454B;
+  --fg:#F4F3EF; --muted:#9C9EA3; --ember:#F04E23; --on-ember:#0B0B0C; --ember-text:#F36B45;
+  --good:#5BC994; --warn:#E6B450; --bad:#FF7086; --info:#B8BABD;
+  --display:"Archivo","Arial Narrow",sans-serif; --body:"Archivo",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace; --arabic:"IBM Plex Sans Arabic",Tahoma,sans-serif;
+  /* the printed document is always On Light */
+  --d-ink:#0B0B0C; --d-paper:#F4F3EF; --d-graphite:#3A3A3F; --d-silver:#B8BABD; --d-ember:#F04E23;
+  --d-ember-text:#C23A14; --d-rule:#CFCDC6; --d-soft:#E4E2DC; --d-muted:#5D5E62;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F4F3EF; --surface:#FBFAF8; --surface-2:#EAE8E2; --line:#DAD8D1; --line-strong:#B8BABD;
+    --fg:#0B0B0C; --muted:#5D5E62; --ember-text:#C23A14; --good:#1F8A57; --warn:#8F6200; --bad:#C0263F; --info:#3A3A3F;
+    color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F4F3EF; --surface:#FBFAF8; --surface-2:#EAE8E2; --line:#DAD8D1; --line-strong:#B8BABD;
+  --fg:#0B0B0C; --muted:#5D5E62; --ember-text:#C23A14; --good:#1F8A57; --warn:#8F6200; --bad:#C0263F; --info:#3A3A3F;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:400 14px/1.5 var(--body);overflow-x:clip;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ember-text);outline-offset:2px}
+.mono{font-family:var(--mono)}
+.num{font-variant-numeric:tabular-nums}
+.ar{font-family:var(--arabic);letter-spacing:0;text-transform:none}
+.muted{color:var(--muted)}
+.disp{font-family:var(--display);font-weight:900;font-stretch:62.5%;text-transform:uppercase;line-height:.88;letter-spacing:.005em}
+.outline{color:transparent;-webkit-text-stroke:1.4px var(--fg)}
+.label{font:500 11px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1400px;margin:0 auto;padding-inline:20px;min-height:64px;display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+.brand{background:none;border:0;padding:12px 0;color:var(--fg);display:flex}
+.brand svg{width:240px;height:auto;display:block}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs button{background:none;border:0;padding:8px 12px;font:500 11.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);border-radius:3px;white-space:nowrap}
+.tabs button:hover{color:var(--fg)}
+.tabs button[aria-current="page"]{color:var(--fg);background:var(--surface-2)}
+@media (max-width:700px){.bar-in{gap:0 12px;min-height:0;padding-top:4px}.tabs{order:3;width:calc(100% + 24px);margin-inline:-12px;padding-bottom:6px}.bar-note{display:none}}
+.bar-end{margin-left:auto;display:flex;align-items:center;gap:8px}
+@media (max-width:700px){.brand svg{width:170px}}
+.bar-note{font:500 10.5px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+.wrap{max-width:1400px;margin:0 auto;padding-inline:20px;padding-block:28px 80px}
+.notice{border:1px solid var(--line-strong);background:var(--surface);padding:12px 14px;border-radius:4px;margin-bottom:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.notice p{margin:0;flex:1;min-width:220px}
+
+/* buttons & fields */
+.btn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 16px;border:1px solid var(--line-strong);background:transparent;border-radius:4px;font-weight:600;font-size:13.5px;white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn.ember{background:var(--ember);border-color:var(--ember);color:var(--on-ember)}
+.btn.ember:hover{filter:brightness(1.07)}
+.btn.sm{height:30px;padding:0 10px;font-size:12.5px}
+.btn.quiet{border-color:transparent;color:var(--muted)}
+.btn.quiet:hover{color:var(--fg)}
+.btn.danger:hover{color:var(--bad);border-color:var(--bad)}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.x{width:30px;height:30px;border:0;background:none;color:var(--muted);border-radius:3px;font-size:18px;line-height:1}
+.x:hover{color:var(--bad);background:var(--surface-2)}
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.fl{font:500 10.5px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+input,select,textarea{width:100%;min-width:0;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:8px 10px;font-size:14px}
+textarea{resize:vertical;line-height:1.45}
+input:focus,select:focus,textarea:focus{border-color:var(--line-strong);outline:2px solid color-mix(in srgb,var(--ember-text) 55%,transparent);outline-offset:0}
+input[readonly]{color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.span2{grid-column:span 2}
+@media (max-width:560px){.grid2,.grid3{grid-template-columns:minmax(0,1fr)}.span2{grid-column:auto}}
+
+/* view head */
+.vhead{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:26px}
+.vhead h1{margin:6px 0 0;font-size:clamp(48px,7vw,80px)}
+.vhead-act{display:flex;gap:10px;flex-wrap:wrap}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1.5px solid var(--fg);border-bottom:1px solid var(--line);margin-bottom:22px}
+.stat{padding:14px 16px 16px 0;display:flex;flex-direction:column;gap:6px;min-width:0}
+.stat + .stat{padding-left:16px;border-left:1px solid var(--line)}
+.stat b{font-family:var(--display);font-weight:900;font-stretch:62.5%;font-size:34px;line-height:1;letter-spacing:.01em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.stat small{color:var(--muted);font-size:12.5px}
+.stat.alert b{color:var(--bad)}
+@media (max-width:760px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stat:nth-child(3){padding-left:0;border-left:0}.stat:nth-child(n+3){border-top:1px solid var(--line)}}
+
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:none;border-radius:99px;padding:6px 12px;font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.chip[aria-pressed="true"]{color:var(--fg);border-color:var(--fg)}
+.filters input{max-width:280px;margin-left:auto;height:34px}
+@media (max-width:560px){.filters input{max-width:none;margin-left:0}}
+
+/* document list */
+.list{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.row{display:grid;grid-template-columns:150px minmax(0,1fr) 110px 104px 160px;align-items:center;gap:16px;padding:14px 4px;border:0;border-bottom:1px solid var(--line);background:none;text-align:left;width:100%}
+.row:hover{background:var(--surface)}
+.r-no{font:500 12.5px/1.2 var(--mono);letter-spacing:.04em}
+.r-main{display:flex;flex-direction:column;min-width:0}
+.r-main b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-main span{color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-date{font:400 12.5px var(--mono);color:var(--muted)}
+.r-amt{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+@media (max-width:760px){
+  .row{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"no pill" "main main" "date amt";gap:6px 12px}
+  .r-no{grid-area:no}.r-main{grid-area:main}.r-date{grid-area:date}.pill{grid-area:pill}.r-amt{grid-area:amt}
+}
+.pill{justify-self:start;display:inline-flex;align-items:center;gap:6px;border:1px solid currentColor;border-radius:99px;padding:3px 9px;font:500 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.s-draft{color:var(--muted)} .s-sent{color:var(--info)} .s-accepted,.s-paid{color:var(--good)}
+.s-declined,.s-void{color:var(--muted);text-decoration:line-through} .s-expired{color:var(--warn)}
+.s-overdue{color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.empty{padding:48px 0;display:flex;flex-direction:column;gap:12px;align-items:flex-start;max-width:520px}
+.empty h2{margin:0;font-size:clamp(48px,6vw,64px)}
+.empty p{margin:0;color:var(--muted)}
+
+/* editor */
+.ed-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:16px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.ed-bar h1{margin:0;font-size:34px}
+.ed-bar .sp{flex:1}
+.ed-bar select{width:auto;height:34px;padding:0 8px}
+.save-state{font:500 10.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);min-width:70px}
+.ed-tabs{display:none;gap:4px;margin-bottom:14px}
+.ed-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
+.ed-form{display:flex;flex-direction:column;gap:22px;min-width:0}
+.ed-pv{position:sticky;top:calc(env(safe-area-inset-top,0px) + 84px);max-height:calc(100vh - 104px);overflow:auto;min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:14px}
+.pv-box{position:relative;width:100%;overflow:hidden}
+.pv-scale{width:794px;transform-origin:top left;display:flex;flex-direction:column;gap:14px}
+.pv-scale .pg{box-shadow:0 1px 0 var(--line),0 8px 24px rgba(0,0,0,.18)}
+@media (max-width:1080px){
+  .ed-grid{grid-template-columns:minmax(0,1fr)}
+  .ed-tabs{display:flex}
+  .ed-pv{position:static;max-height:none;padding:10px}
+  .ed[data-tab="edit"] .ed-pv{display:none}
+  .ed[data-tab="pv"] .ed-form{display:none}
+}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.card-h h2{margin:0;font:600 11.5px/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+.sec{border:1px solid var(--line);border-radius:4px;background:var(--bg);padding:12px;display:flex;flex-direction:column;gap:8px}
+.sec-h{display:flex;gap:8px;align-items:center}
+.sec-h .sec-no{font:600 12px var(--mono);color:var(--muted);width:24px}
+.sec-h input{font-weight:600}
+.sec-sub{font:500 12.5px var(--mono);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.it-head,.it{display:grid;grid-template-columns:minmax(0,1fr) 58px 70px 54px 96px 100px 30px;gap:6px;align-items:start}
+.it-head span{font:500 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:2px 2px 0}
+.it-head span.r,.it .amt{text-align:right}
+.it .desc{display:flex;flex-direction:column;gap:4px;min-width:0}
+.it .desc input + input{font-size:12.5px;padding:5px 8px;color:var(--muted)}
+.it input{padding:7px 8px}
+.it input[data-num]{text-align:right;font-variant-numeric:tabular-nums}
+.it .amt{padding-top:8px;font-weight:600;font-variant-numeric:tabular-nums;font-size:13.5px;overflow-wrap:anywhere}
+.sec-f{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sec-f select{width:auto;max-width:100%;height:30px;padding:0 8px;font-size:12.5px}
+@media (max-width:620px){
+  .it-head{display:none}
+  .it{grid-template-columns:repeat(4,minmax(0,1fr)) 30px;grid-template-areas:"d d d d x" "q u dy r r" "a a a a a";padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .it .desc{grid-area:d}.it .q{grid-area:q}.it .u{grid-area:u}.it .dy{grid-area:dy}.it .r{grid-area:r}.it .amt{grid-area:a;padding-top:0}.it .x{grid-area:x}
+}
+.tot{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--line);padding-top:12px}
+.tot div{display:flex;justify-content:space-between;gap:12px;font-variant-numeric:tabular-nums}
+.tot .grand{border-top:1.5px solid var(--fg);padding-top:10px;margin-top:4px;align-items:baseline}
+.tot .grand b{font-family:var(--display);font-weight:900;font-stretch:62.5%;font-size:30px;line-height:1}
+.dot{display:inline-block;width:9px;height:9px;background:var(--ember);margin-right:8px;vertical-align:baseline}
+
+/* clients, rates, settings */
+.two{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:28px;align-items:start}
+@media (max-width:900px){.two{grid-template-columns:minmax(0,1fr)}}
+.cl{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) auto;gap:14px;align-items:center;padding:14px 4px;border-bottom:1px solid var(--line)}
+.cl b{font-weight:600}
+.cl small{color:var(--muted);display:block;font-size:12.5px;overflow-wrap:anywhere}
+@media (max-width:620px){.cl{grid-template-columns:minmax(0,1fr) auto}.cl .c2{display:none}}
+.rgrp{margin-bottom:22px}
+.rgrp h3{margin:0 0 6px;font:600 11.5px/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+.rt{display:grid;grid-template-columns:minmax(0,1fr) 90px 120px 30px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.rt input[data-num]{text-align:right}
+.tag{font:500 9.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--warn);border:1px solid currentColor;border-radius:99px;padding:3px 7px;white-space:nowrap}
+.set-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+@media (max-width:900px){.set-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* modal & toast */
+.modal{position:fixed;inset:0;z-index:50;background:color-mix(in srgb,#0B0B0C 62%,transparent);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-in{background:var(--surface);border:1px solid var(--line-strong);border-radius:6px;max-width:460px;width:100%;padding:22px;display:flex;flex-direction:column;gap:14px}
+.modal-in h2{margin:0;font-size:30px}
+.modal-in p{margin:0;color:var(--muted)}
+.opt{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:4px;padding:12px;cursor:pointer}
+.opt input[type=radio]{width:auto;margin-top:3px;accent-color:var(--ember)}
+.opt b{display:block;font-weight:600}
+.opt span{color:var(--muted);font-size:13px}
+.opt input[type=number]{width:72px;display:inline-block;padding:4px 6px;margin:0 4px}
+.modal-act{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);transform:translateX(-50%);z-index:60;background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:4px;font-weight:500;max-width:calc(100vw - 32px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
+
+/* ======== A4 document (On Light) ======== */
+.pg{width:794px;height:1123px;background:var(--d-paper);color:var(--d-ink);position:relative;padding:50px 56px 0;font:400 12px/1.45 var(--body);overflow:hidden;flex:none}
+.pg-body{height:1003px;overflow:hidden;display:flex;flex-direction:column}
+.pg-foot{position:absolute;left:56px;right:56px;bottom:26px;border-top:1px solid var(--d-rule);padding-top:8px;display:flex;justify-content:space-between;gap:16px;font:400 8.6px/1.3 var(--mono);letter-spacing:.1em;color:var(--d-muted)}
+.pg .f-disp{font-family:var(--display);font-weight:900;font-stretch:62.5%;text-transform:uppercase;line-height:.88;letter-spacing:.005em}
+.pg .lbl{font:500 9.4px/1.35 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--d-muted)}
+.pg .lbl .ar{font-size:10px;font-weight:600;margin-inline-start:4px}
+.pg .ar{font-family:var(--arabic)}
+.d-head{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;padding-bottom:26px}
+.d-logo{width:206px;height:auto;aspect-ratio:1920/684;display:block;object-fit:contain}
+.d-title{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.d-t1{font-size:46px}
+.d-t2{font-size:17px;font-weight:700;line-height:1.2}
+.d-no{font:500 11px/1 var(--mono);letter-spacing:.14em;margin-top:4px}
+.d-meta{display:grid;grid-template-columns:repeat(var(--mc,4),minmax(0,1fr));gap:12px;border-top:1.5px solid var(--d-ink);border-bottom:1px solid var(--d-rule);padding:10px 0 11px}
+.d-meta b{display:block;font-weight:600;font-size:12px;margin-top:3px;overflow-wrap:anywhere}
+.d-meta .lbl .ar{display:block;margin:1px 0 0}
+.d-parties{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:36px;padding:18px 0 16px}
+.d-party .nm{font-weight:700;font-size:14px;margin-top:5px;line-height:1.25}
+.d-party .nm-ar{font-family:var(--arabic);font-weight:600;font-size:12.5px;direction:rtl;text-align:left}
+.d-party p{margin:3px 0 0;font-size:11.2px;color:var(--d-graphite);white-space:pre-line;overflow-wrap:anywhere}
+.d-party .ids{font:400 9.6px/1.5 var(--mono);letter-spacing:.06em;color:var(--d-graphite);margin-top:5px}
+.d-event{padding:4px 0 12px;border-top:1px solid var(--d-rule);padding-top:14px}
+.d-ev-name{font-size:30px;margin-top:6px}
+.d-ev-sum{font-size:11.5px;color:var(--d-graphite);padding-bottom:10px;white-space:pre-line;max-width:600px}
+.d-grid{display:grid;gap:8px;align-items:start}
+.pg .d-grid{grid-template-columns:var(--cols)}
+.tgl{display:flex;gap:8px 18px;flex-wrap:wrap;align-items:center}
+.tgl label{display:inline-flex;gap:8px;align-items:center;font-size:13.5px;cursor:pointer}
+.tgl input{width:16px;height:16px;padding:0;accent-color:var(--ember)}
+.tgl-note{font-size:12.5px;color:var(--warn)}
+.d-thead{border-bottom:1.5px solid var(--d-ink);padding:10px 0 6px;margin-top:4px}
+.d-thead span{font:500 8.8px/1.25 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--d-muted)}
+.d-thead span i{display:block;font-style:normal;font-family:var(--arabic);letter-spacing:0;font-size:9.4px;font-weight:600}
+.d-thead .r,.d-row .r,.d-sub .r{text-align:right}
+.d-cont{font:500 8.8px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--d-muted);padding-top:2px}
+.d-sec{padding:13px 0 5px;font:600 10px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;display:flex;gap:10px}
+.d-sec span{color:var(--d-muted)}
+.d-row{padding:6px 0 7px;border-bottom:1px solid var(--d-soft);font-variant-numeric:tabular-nums}
+.d-row .n{font:400 10px/1.6 var(--mono);color:var(--d-muted)}
+.d-row .d b{font-weight:600;display:block}
+.d-row .d i{font-style:normal;display:block;font-size:10.5px;color:var(--d-muted);margin-top:1px;white-space:pre-line}
+.d-row .a{font-weight:600}
+.d-sub{display:flex;justify-content:flex-end;gap:18px;padding:7px 0 2px;font-variant-numeric:tabular-nums}
+.d-sub .lbl{line-height:1.6}
+.d-sub b{min-width:96px;text-align:right}
+.d-totals{align-self:flex-end;width:340px;padding-top:18px;display:flex;flex-direction:column;gap:5px;font-variant-numeric:tabular-nums}
+.d-totals > div{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.d-totals .v{font-weight:600;font-size:12.5px}
+.d-totals .grand{border-top:1.5px solid var(--d-ink);margin-top:6px;padding-top:10px}
+.d-totals .grand .v{font-family:var(--display);font-weight:900;font-stretch:62.5%;font-size:31px;line-height:.9}
+.d-totals .grand .lbl{color:var(--d-ink)}
+.d-totals .sq{display:inline-block;width:8px;height:8px;background:var(--d-ember);margin-right:7px}
+.d-totals .due .v{color:var(--d-ember-text)}
+.d-block{padding-top:20px}
+.d-block p{margin:5px 0 0;font-size:11px;color:var(--d-graphite);white-space:pre-line;max-width:640px}
+.d-pay{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:28px;align-items:end;padding-top:22px}
+.d-bank{display:grid;grid-template-columns:auto minmax(0,1fr);gap:3px 16px;margin-top:7px;font-size:11px}
+.d-bank dt{font:500 9.2px/1.6 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--d-muted)}
+.d-bank dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+.d-qr{display:flex;flex-direction:column;align-items:center;gap:6px}
+.d-qr img{width:104px;height:104px;display:block;image-rendering:pixelated}
+.d-qr span{font:500 8px/1.2 var(--mono);letter-spacing:.12em;color:var(--d-muted)}
+.d-accept{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:30px}
+.d-accept div{border-top:1px solid var(--d-ink);padding-top:6px}
+.pdf-stage{position:absolute;left:0;top:0;z-index:-10;pointer-events:none;display:flex;flex-direction:column}
+@media (prefers-reduced-motion: no-preference){.row,.btn,.chip{transition:background-color .15s,color .15s,border-color .15s}}
+</style>
+</head>
+<body>
+
+<header class="bar"><div class="bar-in">
+  <button class="brand" data-go="docs" id="brandLogo" aria-label="Black Canvas, all documents"></button>
+  <nav class="tabs" aria-label="Sections">
+    <button data-go="docs">Documents</button><button data-go="clients">Clients</button><button data-go="rates">Rate card</button><button data-go="settings">Settings</button>
+  </nav>
+  <div class="bar-end"><span class="bar-note" id="modeNote"></span><a class="btn sm quiet" href="../">Apps</a><button class="btn sm" id="signOut" type="button">Sign out</button></div>
+</div></header>
+<main class="wrap" id="main">
+  <div class="empty"><p class="label">Loading documents…</p></div>
+</main>
+<div id="modal" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="../vendor/supabase-2.117.3.js"></script>
+<script src="../brand.js"></script>
+<script src="../config.js"></script>
+<script src="../portal.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+"use strict";
+/* ---------- brand artwork (traced from the Black Canvas guideline files) ---------- */
+const LOGO_STACK = window.BC_LOGO.stack;
+const LOGO_LINE = window.BC_LOGO.line;
+const logoSvg = (L, letters, dot) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${L.W} ${L.H}"><path fill="${letters}" fill-rule="evenodd" d="${L.path}"/><rect x="${L.dot[0]}" y="${L.dot[1]}" width="${L.dot[2]}" height="${L.dot[3]}" fill="${dot}"/></svg>`;
+const svgUri = s => "data:image/svg+xml;charset=utf-8," + encodeURIComponent(s);
+/* Draw the logo straight to a PNG: the PDF renderer mis-sizes SVG images and crops them. */
+function logoPng(L, letters, dot, widthPx) {
+  try {
+    const k = widthPx / L.W, c = document.createElement("canvas");
+    c.width = Math.round(L.W * k); c.height = Math.round(L.H * k);
+    const x = c.getContext("2d"); x.scale(k, k);
+    x.fillStyle = letters; x.fill(new Path2D(L.path), "evenodd");
+    x.fillStyle = dot; x.fillRect(L.dot[0], L.dot[1], L.dot[2], L.dot[3]);
+    return c.toDataURL("image/png");
+  } catch (e) { return svgUri(logoSvg(L, letters, dot).replace("<svg ", `<svg width="${L.W}" height="${L.H}" `)); }
+}
+const LOGO_DOC = logoPng(LOGO_STACK, "#0B0B0C", "#F04E23", 1400);
+
+/* ---------- small helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const el = html => { const t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+function round2(n) { n = Number(n) || 0; return Math.sign(n) * Math.round(Math.abs(n) * 100 + 1e-7) / 100; }
+const money = n => round2(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const sar = n => "SAR " + money(n);
+const qtyFmt = n => (n === "" || n == null) ? "" : String(round2(n)).replace(/\.0+$/, "");
+const pad = n => String(n).padStart(2, "0");
+const isoOf = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const todayISO = () => isoOf(new Date());
+const addDays = (iso, n) => { const d = new Date((iso || todayISO()) + "T00:00:00"); d.setDate(d.getDate() + (Number(n) || 0)); return isoOf(d); };
+const fmtDate = iso => iso ? new Date(iso + "T00:00:00").toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "";
+const uid = () => ((crypto.randomUUID && crypto.randomUUID()) || (Date.now().toString(36) + Math.random().toString(36).slice(2))).replace(/[^a-zA-Z0-9-]/g, "").slice(0, 24);
+const clone = o => JSON.parse(JSON.stringify(o));
+
+const SECTION_NAMES = ["Creative & Design", "Production Management", "Staging & Structures", "Rigging", "Lighting", "Audio", "Video & LED", "Power & Distribution", "Set & Scenic", "Special Effects", "Crew & Labour", "Logistics & Transport", "Permits & Licensing", "Talent & Entertainment", "Hospitality"];
+const UNITS = ["pc", "set", "lot", "day", "hr", "sqm", "m", "crew", "trip", "show"];
+
+const DEFAULT_SETTINGS = {
+  legalNameEn: "Black Canvas", legalNameAr: "", vat: "", cr: "", addressEn: "", addressAr: "", phone: "",
+  email: "info@blackcanvasglobal.com", website: "blackcanvasglobal.com",
+  bankName: "", accountName: "", iban: "", swift: "",
+  quotePrefix: "BC-Q", invoicePrefix: "BC-INV", vatRate: 15, validityDays: 14, dueDays: 30,
+  quotePaymentTerms: "50% advance on confirmation. Balance due 7 days before load-in. Prices are in Saudi riyals (SAR) and exclude VAT unless shown.",
+  quoteTerms: "This quotation is valid until the date shown. Scope changes after confirmation are quoted separately. Third-party costs committed on the client's behalf are non-refundable if the event is cancelled. Final crew and equipment lists are confirmed at the production meeting.",
+  invoicePaymentTerms: "Please pay by bank transfer to the account below and use the invoice number as the payment reference.",
+  invoiceTerms: "Payment is due by the date shown. Thank you for working with Black Canvas."
+};
+
+/* ---------- money maths ---------- */
+const itemDays = it => (it.days === "" || it.days == null) ? 1 : (Number(it.days) || 0);
+const lineAmount = it => round2((Number(it.qty) || 0) * itemDays(it) * (Number(it.rate) || 0));
+const hasContent = it => (it.desc && it.desc.trim()) || lineAmount(it) !== 0;
+function totals(d) {
+  let items = 0;
+  for (const s of d.sections || []) for (const it of s.items || []) items += lineAmount(it);
+  items = round2(items);
+  const ov = d.subtotalOverride;
+  const custom = ov !== "" && ov != null && Number.isFinite(Number(ov));
+  const subtotal = custom ? round2(ov) : items;
+  const dv = Number(d.discount?.value) || 0;
+  const disc = d.discount?.type === "amt" ? round2(dv) : round2(subtotal * dv / 100);
+  const taxable = round2(subtotal - disc);
+  const vatRate = d.vatRate === "" || d.vatRate == null ? 15 : Number(d.vatRate) || 0;
+  const vat = round2(taxable * vatRate / 100);
+  const total = round2(taxable + vat);
+  const paid = round2(Number(d.amountPaid) || 0);
+  return { items, custom, subtotal, disc, taxable, vatRate, vat, total, paid, due: round2(total - paid) };
+}
+const secTotal = s => round2((s.items || []).reduce((a, it) => a + lineAmount(it), 0));
+
+/* ZATCA simplified-invoice QR: TLV (seller, VAT no., timestamp, total incl. VAT, VAT) as base64 */
+function zatcaTLV(seller, vatNo, isoTime, total, vat) {
+  const enc = new TextEncoder(); const bytes = [];
+  [seller, vatNo, isoTime, Number(total).toFixed(2), Number(vat).toFixed(2)].forEach((v, i) => {
+    const b = enc.encode(String(v)); bytes.push(i + 1, Math.min(b.length, 255), ...b.slice(0, 255));
+  });
+  let s = ""; bytes.forEach(x => s += String.fromCharCode(x)); return btoa(s);
+}
+function qrUri(text) {
+  if (typeof qrcode !== "function") return "";
+  const qr = qrcode(0, "M"); qr.addData(text); qr.make();
+  const n = qr.getModuleCount(), m = 12, size = (n + 4) * m;
+  const c = document.createElement("canvas"); c.width = c.height = size;
+  const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, size, size); x.fillStyle = "#0B0B0C";
+  for (let r = 0; r < n; r++) for (let col = 0; col < n; col++) if (qr.isDark(r, col)) x.fillRect((col + 2) * m, (r + 2) * m, m, m);
+  return c.toDataURL("image/png");
+}
+
+/* ---------- store: Supabase table "records" (coll, id, data) ---------- */
+const S = { mode: "loading", sb: null, user: null, canWrite: true, docs: new Map(), clients: new Map(), rates: new Map(), settings: { ...DEFAULT_SETTINGS }, settingsExists: false, loaded: new Set() };
+const strip = o => { const c = clone(o); delete c.id; return c; };
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function applyRow(coll, id, data) {
+  if (coll === "settings") {
+    if (id !== "company") return;
+    S.settingsExists = !!data;
+    if (!SET.dirty) S.settings = { ...DEFAULT_SETTINGS, ...(data || {}) };
+    return;
+  }
+  if (!S[coll] || !(S[coll] instanceof Map)) return;
+  if (data) S[coll].set(id, { ...data, id }); else S[coll].delete(id);
+}
+const transient = e => !e?.code || /^(5|08|PGRST00)/.test(e.code) || /fetch|network|timeout/i.test(e.message || "");
+const writeQ = new Map();
+async function put(coll, id, data) {
+  if (!S.canWrite) return;
+  if (coll === "settings") S.settingsExists = true;
+  const key = coll + "/" + id;
+  let q = writeQ.get(key); if (!q) { q = { busy: false, next: null }; writeQ.set(key, q); }
+  q.next = strip(data);
+  if (q.busy) return;
+  q.busy = true; setSave("Saving…");
+  while (q.next) {
+    const body = q.next; q.next = null;
+    const send = () => S.sb.from("records").upsert({ coll, id, data: body }, { onConflict: "coll,id" });
+    let { error } = await send();
+    if (error && transient(error)) { await sleep(700 + Math.random() * 1200); ({ error } = await send()); }
+    if (error) { q.busy = false; q.next = null; dbErr(error); return; }
+  }
+  q.busy = false; setSave("Saved");
+}
+async function remove(coll, id) {
+  if (!S.canWrite) return;
+  const { error } = await S.sb.from("records").delete().match({ coll, id });
+  if (error) dbErr(error);
+}
+function dbErr(e) {
+  setSave("Not saved");
+  const c = e?.code || "", m = e?.message || "";
+  if (c === "42501" || /row-level security/i.test(m)) { S.canWrite = false; toast("Your account isn't on the Black Canvas team list, so changes can't be saved. Ask an admin to add you."); render(); }
+  else if (c === "PGRST301" || c === "PGRST303" || /jwt/i.test(m)) { toast("Your sign-in has expired. Taking you to sign in…"); setTimeout(() => location.replace("../?next=billing"), 1600); }
+  else toast("Couldn't save just now. Check your connection; your next change will try again.");
+}
+function setupMissing() {
+  $("#main").innerHTML = `<div class="empty"><h2 class="disp">Not connected</h2><p>The portal isn't connected to its database yet. Add the Supabase project URL and key to <code>portal/config.js</code>.</p></div>`;
+}
+async function initStore() {
+  const sb = window.BCPortal && BCPortal.client();
+  if (!sb) { setupMissing(); return; }
+  S.sb = sb;
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.replace("../?next=billing"); return; }
+  S.user = session.user;
+  sb.auth.onAuthStateChange((ev, ses) => { if (ev === "SIGNED_OUT" || (!ses && ev !== "INITIAL_SESSION")) location.replace("../"); });
+  try { const { data: member } = await sb.rpc("is_portal_member"); if (member === false) S.canWrite = false; } catch (e) { /* the save itself will decide */ }
+  S.mode = "db"; render();
+  let loading = true; const pending = [];
+  sb.channel("records-billing")
+    .on("postgres_changes", { event: "*", schema: "public", table: "records" }, p => {
+      const del = p.eventType === "DELETE", row = del ? p.old : p.new;
+      if (!row || !row.coll) return;
+      const ch = [row.coll, row.id, del ? null : row.data];
+      if (loading) { pending.push(ch); return; }
+      applyRow(...ch); onData(row.coll === "settings" ? "settings" : row.coll);
+    })
+    .subscribe();
+  const rows = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await sb.from("records").select("coll,id,data").order("coll").order("id").range(from, from + 999);
+    if (error) { toast("Couldn't load your documents. Reload the page to try again."); if (/jwt/i.test(error.message || "")) location.replace("../?next=billing"); return; }
+    rows.push(...data);
+    if (data.length < 1000) break;
+  }
+  rows.forEach(r => applyRow(r.coll, r.id, r.data));
+  loading = false; pending.forEach(ch => applyRow(...ch));
+  ["docs", "clients", "rates", "settings"].forEach(k => S.loaded.add(k));
+  render();
+}
+
+/* ---------- UI state ---------- */
+const UI = { view: "docs", filter: "all", q: "", clientEdit: null };
+const E = { doc: null, dirty: false, timer: 0, tab: "edit" };
+const SET = { dirty: false, timer: 0 };
+let saveText = "";
+function setSave(t) { saveText = t; const n = $("#saveState"); if (n) n.textContent = t; }
+let toastT = 0;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 3800); }
+
+function onData(coll) {
+  if (UI.view === "edit") {
+    if (coll === "docs" && E.doc && !E.dirty) {
+      const remote = S.docs.get(E.doc.id);
+      if (remote && remote.updatedAt && remote.updatedAt !== E.doc.updatedAt && !writeQ.get("docs/" + E.doc.id)?.busy) { E.doc = clone(remote); renderEditor(); }
+    }
+    if (coll === "settings" || coll === "clients" || coll === "rates") schedulePreview();
+    return;
+  }
+  if (UI.view === "settings" && coll === "settings" && (SET.dirty || document.activeElement?.matches("[data-sk]"))) return;
+  if (UI.view === "clients" && document.activeElement?.closest("#clientForm")) return;
+  if (UI.view === "rates" && coll === "rates" && document.activeElement?.closest(".rt")) return;
+  render();
+}
+function go(view) {
+  if (UI.view === "edit") flushSave();
+  UI.view = view; UI.clientEdit = null; render(); window.scrollTo(0, 0);
+}
+function render() {
+  $$(".tabs button").forEach(b => b.setAttribute("aria-current", b.dataset.go === UI.view ? "page" : "false"));
+  $("#modeNote").textContent = S.user ? (S.user.email || "") + (S.canWrite ? "" : " · view only") : "";
+  if (S.mode === "loading") return;
+  const searching = document.activeElement?.id === "docSearch";
+  ({ docs: renderDocs, clients: renderClients, rates: renderRates, settings: renderSettings, edit: renderEditor })[UI.view]();
+  if (searching && UI.view === "docs") { const n = $("#docSearch"); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }
+}
+
+/* ---------- status ---------- */
+const QUOTE_STATUSES = ["draft", "sent", "accepted", "declined"];
+const INV_STATUSES = ["draft", "sent", "paid", "void"];
+function statusOf(d) {
+  const t = todayISO();
+  if (d.type === "quote") return (d.status === "sent" && d.validUntil && d.validUntil < t) ? "expired" : (d.status || "draft");
+  return (d.status === "sent" && d.dueDate && d.dueDate < t) ? "overdue" : (d.status || "draft");
+}
+const pill = st => `<span class="pill s-${st}">${st}</span>`;
+
+/* ---------- documents view ---------- */
+function setupNotice() {
+  const s = S.settings; const miss = [];
+  if (!s.vat) miss.push("VAT number"); if (!s.cr) miss.push("CR number"); if (!s.iban) miss.push("IBAN");
+  if (!miss.length) return "";
+  return `<div class="notice"><p>Add your ${miss.join(", ").replace(/, ([^,]*)$/, " and $1")} in Settings so they print on quotes and tax invoices.</p><button class="btn sm" data-go="settings">Open settings</button></div>`;
+}
+function renderDocs() {
+  const all = [...S.docs.values()];
+  const t = todayISO(), yr = t.slice(0, 4);
+  let openQ = 0, nOpenQ = 0, awaiting = 0, nAw = 0, overdue = 0, nOv = 0, paid = 0, nPaid = 0;
+  for (const d of all) {
+    const st = statusOf(d), tt = totals(d);
+    if (d.type === "quote" && st === "sent") { openQ += tt.total; nOpenQ++; }
+    if (d.type === "invoice" && st === "sent") { awaiting += tt.due; nAw++; }
+    if (d.type === "invoice" && st === "overdue") { overdue += tt.due; nOv++; }
+    if (d.type === "invoice" && st === "paid" && (d.issueDate || "").startsWith(yr)) { paid += tt.total; nPaid++; }
+  }
+  const plural = (n, w) => `${n} ${w}${n === 1 ? "" : "s"}`;
+  const q = UI.q.trim().toLowerCase();
+  const rows = all.filter(d => UI.filter === "all" || d.type === UI.filter)
+    .filter(d => !q || [d.number, d.client?.company, d.client?.contact, d.event?.name, d.event?.venue].join(" ").toLowerCase().includes(q))
+    .sort((a, b) => (b.issueDate || "").localeCompare(a.issueDate || "") || (b.number || "").localeCompare(a.number || ""));
+  const chip = (v, l) => `<button class="chip" data-act="filter" data-v="${v}" aria-pressed="${UI.filter === v}">${l}</button>`;
+  const newBtns = S.canWrite ? `<button class="btn" data-new="invoice">New invoice</button><button class="btn ember" data-new="quote">New quote</button>` : "";
+  let list;
+  if (!S.loaded.has("docs")) list = `<div class="empty"><p class="label">Loading documents…</p></div>`;
+  else if (!all.length) list = `<div class="empty"><h2 class="disp">Every project starts <span class="outline">empty</span></h2><p>Your quotes and invoices will be listed here. Start a quote for your next event; you can turn it into an invoice once the client confirms.</p>${newBtns ? `<div class="vhead-act">${newBtns}</div>` : ""}</div>`;
+  else if (!rows.length) list = `<div class="empty"><p>Nothing matches “${esc(UI.q)}”.</p></div>`;
+  else list = `<div class="list">${rows.map(d => `<button class="row" data-open="${esc(d.id)}">
+      <span class="r-no">${esc(d.number)}</span>
+      <span class="r-main"><b>${esc(d.client?.company || d.client?.contact || "No client yet")}</b><span>${esc(d.event?.name || (d.type === "quote" ? "Quotation" : "Invoice"))}</span></span>
+      <span class="r-date">${esc(fmtDate(d.issueDate))}</span>${pill(statusOf(d))}<span class="r-amt">${sar(totals(d).total)}</span></button>`).join("")}</div>`;
+  $("#main").innerHTML = `${setupNotice()}
+    <section class="vhead"><div><p class="label">Quotes & invoices · SAR</p><h1 class="disp">Billing<span style="color:var(--ember)">.</span></h1></div><div class="vhead-act">${newBtns}</div></section>
+    <div class="stats">
+      <div class="stat"><span class="label">Open quotes</span><b>${money(openQ)}</b><small>${plural(nOpenQ, "quote")} sent, incl. VAT</small></div>
+      <div class="stat"><span class="label">Awaiting payment</span><b>${money(awaiting)}</b><small>${plural(nAw, "invoice")} not yet due</small></div>
+      <div class="stat ${nOv ? "alert" : ""}"><span class="label">Overdue</span><b>${money(overdue)}</b><small>${plural(nOv, "invoice")} past due date</small></div>
+      <div class="stat"><span class="label">Paid in ${yr}</span><b>${money(paid)}</b><small>${plural(nPaid, "invoice")} settled</small></div>
+    </div>
+    <div class="filters">${chip("all", "All")}${chip("quote", "Quotes")}${chip("invoice", "Invoices")}
+      <input id="docSearch" type="search" placeholder="Search client, event or number" value="${esc(UI.q)}" aria-label="Search documents"></div>
+    ${list}`;
+}
+
+/* ---------- new / open / duplicate ---------- */
+function nextNumber(type) {
+  const s = S.settings; const pre = (type === "quote" ? s.quotePrefix : s.invoicePrefix) || (type === "quote" ? "Q" : "INV");
+  const base = `${pre}-${todayISO().slice(0, 4)}-`; let max = 0;
+  for (const d of S.docs.values()) if ((d.number || "").startsWith(base)) { const n = parseInt(d.number.slice(base.length), 10); if (n > max) max = n; }
+  return base + String(max + 1).padStart(3, "0");
+}
+const blankItem = () => ({ id: uid(), desc: "", detail: "", qty: 1, unit: "pc", days: 1, rate: 0 });
+function makeDoc(type) {
+  const s = S.settings, t = todayISO(), now = new Date().toISOString();
+  return {
+    id: uid(), type, number: nextNumber(type), status: "draft", kind: type === "invoice" ? "full" : "",
+    issueDate: t, validUntil: type === "quote" ? addDays(t, s.validityDays) : "", dueDate: type === "invoice" ? addDays(t, s.dueDays) : "",
+    supplyDate: type === "invoice" ? t : "", issueTime: new Date().toTimeString().slice(0, 5),
+    clientId: "", client: { company: "", contact: "", email: "", phone: "", vat: "", cr: "", address: "" },
+    event: { name: "", venue: "", dates: "", po: "" }, summary: "",
+    sections: [{ id: uid(), title: "Production", items: [blankItem()] }],
+    discount: { type: "pct", value: 0 }, vatRate: Number(s.vatRate) || 15, amountPaid: 0, showRate: true, showAmount: true,
+    paymentTerms: type === "quote" ? s.quotePaymentTerms : s.invoicePaymentTerms,
+    terms: type === "quote" ? s.quoteTerms : s.invoiceTerms, notes: "", fromQuote: "", subtotalOverride: "",
+    createdAt: now, updatedAt: now
+  };
+}
+function newDoc(type) {
+  if (!S.canWrite) return;
+  if (UI.view === "edit") flushSave();
+  const d = makeDoc(type); E.doc = d; E.dirty = false; E.tab = "edit";
+  UI.view = "edit"; render(); window.scrollTo(0, 0); saveDoc();
+}
+function openDoc(id) {
+  const d = S.docs.get(id); if (!d) return;
+  E.doc = clone(d); E.dirty = false; E.tab = "edit"; UI.view = "edit"; render(); window.scrollTo(0, 0);
+}
+
+/* ---------- editor ---------- */
+const F = (label, path, val, o = {}) => {
+  const id = "f-" + path.replace(/\./g, "-");
+  const common = `id="${id}" data-f="${path}" ${o.num ? "data-num" : ""} ${o.ph ? `placeholder="${esc(o.ph)}"` : ""}`;
+  const ctl = o.area ? `<textarea ${common} rows="${o.rows || 3}">${esc(val)}</textarea>`
+    : `<input ${common} type="${o.type || "text"}" ${o.num ? 'inputmode="decimal"' : ""} ${o.list ? `list="${o.list}"` : ""} ${o.ro ? "readonly" : ""} value="${esc(val)}">`;
+  return `<label class="fld ${o.cls || ""}" for="${id}"><span class="fl">${label}</span>${ctl}</label>`;
+};
+function itemHtml(si, ii, it) {
+  const p = `sections.${si}.items.${ii}`;
+  const inp = (k, cls, extra = "") => `<input class="${cls}" id="f-${p.replace(/\./g, "-")}-${k}" data-f="${p}.${k}" ${extra} value="${esc(k === "qty" || k === "days" || k === "rate" ? qtyFmt(it[k]) : it[k])}" aria-label="${k}">`;
+  return `<div class="it" data-s="${si}" data-i="${ii}">
+    <div class="desc">${inp("desc", "", 'placeholder="Item, e.g. Moving head spot fixtures"')}${inp("detail", "", 'placeholder="Detail (optional)"')}</div>
+    ${inp("qty", "q", 'data-num inputmode="decimal"')}${inp("unit", "u", 'list="units"')}${inp("days", "dy", 'data-num inputmode="decimal"')}${inp("rate", "r", 'data-num inputmode="decimal"')}
+    <div class="amt" id="amt-${si}-${ii}">${money(lineAmount(it))}</div>
+    <button type="button" class="x" data-act="del-item" data-s="${si}" data-i="${ii}" aria-label="Remove item">×</button></div>`;
+}
+function rateOptions() {
+  const groups = {};
+  for (const r of S.rates.values()) (groups[r.section || "Other"] ||= []).push(r);
+  const keys = Object.keys(groups).sort();
+  if (!keys.length) return "";
+  return keys.map(k => `<optgroup label="${esc(k)}">${groups[k].sort((a, b) => (a.desc || "").localeCompare(b.desc || "")).map(r => `<option value="${esc(r.id)}">${esc(r.desc)} · ${money(r.rate)} / ${esc(r.unit || "pc")}</option>`).join("")}</optgroup>`).join("");
+}
+function sectionsHtml(d) {
+  const ro = rateOptions();
+  return d.sections.map((s, si) => `<div class="sec" data-s="${si}">
+    <div class="sec-h"><span class="sec-no">${pad(si + 1)}</span><input id="f-sections-${si}-title" data-f="sections.${si}.title" list="secnames" value="${esc(s.title)}" aria-label="Section name">
+      <span class="sec-sub" id="sub-${si}">${money(secTotal(s))}</span>
+      <button type="button" class="x" data-act="del-sec" data-s="${si}" aria-label="Remove section">×</button></div>
+    <div class="it-head"><span>Item</span><span class="r">Qty</span><span>Unit</span><span class="r">Days</span><span class="r">Rate</span><span class="r">Amount</span><span></span></div>
+    ${s.items.map((it, ii) => itemHtml(si, ii, it)).join("")}
+    <div class="sec-f"><button type="button" class="btn sm" data-act="add-item" data-s="${si}">Add item</button>
+      ${ro ? `<select class="rate-pick" data-s="${si}" aria-label="Add from rate card"><option value="">Add from rate card…</option>${ro}</select>` : ""}</div>
+  </div>`).join("");
+}
+function tglNote(d) {
+  const hidden = d.showRate === false || d.showAmount === false;
+  if (!hidden) return "";
+  if (d.type === "invoice") return "Tax invoices in KSA normally need unit prices and line amounts.";
+  return d.showRate === false && d.showAmount === false ? "Only the totals show prices." : "";
+}
+function subHintHtml(d) {
+  const t = totals(d);
+  return t.custom
+    ? `Line items add up to ${money(t.items)}. <button type="button" class="btn sm quiet" data-act="sub-reset" style="padding:0 4px;height:auto;text-decoration:underline">Use line items total</button>`
+    : "Calculated from the line items. Type an amount to set your own.";
+}
+function refreshTotals() {
+  $("#edTotals").innerHTML = edTotalsHtml(E.doc);
+  const h = $("#subHint"); if (h) h.innerHTML = subHintHtml(E.doc);
+  const f = $("#f-subtotalOverride"); if (f) f.placeholder = money(totals(E.doc).items);
+}
+function edTotalsHtml(d) {
+  const t = totals(d), inv = d.type === "invoice";
+  return `${t.custom ? `<div class="muted"><span>Line items</span><span>${money(t.items)}</span></div>` : ""}
+    <div><span>Subtotal${t.custom ? " (custom)" : ""}</span><span>${money(t.subtotal)}</span></div>
+    ${t.disc ? `<div><span>Discount</span><span>− ${money(t.disc)}</span></div>` : ""}
+    <div><span>Taxable amount</span><span>${money(t.taxable)}</span></div>
+    <div><span>VAT ${qtyFmt(t.vatRate)}%</span><span>${money(t.vat)}</span></div>
+    <div class="grand"><span class="label" style="color:var(--fg)"><i class="dot"></i>Total SAR</span><b>${money(t.total)}</b></div>
+    ${inv && t.paid ? `<div><span>Paid</span><span>− ${money(t.paid)}</span></div><div><span><b>Balance due</b></span><b>${money(t.due)}</b></div>` : ""}`;
+}
+function renderEditor() {
+  const d = E.doc; if (!d) return go("docs");
+  const inv = d.type === "invoice";
+  const statuses = inv ? INV_STATUSES : QUOTE_STATUSES;
+  const clientOpts = [...S.clients.values()].sort((a, b) => (a.company || "").localeCompare(b.company || "")).map(c => `<option value="${esc(c.id)}" ${c.id === d.clientId ? "selected" : ""}>${esc(c.company || c.contact)}</option>`).join("");
+  const ro = !S.canWrite;
+  $("#main").innerHTML = `<div class="ed" data-tab="${E.tab}">
+    <div class="ed-bar">
+      <button class="btn sm quiet" data-go="docs">← Documents</button>
+      <h1 class="disp">${inv ? "Invoice" : "Quote"} <span class="muted">${esc(d.number)}</span></h1>
+      <span class="sp"></span>
+      <select id="f-status" data-f="status" aria-label="Status" ${ro ? "disabled" : ""}>${statuses.map(s => `<option value="${s}" ${d.status === s ? "selected" : ""}>${s[0].toUpperCase() + s.slice(1)}</option>`).join("")}</select>
+      <span class="save-state" id="saveState">${esc(saveText)}</span>
+      ${!inv && !ro ? `<button class="btn sm" data-act="convert">Make invoice</button>` : ""}
+      ${!ro ? `<button class="btn sm" data-act="dup">Duplicate</button><button class="btn sm danger" data-act="del-doc">Delete</button>` : ""}
+      <button class="btn sm ember" data-act="pdf" id="pdfBtn">Download PDF</button>
+    </div>
+    <div class="ed-tabs"><button class="chip" data-act="tab" data-v="edit" aria-pressed="${E.tab === "edit"}">Edit</button><button class="chip" data-act="tab" data-v="pv" aria-pressed="${E.tab === "pv"}">Preview</button></div>
+    <div class="ed-grid">
+      <form class="ed-form" id="edForm" autocomplete="off"><fieldset ${ro ? "disabled" : ""} style="display:flex;flex-direction:column;gap:22px">
+        <section class="card"><div class="card-h"><h2>Details</h2>${d.fromQuote ? `<span class="label">From ${esc(d.fromQuote)}</span>` : ""}</div>
+          <div class="grid3">${F("Number", "number", d.number)}${F(inv ? "Invoice date" : "Issue date", "issueDate", d.issueDate, { type: "date" })}
+          ${inv ? F("Due date", "dueDate", d.dueDate, { type: "date" }) : F("Valid until", "validUntil", d.validUntil, { type: "date" })}
+          ${inv ? F("Supply date", "supplyDate", d.supplyDate, { type: "date" }) + F("Client PO no.", "event.po", d.event.po) : ""}</div></section>
+        <section class="card"><div class="card-h"><h2>Client</h2>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">${clientOpts ? `<select id="f-client-pick" aria-label="Choose saved client" style="width:auto;height:30px;padding:0 8px;font-size:12.5px"><option value="">Choose saved client…</option>${clientOpts}</select>` : ""}
+          <button type="button" class="btn sm" data-act="save-client">${d.clientId ? "Update saved client" : "Save to clients"}</button></div></div>
+          <div class="grid2">${F("Company", "client.company", d.client.company, { ph: "Client company" })}${F("Contact person", "client.contact", d.client.contact)}
+          ${F("Email", "client.email", d.client.email, { type: "email" })}${F("Phone", "client.phone", d.client.phone, { type: "tel" })}
+          ${F("Client VAT no.", "client.vat", d.client.vat, { ph: "15 digits, for B2B tax invoices" })}${F("Client CR no.", "client.cr", d.client.cr)}
+          ${F("Address", "client.address", d.client.address, { area: true, rows: 2, cls: "span2" })}</div></section>
+        <section class="card"><div class="card-h"><h2>Event</h2></div>
+          <div class="grid2">${F("Event / project", "event.name", d.event.name, { ph: "e.g. Product launch, Riyadh" })}${F("Venue", "event.venue", d.event.venue)}
+          ${F("Event dates", "event.dates", d.event.dates, { ph: "e.g. 14–16 Nov 2026" })}<span></span>
+          ${F("Scope summary", "summary", d.summary, { area: true, rows: 3, cls: "span2", ph: "One or two lines on what is included" })}</div></section>
+        <section class="card"><div class="card-h"><h2>Line items</h2><span class="label">Amount = qty × days × rate</span></div>
+          <div class="tgl"><span class="fl">On the document</span>
+            <label for="f-showRate"><input type="checkbox" id="f-showRate" data-f="showRate" ${d.showRate !== false ? "checked" : ""}>Show unit rates</label>
+            <label for="f-showAmount"><input type="checkbox" id="f-showAmount" data-f="showAmount" ${d.showAmount !== false ? "checked" : ""}>Show line amounts</label>
+            <span class="tgl-note" id="tglNote">${tglNote(d)}</span></div>
+          <div id="secs" style="display:flex;flex-direction:column;gap:12px">${sectionsHtml(d)}</div>
+          <div><button type="button" class="btn sm" data-act="add-sec">Add section</button></div></section>
+        <section class="card"><div class="card-h"><h2>Totals</h2></div>
+          <div class="grid2">${F("Subtotal (SAR)", "subtotalOverride", qtyFmt(d.subtotalOverride), { num: true, ph: money(totals(d).items) })}
+            <div class="fld" style="justify-content:flex-end;min-height:100%"><span class="muted" id="subHint" style="font-size:13px">${subHintHtml(d)}</span></div></div>
+          <div class="grid3">
+            <label class="fld" for="f-discount-type"><span class="fl">Discount type</span><select id="f-discount-type" data-f="discount.type"><option value="pct" ${d.discount.type !== "amt" ? "selected" : ""}>Percent</option><option value="amt" ${d.discount.type === "amt" ? "selected" : ""}>Amount (SAR)</option></select></label>
+            ${F("Discount", "discount.value", qtyFmt(d.discount.value), { num: true })}${F("VAT %", "vatRate", qtyFmt(d.vatRate), { num: true })}
+            ${inv ? F("Already paid (SAR)", "amountPaid", qtyFmt(d.amountPaid), { num: true }) : ""}</div>
+          <div class="tot" id="edTotals">${edTotalsHtml(d)}</div></section>
+        <section class="card"><div class="card-h"><h2>Terms</h2></div>
+          ${F(inv ? "Payment instructions" : "Payment terms", "paymentTerms", d.paymentTerms, { area: true, rows: 3 })}
+          ${F("Terms & conditions", "terms", d.terms, { area: true, rows: 4 })}${F("Notes", "notes", d.notes, { area: true, rows: 2, ph: "Printed at the end. Leave empty to skip." })}</section>
+      </fieldset></form>
+      <aside class="ed-pv" id="pvPane" aria-label="Document preview"><div class="pv-box" id="pvBox"><div class="pv-scale" id="pvScale"></div></div></aside>
+    </div></div>
+    <datalist id="secnames">${SECTION_NAMES.map(n => `<option value="${esc(n)}">`).join("")}</datalist>
+    <datalist id="units">${UNITS.map(n => `<option value="${n}">`).join("")}</datalist>`;
+  renderPreview();
+  pvObserver.disconnect(); pvObserver.observe($("#pvPane"));
+}
+function setPath(obj, path, val) {
+  const ks = path.split("."); let o = obj;
+  for (let i = 0; i < ks.length - 1; i++) o = o[/^\d+$/.test(ks[i]) ? +ks[i] : ks[i]];
+  o[ks[ks.length - 1]] = val;
+}
+function onField(t) {
+  if (!E.doc || !S.canWrite) return;
+  const path = t.dataset.f;
+  let v = t.type === "checkbox" ? t.checked : t.value;
+  if (t.hasAttribute("data-num")) { v = v.trim() === "" ? "" : Number(v.replace(/,/g, "")); if (Number.isNaN(v)) return; }
+  setPath(E.doc, path, v);
+  const m = path.match(/^sections\.(\d+)\.items\.(\d+)\.(qty|days|rate)$/);
+  if (m) {
+    const s = E.doc.sections[+m[1]], it = s.items[+m[2]];
+    $("#amt-" + m[1] + "-" + m[2]).textContent = money(lineAmount(it));
+    $("#sub-" + m[1]).textContent = money(secTotal(s));
+  }
+  if (/^(sections|discount|vatRate|amountPaid|subtotalOverride)/.test(path)) refreshTotals();
+  if (path === "showRate" || path === "showAmount") $("#tglNote").textContent = tglNote(E.doc);
+  touch();
+}
+function touch() { E.dirty = true; setSave("Editing"); schedulePreview(); clearTimeout(E.timer); E.timer = setTimeout(saveDoc, 900); }
+function saveDoc() {
+  clearTimeout(E.timer);
+  if (!E.doc || !S.canWrite) return;
+  E.doc.updatedAt = new Date().toISOString();
+  E.doc.total = totals(E.doc).total;
+  S.docs.set(E.doc.id, clone(E.doc));
+  E.dirty = false;
+  put("docs", E.doc.id, E.doc);
+}
+function flushSave() { if (E.dirty) saveDoc(); }
+
+let pvRaf = 0;
+function schedulePreview() { cancelAnimationFrame(pvRaf); pvRaf = requestAnimationFrame(renderPreview); }
+function renderPreview() {
+  const sc = $("#pvScale"); if (!sc || !E.doc) return;
+  paginate(E.doc, sc); fitPreview();
+}
+function fitPreview() {
+  const box = $("#pvBox"), sc = $("#pvScale"); if (!box || !sc) return;
+  const w = box.clientWidth; if (!w) return;
+  const s = Math.min(1, w / 794);
+  sc.style.transform = `scale(${s})`;
+  box.style.height = Math.ceil(sc.scrollHeight * s) + "px";
+}
+const pvObserver = new ResizeObserver(() => fitPreview());
+
+/* ---------- document (A4) ---------- */
+const L2 = (en, ar) => `${en}${ar ? `<span class="ar" lang="ar">${ar}</span>` : ""}`;
+function docBlocks(d) {
+  const s = S.settings, t = totals(d), inv = d.type === "invoice", taxInv = inv && !!s.vat;
+  const showRate = d.showRate !== false, showAmt = d.showAmount !== false;
+  const B = [];
+  const title = inv ? (taxInv ? ["Tax invoice", "فاتورة ضريبية"] : ["Invoice", "فاتورة"]) : ["Quotation", "عرض سعر"];
+  B.push({ k: "head", h: `<div class="d-head"><img class="d-logo" src="${LOGO_DOC}" alt="Black Canvas"><div class="d-title"><div class="d-t1 f-disp">${title[0]}</div><div class="d-t2 ar" lang="ar" dir="rtl">${title[1]}</div><div class="d-no">${esc(d.number)}</div></div></div>` });
+  const meta = inv
+    ? [["Invoice date", "تاريخ الفاتورة", fmtDate(d.issueDate)], ["Supply date", "تاريخ التوريد", fmtDate(d.supplyDate)], ["Due date", "تاريخ الاستحقاق", fmtDate(d.dueDate)], ["Client PO", "أمر الشراء", d.event.po], ["Quotation", "عرض السعر", d.fromQuote]]
+    : [["Issue date", "تاريخ الإصدار", fmtDate(d.issueDate)], ["Valid until", "صالح حتى", fmtDate(d.validUntil)], ["Event dates", "تاريخ الفعالية", d.event.dates], ["Venue", "الموقع", d.event.venue]];
+  const mm = meta.filter(m => m[2]);
+  if (mm.length) B.push({ k: "meta", h: `<div class="d-meta" style="--mc:${Math.max(mm.length, 3)}">${mm.map(m => `<div><div class="lbl">${L2(m[0], m[1])}</div><b>${esc(m[2])}</b></div>`).join("")}</div>` });
+  const ids = (vat, cr) => [vat ? `VAT ${esc(vat)}` : "", cr ? `CR ${esc(cr)}` : ""].filter(Boolean).join(" · ");
+  const c = d.client;
+  B.push({ k: "parties", h: `<div class="d-parties">
+    <div class="d-party"><div class="lbl">${L2("From", "المورد")}</div><div class="nm">${esc(s.legalNameEn || "Black Canvas")}</div>${s.legalNameAr ? `<div class="nm-ar" lang="ar">${esc(s.legalNameAr)}</div>` : ""}
+      ${s.addressEn ? `<p>${esc(s.addressEn)}</p>` : ""}${s.addressAr ? `<p class="ar" dir="rtl" style="text-align:left">${esc(s.addressAr)}</p>` : ""}
+      <p>${[s.email, s.phone].filter(Boolean).map(esc).join(" · ")}</p>${ids(s.vat, s.cr) ? `<div class="ids">${ids(s.vat, s.cr)}</div>` : ""}</div>
+    <div class="d-party"><div class="lbl">${L2(inv ? "Bill to" : "Prepared for", "العميل")}</div><div class="nm">${esc(c.company || c.contact || "—")}</div>
+      ${c.company && c.contact ? `<p>Attn. ${esc(c.contact)}</p>` : ""}${c.address ? `<p>${esc(c.address)}</p>` : ""}
+      ${c.email || c.phone ? `<p>${[c.email, c.phone].filter(Boolean).map(esc).join(" · ")}</p>` : ""}${ids(c.vat, c.cr) ? `<div class="ids">${ids(c.vat, c.cr)}</div>` : ""}</div></div>` });
+  if (d.event.name) B.push({ k: "event", h: `<div class="d-event"><div class="lbl">${L2("Project", "المشروع")}</div><div class="d-ev-name f-disp">${esc(d.event.name)}</div></div>` });
+  if (d.summary && d.summary.trim()) B.push({ k: "para", h: `<div class="d-ev-sum">${esc(d.summary.trim())}</div>` });
+  B.push({ k: "thead", h: theadHtml(d, false) });
+  const secs = d.sections.map(s2 => ({ ...s2, items: (s2.items || []).filter(hasContent) })).filter(s2 => s2.items.length);
+  secs.forEach((s2, si) => {
+    B.push({ k: "sec", h: `<div class="d-sec"><span>${pad(si + 1)}</span>${esc(s2.title || "Items")}</div>` });
+    s2.items.forEach((it, ii) => B.push({ k: "row", h: `<div class="d-row d-grid">
+      <span class="n">${si + 1}.${ii + 1}</span><span class="d"><b>${esc(it.desc)}</b>${it.detail ? `<i>${esc(it.detail)}</i>` : ""}</span>
+      <span class="r">${qtyFmt(it.qty)}</span><span>${esc(it.unit)}</span><span class="r">${qtyFmt(itemDays(it))}</span>${showRate ? `<span class="r">${money(it.rate)}</span>` : ""}
+      ${inv ? `<span class="r">${qtyFmt(t.vatRate)}%</span>` : ""}${showAmt ? `<span class="r a">${money(lineAmount(it))}</span>` : ""}</div>` }));
+    if (secs.length > 1 && showAmt) B.push({ k: "sub", h: `<div class="d-sub"><span class="lbl">${esc(s2.title || "Section")} subtotal</span><b>${money(secTotal(s2))}</b></div>` });
+  });
+  if (!secs.length) B.push({ k: "row", h: `<div class="d-row"><span class="lbl">No line items yet</span></div>` });
+  B.push({ k: "totals", h: `<div class="d-totals">
+    <div><span class="lbl">${L2("Subtotal", "المجموع الفرعي")}</span><span class="v">${money(t.subtotal)}</span></div>
+    ${t.disc ? `<div><span class="lbl">${L2(d.discount.type === "amt" ? "Discount" : `Discount ${qtyFmt(d.discount.value)}%`, "الخصم")}</span><span class="v">− ${money(t.disc)}</span></div>` : ""}
+    <div><span class="lbl">${L2("Taxable amount", "المبلغ الخاضع للضريبة")}</span><span class="v">${money(t.taxable)}</span></div>
+    <div><span class="lbl">${L2(`VAT ${qtyFmt(t.vatRate)}%`, "ضريبة القيمة المضافة")}</span><span class="v">${money(t.vat)}</span></div>
+    <div class="grand"><span class="lbl"><i class="sq"></i>${L2("Total SAR", "الإجمالي")}</span><span class="v">${money(t.total)}</span></div>
+    ${inv && t.paid ? `<div><span class="lbl">${L2("Paid", "المدفوع")}</span><span class="v">− ${money(t.paid)}</span></div><div class="due"><span class="lbl">${L2("Balance due SAR", "الرصيد المستحق")}</span><span class="v">${money(t.due)}</span></div>` : ""}
+  </div>` });
+  if (inv) {
+    const bank = [["Bank", s.bankName], ["Account name", s.accountName || s.legalNameEn], ["IBAN", s.iban], ["SWIFT", s.swift]].filter(r => r[1]);
+    let qr = "";
+    if (taxInv) {
+      const ts = new Date(`${d.issueDate || todayISO()}T${d.issueTime || "12:00"}:00+03:00`);
+      const iso = isNaN(ts) ? new Date().toISOString() : ts.toISOString().replace(/\.\d{3}Z$/, "Z");
+      const uri = qrUri(zatcaTLV(s.legalNameAr || s.legalNameEn || "Black Canvas", s.vat, iso, t.total, t.vat));
+      if (uri) qr = `<div class="d-qr"><img src="${uri}" alt="ZATCA QR code"><span>ZATCA QR</span></div>`;
+    }
+    B.push({ k: "pay", h: `<div class="d-pay"><div><div class="lbl">${L2("Payment", "الدفع")}</div>${d.paymentTerms ? `<p style="margin:5px 0 0;font-size:11px;color:var(--d-graphite);white-space:pre-line">${esc(d.paymentTerms)}</p>` : ""}
+      ${bank.length ? `<dl class="d-bank">${bank.map(r => `<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join("")}</dl>` : ""}</div>${qr}</div>` });
+  } else if (d.paymentTerms) {
+    B.push({ k: "para", h: `<div class="d-block"><div class="lbl">${L2("Payment terms", "شروط الدفع")}</div><p>${esc(d.paymentTerms)}</p></div>` });
+  }
+  const paras = (d.terms || "").split(/\n\s*\n/).map(x => x.trim()).filter(Boolean);
+  paras.forEach((p, i) => B.push({ k: "para", h: `<div class="d-block" ${i ? 'style="padding-top:6px"' : ""}>${i ? "" : `<div class="lbl">${L2("Terms", "الشروط والأحكام")}</div>`}<p>${esc(p)}</p></div>` }));
+  if (d.notes && d.notes.trim()) B.push({ k: "para", h: `<div class="d-block"><div class="lbl">${L2("Notes", "ملاحظات")}</div><p>${esc(d.notes.trim())}</p></div>` });
+  if (!inv) B.push({ k: "accept", h: `<div class="d-block"><div class="lbl">${L2("Acceptance", "الموافقة")}</div><p>To confirm, sign and return this quotation. Work is scheduled once the advance payment is received.</p>
+    <div class="d-accept"><div class="lbl">Name &amp; title</div><div class="lbl">Signature &amp; stamp</div><div class="lbl">Date</div></div></div>` });
+  return B;
+}
+function theadHtml(d, cont) {
+  const inv = d.type === "invoice";
+  const h = (en, ar, r) => `<span class="${r ? "r" : ""}">${en}<i lang="ar">${ar}</i></span>`;
+  return `<div data-k="thead">${cont ? `<div class="d-cont">${esc(d.number)} · continued</div>` : ""}<div class="d-thead d-grid">${h("#", "", 0)}${h("Description", "الوصف", 0)}${h("Qty", "الكمية", 1)}${h("Unit", "الوحدة", 0)}${h("Days", "الأيام", 1)}${d.showRate !== false ? h("Rate", "سعر الوحدة", 1) : ""}${inv ? h("VAT", "الضريبة", 1) : ""}${d.showAmount !== false ? h("Amount", "المبلغ", 1) : ""}</div></div>`;
+}
+function footHtml() {
+  const s = S.settings;
+  const mid = [s.vat ? `VAT ${s.vat}` : "", s.cr ? `CR ${s.cr}` : ""].filter(Boolean).join(" · ");
+  return `<span>${esc([s.website, s.email].filter(Boolean).join(" · "))}</span><span>${esc(mid)}</span>`;
+}
+function paginate(d, host) {
+  host.innerHTML = "";
+  const pages = []; let body = null;
+  const cls = d.type === "invoice" ? "i" : "q";
+  const cols = ["30px", "minmax(0,1fr)", "40px", "42px", "36px"];
+  if (d.showRate !== false) cols.push("84px");
+  if (d.type === "invoice") cols.push("38px");
+  if (d.showAmount !== false) cols.push("96px");
+  const newPage = () => {
+    const pg = el(`<div class="pg ${cls}" style="--cols:${cols.join(" ")}"><div class="pg-body"></div><div class="pg-foot">${footHtml()}<span class="pg-n"></span></div></div>`);
+    host.appendChild(pg); pages.push(pg); body = pg.firstElementChild;
+  };
+  newPage();
+  for (const b of docBlocks(d)) {
+    const node = el(b.h); node.dataset.k = b.k; body.appendChild(node);
+    if (body.scrollHeight > body.clientHeight + 1 && body.children.length > 1) {
+      body.removeChild(node);
+      const carry = [];
+      while (body.lastElementChild && ["sec", "thead"].includes(body.lastElementChild.dataset.k) && body.children.length > 1) {
+        const last = body.lastElementChild; body.removeChild(last); if (last.dataset.k === "sec") carry.unshift(last);
+      }
+      newPage();
+      if (["row", "sec", "sub"].includes(b.k)) body.appendChild(el(theadHtml(d, true)));
+      carry.forEach(cn => body.appendChild(cn));
+      body.appendChild(node);
+    }
+  }
+  pages.forEach((p, i) => p.querySelector(".pg-n").textContent = `${i + 1} / ${pages.length}`);
+  return pages;
+}
+
+/* ---------- PDF ---------- */
+function patchCanvasStretch() {
+  const P = CanvasRenderingContext2D.prototype;
+  if (!("fontStretch" in P)) return () => {};
+  const desc = Object.getOwnPropertyDescriptor(P, "font");
+  Object.defineProperty(P, "font", {
+    configurable: true, enumerable: desc.enumerable,
+    get() { return desc.get.call(this); },
+    set(v) { desc.set.call(this, v); try { this.fontStretch = (/\b900\b/.test(v) && /Archivo/i.test(v)) ? "extra-condensed" : "normal"; } catch (e) { } }
+  });
+  return () => Object.defineProperty(P, "font", desc);
+}
+async function downloadPdf() {
+  const d = E.doc; if (!d) return;
+  const btn = $("#pdfBtn");
+  if (!window.html2canvas || !window.jspdf) { toast("The PDF tools didn't load. Check your connection and reload."); return; }
+  flushSave();
+  btn.disabled = true; btn.textContent = "Preparing PDF…";
+  const stage = el(`<div class="pdf-stage" aria-hidden="true"></div>`); document.body.appendChild(stage);
+  const unpatch = patchCanvasStretch();
+  try {
+    await document.fonts.ready;
+    const pages = paginate(d, stage);
+    const pdf = new window.jspdf.jsPDF({ unit: "mm", format: "a4", compress: true });
+    for (let i = 0; i < pages.length; i++) {
+      const c = await window.html2canvas(pages[i], { scale: 2.5, backgroundColor: "#F4F3EF", logging: false, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 1200 });
+      if (i) pdf.addPage();
+      pdf.addImage(c.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, 210, 297, undefined, "FAST");
+    }
+    pdf.setProperties({ title: `${d.number} ${d.client.company || ""}`.trim(), author: S.settings.legalNameEn || "Black Canvas" });
+    const name = `${d.number}${d.client.company ? " " + d.client.company.replace(/[\\/:*?"<>|]+/g, "") : ""}.pdf`;
+    unpatch(); stage.remove();
+    pdf.save(name);
+    toast("PDF downloaded.");
+  } catch (e) {
+    toast("Couldn't build the PDF. Try again in a moment.");
+  } finally {
+    unpatch(); stage.remove(); btn.disabled = false; btn.textContent = "Download PDF";
+  }
+}
+
+/* ---------- editor actions ---------- */
+function pickClient(id) {
+  const c = S.clients.get(id); if (!c || !E.doc) return;
+  E.doc.clientId = id;
+  E.doc.client = { company: c.company || "", contact: c.contact || "", email: c.email || "", phone: c.phone || "", vat: c.vat || "", cr: c.cr || "", address: c.address || "" };
+  renderEditor(); touch();
+}
+function saveClientFromDoc() {
+  const d = E.doc; if (!d.client.company && !d.client.contact) { toast("Add a company or contact name first."); return; }
+  const id = d.clientId || uid();
+  put("clients", id, { ...clone(d.client), updatedAt: new Date().toISOString() });
+  d.clientId = id; touch(); toast("Client saved."); renderEditor();
+}
+function addFromRate(si, rid) {
+  const r = S.rates.get(rid); if (!r) return;
+  const sec = E.doc.sections[si];
+  const blank = sec.items.findIndex(it => !hasContent(it));
+  const item = { id: uid(), desc: r.desc || "", detail: r.detail || "", qty: 1, unit: r.unit || "pc", days: 1, rate: Number(r.rate) || 0 };
+  if (blank >= 0) sec.items[blank] = item; else sec.items.push(item);
+  if (r.section && (!sec.title || sec.title === "Production") && sec.items.filter(hasContent).length === 1) sec.title = r.section;
+  rerenderSecs(); touch();
+}
+function rerenderSecs() { $("#secs").innerHTML = sectionsHtml(E.doc); refreshTotals(); }
+
+function modal(html) { const m = $("#modal"); m.innerHTML = `<div class="modal" data-act="modal-bg"><div class="modal-in" role="dialog" aria-modal="true">${html}</div></div>`; m.hidden = false; const f = m.querySelector("input,button.ember,button"); f && f.focus(); }
+function closeModal() { const m = $("#modal"); m.hidden = true; m.innerHTML = ""; }
+
+function convertDialog() {
+  const d = E.doc; flushSave();
+  const adv = [...S.docs.values()].filter(x => x.type === "invoice" && x.fromQuote === d.number && x.kind === "advance" && x.status !== "void");
+  modal(`<h2 class="disp">Make invoice</h2><p>From ${esc(d.number)} · ${sar(totals(d).total)} incl. VAT</p>
+    <label class="opt"><input type="radio" name="cv" value="full" ${adv.length ? "" : "checked"}><div><b>Full invoice</b><span>Copies every line item and the discount.</span></div></label>
+    <label class="opt"><input type="radio" name="cv" value="advance"><div><b>Advance invoice</b><span>Invoice <input type="number" id="cvPct" value="50" min="1" max="100" step="1" aria-label="Advance percent">% of the taxable amount.</span></div></label>
+    ${adv.length ? `<label class="opt"><input type="radio" name="cv" value="balance" checked><div><b>Balance invoice</b><span>All line items, less ${adv.map(a => esc(a.number)).join(", ")} already invoiced.</span></div></label>` : ""}
+    <div class="modal-act"><button class="btn" data-act="modal-close">Cancel</button><button class="btn ember" data-act="convert-go">Create invoice</button></div>`);
+}
+function convertGo() {
+  const q = E.doc, kind = $("input[name=cv]:checked")?.value || "full";
+  const inv = makeDoc("invoice"); const t = totals(q);
+  Object.assign(inv, { clientId: q.clientId, client: clone(q.client), event: clone(q.event), summary: q.summary, vatRate: q.vatRate, fromQuote: q.number, kind });
+  if (kind === "advance") {
+    const pct = Math.min(100, Math.max(1, Number($("#cvPct").value) || 50));
+    inv.sections = [{ id: uid(), title: "Advance payment", items: [{ id: uid(), desc: `${qtyFmt(pct)}% advance payment`, detail: `${q.event.name || "Project"} · per quotation ${q.number}`, qty: 1, unit: "lot", days: 1, rate: round2(t.taxable * pct / 100) }] }];
+    inv.summary = "";
+  } else {
+    inv.sections = clone(q.sections);
+    if (kind === "full") { inv.discount = clone(q.discount); inv.subtotalOverride = q.subtotalOverride ?? ""; }
+    else {
+      const less = [];
+      if (t.custom && t.subtotal !== t.items) less.push({ id: uid(), desc: "Package price adjustment", detail: `Subtotal as quoted in ${q.number}`, qty: 1, unit: "lot", days: 1, rate: round2(t.subtotal - t.items) });
+      if (t.disc) less.push({ id: uid(), desc: q.discount.type === "amt" ? "Discount" : `Discount ${qtyFmt(q.discount.value)}%`, detail: `As quoted in ${q.number}`, qty: 1, unit: "lot", days: 1, rate: -t.disc });
+      [...S.docs.values()].filter(x => x.type === "invoice" && x.fromQuote === q.number && x.kind === "advance" && x.status !== "void")
+        .forEach(a => less.push({ id: uid(), desc: `Less advance invoiced`, detail: `Invoice ${a.number}`, qty: 1, unit: "lot", days: 1, rate: -totals(a).taxable }));
+      inv.sections.push({ id: uid(), title: "Adjustments", items: less });
+    }
+  }
+  closeModal();
+  if (q.status === "sent" || q.status === "draft") { q.status = "accepted"; saveDoc(); }
+  E.doc = inv; E.dirty = false; E.tab = "edit"; render(); window.scrollTo(0, 0); saveDoc();
+  toast(`${inv.number} created from ${q.number}.`);
+}
+function duplicateDoc() {
+  flushSave();
+  const src = E.doc, d = clone(src), t = todayISO(), s = S.settings;
+  Object.assign(d, { id: uid(), number: nextNumber(src.type), status: "draft", issueDate: t, createdAt: new Date().toISOString(), fromQuote: src.type === "invoice" ? src.fromQuote : "",
+    validUntil: src.type === "quote" ? addDays(t, s.validityDays) : "", dueDate: src.type === "invoice" ? addDays(t, s.dueDays) : "", supplyDate: src.type === "invoice" ? t : "", amountPaid: 0 });
+  d.sections.forEach(sec => { sec.id = uid(); sec.items.forEach(it => it.id = uid()); });
+  E.doc = d; render(); window.scrollTo(0, 0); saveDoc(); toast(`Copied to ${d.number}.`);
+}
+function deleteDialog() {
+  modal(`<h2 class="disp">Delete ${esc(E.doc.number)}?</h2><p>This removes the ${E.doc.type} for everyone who uses this page. It can't be undone.</p>
+    <div class="modal-act"><button class="btn" data-act="modal-close">Keep it</button><button class="btn ember" data-act="delete-go">Delete</button></div>`);
+}
+function deleteGo() {
+  const id = E.doc.id; clearTimeout(E.timer); E.dirty = false; closeModal();
+  S.docs.delete(id); remove("docs", id); E.doc = null; UI.view = "docs"; render(); toast("Deleted.");
+}
+
+/* ---------- clients view ---------- */
+function renderClients() {
+  const list = [...S.clients.values()].sort((a, b) => (a.company || a.contact || "").localeCompare(b.company || b.contact || ""));
+  const used = id => [...S.docs.values()].filter(d => d.clientId === id).length;
+  const ed = UI.clientEdit; const c = ed && ed !== "new" ? S.clients.get(ed) : null;
+  const v = k => esc(c?.[k] || "");
+  const form = S.canWrite ? `<form class="card" id="clientForm" autocomplete="off"><div class="card-h"><h2>${c ? "Edit client" : "New client"}</h2>${c ? `<button type="button" class="btn sm quiet" data-act="client-new">New client</button>` : ""}</div>
+      ${[["company", "Company"], ["contact", "Contact person"], ["email", "Email"], ["phone", "Phone"], ["vat", "VAT no."], ["cr", "CR no."]].map(([k, l]) => `<label class="fld" for="cf-${k}"><span class="fl">${l}</span><input id="cf-${k}" name="${k}" value="${v(k)}"></label>`).join("")}
+      <label class="fld" for="cf-address"><span class="fl">Address</span><textarea id="cf-address" name="address" rows="3">${v("address")}</textarea></label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ember" type="submit">${c ? "Save changes" : "Add client"}</button>${c ? `<button type="button" class="btn danger" data-act="client-del" data-id="${esc(c.id)}">Delete</button>` : ""}</div></form>` : "";
+  $("#main").innerHTML = `<section class="vhead"><div><p class="label">Saved for quick billing</p><h1 class="disp">Clients</h1></div></section>
+    <div class="two"><div>${list.length ? `<div class="list" style="border-top:1px solid var(--line)">${list.map(x => `<div class="cl"><div><b>${esc(x.company || x.contact)}</b><small>${esc([x.company ? x.contact : "", x.email].filter(Boolean).join(" · "))}</small></div>
+      <div class="c2"><small>${esc([x.vat ? "VAT " + x.vat : "", x.cr ? "CR " + x.cr : ""].filter(Boolean).join(" · ") || "No VAT number")}</small><small>${used(x.id)} document${used(x.id) === 1 ? "" : "s"}</small></div>
+      ${S.canWrite ? `<button class="btn sm" data-act="client-edit" data-id="${esc(x.id)}">Edit</button>` : ""}</div>`).join("")}</div>`
+      : `<div class="empty" style="padding-top:8px"><p>No saved clients yet. Add one here, or use “Save to clients” while writing a quote.</p></div>`}</div>${form}</div>`;
+}
+function clientSubmit(f) {
+  const data = Object.fromEntries(new FormData(f).entries());
+  if (!data.company && !data.contact) { toast("Add a company or contact name."); return; }
+  const id = UI.clientEdit && UI.clientEdit !== "new" ? UI.clientEdit : uid();
+  data.updatedAt = new Date().toISOString();
+  const was = UI.clientEdit && UI.clientEdit !== "new"; S.clients.set(id, { ...data, id }); put("clients", id, data); UI.clientEdit = null; toast(was ? "Client updated." : "Client saved."); renderClients();
+}
+
+/* ---------- rate card view ---------- */
+function renderRates() {
+  const groups = {};
+  for (const r of S.rates.values()) (groups[r.section || "Other"] ||= []).push(r);
+  const keys = Object.keys(groups).sort();
+  const ro = !S.canWrite ? "disabled" : "";
+  const hasEx = [...S.rates.values()].some(r => r.example);
+  $("#main").innerHTML = `<section class="vhead"><div><p class="label">Your standard prices, excl. VAT</p><h1 class="disp">Rate card</h1></div></section>
+    ${hasEx ? `<div class="notice"><p>Rates marked <span class="tag">Example</span> are placeholders. Edit them to your real prices or remove them.</p></div>` : ""}
+    <div class="two"><div>${keys.length ? keys.map(k => `<div class="rgrp"><h3>${esc(k)}</h3>${groups[k].sort((a, b) => (a.desc || "").localeCompare(b.desc || "")).map(r => `<div class="rt" data-id="${esc(r.id)}">
+        <div style="display:flex;gap:8px;align-items:center;min-width:0"><input id="rt-${esc(r.id)}-desc" data-rk="desc" value="${esc(r.desc)}" aria-label="Description" ${ro}>${r.example ? '<span class="tag">Example</span>' : ""}</div>
+        <input id="rt-${esc(r.id)}-unit" data-rk="unit" list="units" value="${esc(r.unit)}" aria-label="Unit" ${ro}>
+        <input id="rt-${esc(r.id)}-rate" data-rk="rate" data-num inputmode="decimal" value="${qtyFmt(r.rate)}" aria-label="Rate in SAR" ${ro}>
+        ${S.canWrite ? `<button class="x" data-act="rate-del" data-id="${esc(r.id)}" aria-label="Remove rate">×</button>` : "<span></span>"}</div>`).join("")}</div>`).join("")
+      : `<div class="empty" style="padding-top:8px"><p>No rates yet. Add the items you quote often, then pick them straight into any quote.</p></div>`}</div>
+    ${S.canWrite ? `<form class="card" id="rateForm" autocomplete="off"><div class="card-h"><h2>Add a rate</h2></div>
+      <label class="fld" for="rf-section"><span class="fl">Section</span><input id="rf-section" name="section" list="secnames" required></label>
+      <label class="fld" for="rf-desc"><span class="fl">Item</span><input id="rf-desc" name="desc" required placeholder="e.g. Production manager"></label>
+      <div class="grid2"><label class="fld" for="rf-unit"><span class="fl">Unit</span><input id="rf-unit" name="unit" list="units" value="day"></label>
+      <label class="fld" for="rf-rate"><span class="fl">Rate (SAR)</span><input id="rf-rate" name="rate" inputmode="decimal" required></label></div>
+      <div><button class="btn ember" type="submit">Add rate</button></div></form>` : ""}</div>
+    <datalist id="secnames">${SECTION_NAMES.map(n => `<option value="${esc(n)}">`).join("")}</datalist><datalist id="units">${UNITS.map(n => `<option value="${n}">`).join("")}</datalist>`;
+}
+const rateTimers = {};
+function onRateInput(t) {
+  const row = t.closest(".rt"), id = row.dataset.id, r = S.rates.get(id); if (!r) return;
+  const k = t.dataset.rk; let v = t.value;
+  if (k === "rate") { v = Number(v.replace(/,/g, "")); if (Number.isNaN(v)) return; }
+  r[k] = v; r.example = false;
+  clearTimeout(rateTimers[id]); rateTimers[id] = setTimeout(() => put("rates", id, S.rates.get(id)), 700);
+}
+
+/* ---------- settings view ---------- */
+function renderSettings() {
+  const s = S.settings; const ro = !S.canWrite ? "disabled" : "";
+  const f = (k, l, o = {}) => `<label class="fld ${o.cls || ""}" for="st-${k}"><span class="fl">${l}</span>${o.area ? `<textarea id="st-${k}" data-sk="${k}" rows="${o.rows || 3}" ${ro} ${o.dir ? `dir="${o.dir}"` : ""}>${esc(s[k])}</textarea>` : `<input id="st-${k}" data-sk="${k}" value="${esc(s[k])}" ${o.num ? "data-num inputmode=\"decimal\"" : ""} ${o.dir ? `dir="${o.dir}"` : ""} ${o.ph ? `placeholder="${esc(o.ph)}"` : ""} ${ro}>`}</label>`;
+  $("#main").innerHTML = `<section class="vhead"><div><p class="label">Printed on every quote and invoice</p><h1 class="disp">Settings</h1></div><span class="save-state" id="saveState">${esc(saveText)}</span></section>
+    <div class="set-grid">
+      <section class="card"><div class="card-h"><h2>Company</h2></div><div class="grid2">
+        ${f("legalNameEn", "Legal name (English)")}${f("legalNameAr", "Legal name (Arabic)", { dir: "rtl" })}
+        ${f("vat", "VAT registration no.", { ph: "15 digits, starts and ends with 3" })}${f("cr", "Commercial registration no.")}
+        ${f("addressEn", "Address (English)", { area: true, rows: 3 })}${f("addressAr", "Address (Arabic)", { area: true, rows: 3, dir: "rtl" })}
+        ${f("email", "Email")}${f("phone", "Phone")}${f("website", "Website", { cls: "span2" })}</div></section>
+      <section class="card"><div class="card-h"><h2>Bank details</h2><span class="label">Shown on invoices</span></div><div class="grid2">
+        ${f("bankName", "Bank")}${f("accountName", "Account name")}${f("iban", "IBAN", { ph: "SA…" })}${f("swift", "SWIFT / BIC")}</div></section>
+      <section class="card"><div class="card-h"><h2>Numbering & defaults</h2></div><div class="grid3">
+        ${f("quotePrefix", "Quote prefix")}${f("invoicePrefix", "Invoice prefix")}${f("vatRate", "VAT %", { num: true })}
+        ${f("validityDays", "Quote valid (days)", { num: true })}${f("dueDays", "Invoice due (days)", { num: true })}</div>
+        <p class="muted" style="margin:0;font-size:13px">Numbers run per year, e.g. ${esc(s.quotePrefix)}-${todayISO().slice(0, 4)}-001. Changes apply to new documents.</p></section>
+      <section class="card"><div class="card-h"><h2>Default wording</h2><span class="label">Editable on each document</span></div>
+        ${f("quotePaymentTerms", "Quote payment terms", { area: true })}${f("quoteTerms", "Quote terms & conditions", { area: true, rows: 4 })}
+        ${f("invoicePaymentTerms", "Invoice payment instructions", { area: true })}${f("invoiceTerms", "Invoice terms", { area: true })}</section>
+    </div>`;
+}
+function onSettingInput(t) {
+  const k = t.dataset.sk; let v = t.value;
+  if (t.hasAttribute("data-num")) { v = Number(v); if (Number.isNaN(v)) return; }
+  S.settings[k] = v; SET.dirty = true; setSave("Editing");
+  clearTimeout(SET.timer);
+  SET.timer = setTimeout(() => { SET.dirty = false; put("settings", "company", { ...S.settings, updatedAt: new Date().toISOString() }); }, 800);
+}
+
+/* ---------- events ---------- */
+const ACT = {
+  filter: t => { UI.filter = t.dataset.v; renderDocs(); },
+  tab: t => { E.tab = t.dataset.v; $(".ed").dataset.tab = E.tab; $$(".ed-tabs .chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.v === E.tab)); if (E.tab === "pv") requestAnimationFrame(renderPreview); },
+  "add-sec": () => { E.doc.sections.push({ id: uid(), title: "", items: [blankItem()] }); rerenderSecs(); touch(); const n = E.doc.sections.length - 1; $(`#f-sections-${n}-title`)?.focus(); },
+  "del-sec": t => { E.doc.sections.splice(+t.dataset.s, 1); if (!E.doc.sections.length) E.doc.sections.push({ id: uid(), title: "", items: [blankItem()] }); rerenderSecs(); touch(); },
+  "add-item": t => { const si = +t.dataset.s; E.doc.sections[si].items.push(blankItem()); rerenderSecs(); touch(); $(`#f-sections-${si}-items-${E.doc.sections[si].items.length - 1}-desc`)?.focus(); },
+  "del-item": t => { const s = E.doc.sections[+t.dataset.s]; s.items.splice(+t.dataset.i, 1); rerenderSecs(); touch(); },
+  "save-client": () => saveClientFromDoc(),
+  pdf: () => downloadPdf(),
+  dup: () => duplicateDoc(),
+  convert: () => convertDialog(),
+  "convert-go": () => convertGo(),
+  "del-doc": () => deleteDialog(),
+  "delete-go": () => deleteGo(),
+  "sub-reset": () => { E.doc.subtotalOverride = ""; const f = $("#f-subtotalOverride"); if (f) f.value = ""; refreshTotals(); touch(); },
+  "modal-close": () => closeModal(),
+  "modal-bg": (t, e) => { if (e.target === t) closeModal(); },
+  "client-new": () => { UI.clientEdit = "new"; renderClients(); $("#cf-company")?.focus(); },
+  "client-edit": t => { UI.clientEdit = t.dataset.id; renderClients(); $("#cf-company")?.focus(); },
+  "client-del": t => {
+    const id = t.dataset.id;
+    modal(`<h2 class="disp">Delete client?</h2><p>Quotes and invoices keep their copy of the client details.</p><div class="modal-act"><button class="btn" data-act="modal-close">Keep</button><button class="btn ember" data-act="client-del-go" data-id="${esc(id)}">Delete</button></div>`);
+  },
+  "client-del-go": t => { S.clients.delete(t.dataset.id); remove("clients", t.dataset.id); closeModal(); UI.clientEdit = null; renderClients(); },
+  "rate-del": t => { S.rates.delete(t.dataset.id); remove("rates", t.dataset.id); renderRates(); }
+};
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-act],[data-go],[data-new],[data-open]"); if (!t) return;
+  if (t.dataset.go) { e.preventDefault(); return go(t.dataset.go); }
+  if (t.dataset.new) return newDoc(t.dataset.new);
+  if (t.dataset.open) return openDoc(t.dataset.open);
+  const fn = ACT[t.dataset.act]; if (fn) { if (t.tagName === "BUTTON") e.preventDefault(); fn(t, e); }
+});
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.id === "docSearch") { UI.q = t.value; const pos = t.selectionStart; renderDocs(); const n = $("#docSearch"); n.focus(); n.setSelectionRange(pos, pos); return; }
+  if (t.matches("[data-f]")) return onField(t);
+  if (t.matches("[data-sk]")) return onSettingInput(t);
+  if (t.matches("[data-rk]")) return onRateInput(t);
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "f-client-pick" && t.value) return pickClient(t.value);
+  if (t.classList.contains("rate-pick") && t.value) return addFromRate(+t.dataset.s, t.value);
+});
+document.addEventListener("submit", e => {
+  e.preventDefault();
+  if (e.target.id === "clientForm") clientSubmit(e.target);
+  if (e.target.id === "rateForm") {
+    const f = Object.fromEntries(new FormData(e.target).entries()); const rate = Number(String(f.rate).replace(/,/g, ""));
+    if (!f.desc || Number.isNaN(rate)) { toast("Add an item name and a numeric rate."); return; }
+    const id = uid(); const r = { section: f.section || "Other", desc: f.desc, unit: f.unit || "pc", rate, example: false };
+    S.rates.set(id, { ...r, id }); put("rates", id, r); renderRates(); $("#rf-desc")?.focus();
+  }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#modal").hidden) closeModal(); });
+window.addEventListener("pagehide", () => { if (UI.view === "edit") flushSave(); });
+window.addEventListener("resize", () => fitPreview());
+
+/* ---------- boot ---------- */
+$("#brandLogo").innerHTML = `<svg viewBox="0 0 ${LOGO_LINE.W} ${LOGO_LINE.H}" role="img" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="${LOGO_LINE.path}"/><rect x="${LOGO_LINE.dot[0]}" y="${LOGO_LINE.dot[1]}" width="${LOGO_LINE.dot[2]}" height="${LOGO_LINE.dot[3]}" style="fill:var(--ember)"/></svg>`;
+if (document.fonts) document.fonts.ready.then(() => { if (UI.view === "edit") schedulePreview(); });
+$("#signOut").addEventListener("click", async () => { flushSave(); try { await S.sb?.auth.signOut(); } finally { location.replace("../"); } });
+initStore();
+</script>
+</body>
+</html>
