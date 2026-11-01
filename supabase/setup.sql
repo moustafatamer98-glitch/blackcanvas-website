@@ -39,10 +39,14 @@ as $$
   );
 $$;
 
+revoke execute on function public.is_portal_member() from public, anon;
+grant execute on function public.is_portal_member() to authenticated;
+
 -- 4. Stamp who changed a record and when.
 create or replace function public.touch_record()
 returns trigger
 language plpgsql
+set search_path = public
 as $$
 begin
   new.updated_at := now();
