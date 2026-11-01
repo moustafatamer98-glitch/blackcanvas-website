@@ -37,6 +37,8 @@ Each folder has the page (`index.html`) and the person's contact file (`.vcf`), 
 - `portal/portal.js`, `portal/brand.js`, `portal/vendor/`: shared sign-in helper, logo artwork and the Supabase library.
 - `supabase/setup.sql`: the database table and access rules.
 
+When you change `brand.js`, `config.js` or `portal.js`, raise the `?v=` tag on their `<script>` links in both portal pages. GitHub Pages caches files for about 10 minutes, and the new tag makes browsers load the new version straight away.
+
 Sign-in and data run on [Supabase](https://supabase.com). The access rules only let signed-in team members read or change data: any `@blackcanvasglobal.com` account, plus emails listed in the `portal_members` table. The code is public in this repository, but the data isn't.
 
 ### Set up (once)
