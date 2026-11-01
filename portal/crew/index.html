@@ -1,0 +1,1660 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="../../card/apple-touch-icon.png">
+<title>Black Canvas Crew</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,400..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* same palette as the portal, Billing and Projects */
+  --bg:#0B0B0C; --panel:#141416; --panel2:#1D1D21; --raise:#24242A; --line:#2B2B30; --line2:#45454B;
+  --text:#F4F3EF; --muted:#9C9EA3; --dim:#66686D;
+  --orange:#F04E23; --orange-soft:rgba(240,78,35,.14);
+  --red:#FF7086; --amber:#E6B450; --blue:#7FA2FF; --violet:#B39BFF; --green:#5BC994; --white:#F4F3EF;
+  --radius:6px; --side:220px;
+  --font:'Archivo',Arial,sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.hidden{display:none!important}
+
+/* ---------- logo ---------- */
+.logo-svg{display:block;width:150px;color:var(--text)}
+.logo-svg svg{display:block;width:100%;height:auto}
+.logo{font-weight:900;font-stretch:80%;letter-spacing:.01em;line-height:.9;font-size:20px;text-transform:uppercase;user-select:none}
+.logo .o{color:transparent;-webkit-text-stroke:1.1px var(--text)}
+.logo .dot{display:inline-block;width:.32em;height:.32em;background:var(--orange);margin-left:.08em}
+.logo-sub{font-size:10px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase;margin-top:6px;font-weight:600}
+
+/* ---------- shell ---------- */
+.shell{display:grid;grid-template-columns:var(--side) 1fr;min-height:100vh}
+.side{position:sticky;top:0;height:100vh;border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:22px;background:var(--bg)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;text-decoration:none;color:var(--muted);font-weight:500}
+.nav a:hover{background:var(--panel2);color:var(--text)}
+.nav a.on{background:var(--panel2);color:var(--text)}
+.nav a.on svg{color:var(--orange)}
+.nav svg{width:17px;height:17px;flex:none}
+.nav .count{margin-left:auto;font-size:11px;background:var(--red);color:#fff;border-radius:20px;padding:0 6px;font-weight:700}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--muted)}
+.side-foot a{text-decoration:none}
+.side-foot a:hover{color:var(--text)}
+.me{display:flex;align-items:center;gap:8px}
+main{min-width:0;padding:28px 34px 80px}
+.demo-bar{background:var(--orange-soft);color:var(--orange);border:1px solid rgba(240,78,35,.35);padding:7px 12px;border-radius:8px;font-size:12px;margin-bottom:18px;font-weight:600}
+
+/* ---------- type ---------- */
+h1{font-size:40px;font-weight:900;font-stretch:62.5%;text-transform:uppercase;letter-spacing:.005em;margin:0;line-height:1}
+h2{font-size:15px;font-weight:700;margin:0;text-transform:uppercase;letter-spacing:.06em;font-stretch:90%}
+.eyebrow{font:500 11px/1.3 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)} .dim{color:var(--dim)}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+
+/* ---------- controls ---------- */
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);background:var(--panel2);padding:8px 13px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap;text-decoration:none}
+.btn:hover{border-color:#4a4a4a;background:var(--raise)}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#0a0a0a}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--text);background:var(--panel2)}
+.btn.danger{color:var(--red);border-color:rgba(255,77,79,.4);background:transparent}
+.btn.sm{padding:5px 9px;font-size:12px}
+.btn svg{width:15px;height:15px}
+.input,select.input,textarea.input{width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;outline:none}
+.input:focus{border-color:var(--orange)}
+textarea.input{resize:vertical;min-height:84px}
+select.input{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 15px) 52%,calc(100% - 10px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:28px}
+input[type=date].input,input[type=time].input{color-scheme:dark}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:6px 11px;cursor:pointer;color:var(--muted);font-size:12px;font-weight:600}
+.seg button.on{background:var(--raise);color:var(--text)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line2);background:transparent;border-radius:30px;padding:5px 12px;font-size:12px;cursor:pointer;color:var(--muted);font-weight:600}
+.chip.on{background:var(--text);color:#0a0a0a;border-color:var(--text)}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.toolbar .grow{flex:1;min-width:180px}
+.check{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;cursor:pointer;user-select:none}
+
+/* ---------- pills ---------- */
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:20px;border:1px solid currentColor;white-space:nowrap;line-height:1.3}
+.pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.s-pitch{color:var(--muted)} .s-confirmed{color:var(--white)} .s-preprod{color:var(--blue)} .s-build{color:var(--amber)}
+.s-live{color:var(--orange)} .s-derig{color:var(--violet)} .s-wrap{color:var(--green)} .s-closed{color:var(--dim)} .s-lost{color:var(--red)}
+.s-live::before{animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:5px;background:var(--raise);color:var(--muted);white-space:nowrap;font-weight:500}
+.prio{width:8px;height:8px;border-radius:2px;flex:none;display:inline-block}
+.p-low{background:var(--dim)} .p-normal{background:var(--blue)} .p-high{background:var(--amber)} .p-critical{background:var(--red)}
+
+select.status-sel{width:auto;padding:4px 28px 4px 12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-radius:20px;border-color:currentColor;background-color:transparent}
+select.status-sel option{color:var(--text);background:var(--panel)}
+/* ---------- KPI & cards ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.kpi .v{font-size:30px;font-weight:800;font-stretch:80%;line-height:1;margin-top:8px}
+.kpi.alert .v{color:var(--red)}
+.hero{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--orange);border-radius:var(--radius);padding:18px 22px;margin-bottom:22px;cursor:pointer}
+.hero:hover{border-color:var(--line2);border-left-color:var(--orange)}
+.hero .big{font-size:56px;font-weight:900;font-stretch:72%;line-height:.85;color:var(--orange)}
+.hero .big small{display:block;font-size:11px;letter-spacing:.2em;color:var(--muted);font-stretch:100%;font-weight:600;margin-top:6px;text-transform:uppercase}
+.hero .t{font-size:22px;font-weight:800;font-stretch:82%;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;text-align:left}
+.card:hover{border-color:var(--line2);background:var(--panel2)}
+.card .name{font-size:18px;font-weight:800;font-stretch:84%;text-transform:uppercase;line-height:1.1}
+.card .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.bar{height:4px;background:var(--raise);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--text)}
+.bar.o i{background:var(--orange)}
+.meta{display:flex;gap:12px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.meta .bad{color:var(--red);font-weight:600}
+.empty{border:1px dashed var(--line2);border-radius:var(--radius);padding:40px 20px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--text);font-size:15px;margin-bottom:4px}
+
+.av{width:24px;height:24px;border-radius:50%;background:var(--raise);border:1px solid var(--line2);display:inline-grid;place-items:center;font-size:10px;font-weight:700;color:var(--text);flex:none;letter-spacing:0}
+.av.me{border-color:var(--orange);color:var(--orange)}
+.av.none{border-style:dashed;color:var(--dim)}
+
+/* ---------- event header ---------- */
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:14px}
+.back:hover{color:var(--text)}
+.ev-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px}
+.ev-head h1{font-size:52px}
+.phases{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:18px}
+.phase{background:var(--panel);padding:12px 14px}
+.phase .d{font-size:15px;font-weight:700;margin-top:4px}
+.phase.now{background:var(--panel2);box-shadow:inset 0 2px 0 var(--orange)}
+.countdown{text-align:right}
+.countdown .big{font-size:44px;font-weight:900;font-stretch:72%;line-height:.9;color:var(--orange);text-transform:uppercase}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto}
+.tabs a{padding:10px 14px;text-decoration:none;color:var(--muted);font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs a.on{color:var(--text);border-color:var(--orange)}
+.tabs a .n{font-size:11px;color:var(--dim);margin-left:4px}
+.depts{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 18px;margin-bottom:20px}
+.dept-row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:12px}
+.dept-row .bar{grid-column:1/-1}
+
+/* ---------- board ---------- */
+.board{display:grid;grid-template-columns:repeat(5,minmax(220px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:10px;min-height:200px;display:flex;flex-direction:column;gap:8px}
+.col.over{border-color:var(--orange);background:var(--panel2)}
+.col-h{display:flex;justify-content:space-between;align-items:center;padding:2px 4px 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.col-h .n{color:var(--dim)}
+.tcard{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px;cursor:grab;display:flex;flex-direction:column;gap:8px}
+.tcard:hover{border-color:var(--line2)}
+.tcard.dragging{opacity:.4}
+.tcard .tt{font-weight:600;line-height:1.3}
+.tcard .tm{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
+.tcard .tm .av{margin-left:auto}
+.due{font-size:11px;color:var(--muted);white-space:nowrap}
+.due.late{color:var(--red);font-weight:700}
+.due.soon{color:var(--amber);font-weight:600}
+.st-todo{color:var(--muted)} .st-doing{color:var(--blue)} .st-waiting{color:var(--violet)} .st-blocked{color:var(--red)} .st-done{color:var(--green)}
+
+/* ---------- list ---------- */
+.group{margin-bottom:20px}
+.group-h{display:flex;align-items:center;gap:10px;padding:0 2px 8px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.group-h .n{color:var(--dim);font-size:12px}
+.trow{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:9px 6px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:6px}
+.trow:hover{background:var(--panel)}
+.trow .tt{font-weight:500}
+.trow.done .tt{color:var(--dim);text-decoration:line-through}
+.trow .right{display:flex;align-items:center;gap:10px}
+.trow .sub{display:flex;gap:6px;align-items:center;margin-top:3px;flex-wrap:wrap}
+.tick{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--line2);display:grid;place-items:center;cursor:pointer;background:transparent;padding:0}
+.tick:hover{border-color:var(--green)}
+.tick.on{background:var(--green);border-color:var(--green)}
+.tick.on::after{content:'';width:5px;height:9px;border:solid #0a0a0a;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.quick{display:flex;gap:8px;margin-bottom:14px}
+.quick .input{flex:1;min-width:0}
+.quick select.input{flex:none;width:210px}
+@media (max-width:820px){.quick{flex-wrap:wrap}.quick input.input{flex-basis:100%}.quick select.input{flex:1}}
+
+/* ---------- schedule ---------- */
+.day{margin-bottom:22px}
+.day-h{display:flex;align-items:baseline;gap:12px;padding-bottom:8px;border-bottom:1px solid var(--line2);margin-bottom:2px}
+.day-h .d{font-size:18px;font-weight:800;font-stretch:84%;text-transform:uppercase}
+.srow{display:grid;grid-template-columns:110px 120px 1fr 160px 150px;gap:12px;align-items:center;padding:10px 6px;border-bottom:1px solid var(--line);cursor:pointer}
+.srow:hover{background:var(--panel)}
+.srow .time{font-weight:700}
+.srow.show-item .time,.srow.show-item .ttl{color:var(--orange)}
+
+/* ---------- contacts ---------- */
+.ccard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:6px;cursor:pointer}
+.ccard:hover{border-color:var(--line2)}
+.ccard .nm{font-weight:700;font-size:15px}
+.ccard .links{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+
+/* ---------- timeline ---------- */
+.tl-wrap{border:1px solid var(--line);border-radius:var(--radius);overflow:auto;background:var(--panel);max-height:calc(100vh - 210px)}
+.tl{position:relative;display:grid}
+.tl-head,.tl-row{display:flex}
+.tl-label{position:sticky;left:0;z-index:3;width:230px;flex:none;background:var(--panel);border-right:1px solid var(--line);padding:10px 12px;display:flex;flex-direction:column;justify-content:center;cursor:pointer}
+.tl-label:hover .n{color:var(--orange)}
+.tl-label .n{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-label .c{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-head{position:sticky;top:0;z-index:4;background:var(--panel);border-bottom:1px solid var(--line2)}
+.tl-head .tl-label{z-index:5}
+.tl-days{position:relative;flex:none}
+.tl-month{position:absolute;top:0;height:22px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 6px;border-left:1px solid var(--line2);color:var(--muted);white-space:nowrap}
+.tl-day{position:absolute;top:22px;height:24px;font-size:10px;text-align:center;color:var(--dim);line-height:24px}
+.tl-day.we{color:var(--muted)}
+.tl-day.today{color:var(--orange);font-weight:800}
+.tl-track{position:relative;flex:none;border-bottom:1px solid var(--line);height:52px}
+.tl-we{position:absolute;top:0;bottom:0;background:rgba(255,255,255,.025)}
+.tl-today{position:absolute;top:0;bottom:0;width:2px;background:var(--orange);z-index:2;pointer-events:none}
+.tl-bar{position:absolute;top:15px;height:22px;border-radius:4px;cursor:pointer;display:flex;align-items:center;padding:0 7px;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden}
+.tl-bar.b{background:#3a3a37;color:#cfcfcb}
+.tl-bar.s{background:var(--orange);color:#0a0a0a;z-index:1}
+.tl-bar.d{background:repeating-linear-gradient(135deg,#2c2c2a 0 5px,#383836 5px 10px);color:#b0b0ac}
+.tl-ms{position:absolute;top:8px;width:9px;height:9px;background:var(--red);transform:rotate(45deg);z-index:2;cursor:pointer;border:1px solid var(--panel)}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--muted);align-items:center;flex-wrap:wrap}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+/* ---------- remove buttons ---------- */
+.card-x{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:6px;border:1px solid var(--line2);background:var(--panel);color:var(--muted);display:grid;place-items:center;cursor:pointer;opacity:0;transition:opacity .15s;z-index:2;padding:0}
+.card-x svg{width:15px;height:15px}
+.card:hover .card-x,.card:focus-within .card-x{opacity:1}
+.card-x:hover{color:var(--red);border-color:var(--red)}
+.card.has-x .row:first-child{padding-right:36px}
+@media (hover:none){.card-x{opacity:1}}
+.ev-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+/* ---------- confirm dialog ---------- */
+.modal{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.65)}
+.modal-box{width:min(440px,100%);background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal-box h2{font-size:16px}
+.modal-box p{margin:0;color:var(--muted)}
+.modal-box ul{margin:0;padding-left:18px;color:var(--text)}
+.modal-box .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:4px}
+.btn.danger-solid{background:var(--red);border-color:var(--red);color:#0B0B0C}
+.btn.danger-solid:hover{filter:brightness(1.08)}
+/* ---------- drawer / modal ---------- */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;opacity:0;pointer-events:none;transition:opacity .15s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100vw);background:var(--panel);border-left:1px solid var(--line2);z-index:51;transform:translateX(100%);transition:transform .2s ease;display:flex;flex-direction:column}
+.drawer.wide{width:min(860px,100vw)}
+.drawer.on{transform:none}
+.dr-h{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line)}
+.dr-b{padding:20px 22px;overflow-y:auto;flex:1}
+.dr-f{display:flex;gap:8px;padding:14px 22px;border-top:1px solid var(--line);align-items:center}
+.dr-f .sp{flex:1}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form .f{display:flex;flex-direction:column;gap:5px}
+.form .f.span{grid-column:1/-1}
+.form label{font:500 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.form .sect{grid-column:1/-1;border-top:1px solid var(--line);padding-top:14px;margin-top:4px}
+.cl{display:flex;flex-direction:column;gap:6px}
+.cl-row{display:flex;align-items:center;gap:8px}
+.cl-row .input{padding:6px 8px}
+.cl-row.done .input{color:var(--dim);text-decoration:line-through}
+.tpl-table{width:100%;border-collapse:collapse}
+.tpl-table th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:6px 4px;font-weight:700}
+.tpl-table td{padding:3px 4px}
+.tpl-table .input{padding:6px 7px;font-size:13px}
+.tpl-table select.input{padding-right:22px;background-position:calc(100% - 12px) 52%,calc(100% - 7px) 52%}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#0a0a0a;padding:10px 16px;border-radius:8px;font-weight:600;z-index:60;opacity:0;transition:.2s;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.toast.err{background:var(--red);color:#fff}
+
+/* ---------- auth ---------- */
+.auth{min-height:100vh;display:grid;place-items:center;padding:20px}
+.auth-box{width:min(380px,100%);display:flex;flex-direction:column;gap:14px}
+.auth-box .logo{font-size:34px;margin-bottom:6px}
+.loading{min-height:100vh;display:grid;place-items:center;color:var(--muted)}
+
+/* ---------- responsive ---------- */
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.srow{grid-template-columns:100px 1fr;}.srow .hide-sm{display:none}}
+@media (max-width:820px){
+  .shell{grid-template-columns:1fr}
+  .side{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;padding:6px 8px;border-right:0;border-top:1px solid var(--line);z-index:40;gap:0}
+  .side .brand,.side-foot{display:none}
+  .nav{flex-direction:row;justify-content:space-around;width:100%}
+  .nav a{flex-direction:column;gap:3px;font-size:10px;padding:6px 8px}
+  .nav .count{position:absolute;margin:0;transform:translate(10px,-4px)}
+  main{padding:18px 16px 90px}
+  h1{font-size:28px}.ev-head h1{font-size:30px}
+  .phases{grid-template-columns:repeat(2,1fr)}
+  .hero{grid-template-columns:1fr}
+  .form{grid-template-columns:1fr}
+  .countdown{text-align:left}
+  .board{grid-template-columns:repeat(5,82vw)}
+  .tl-label{width:140px}
+}
+
+/* ---------- print (production schedule & task lists) ---------- */
+@media print{
+  :root{--bg:#fff;--panel:#fff;--panel2:#fff;--text:#000;--muted:#555;--dim:#777;--line:#ccc;--line2:#999;--raise:#eee}
+  body{background:#fff}
+  .side,.toolbar,.tabs,.back,.demo-bar,.no-print,.drawer,.scrim,.ev-head,.phases,.depts{display:none!important}
+  .shell{display:block} main{padding:0}
+  .srow{grid-template-columns:110px 110px 1fr 150px 140px;break-inside:avoid}
+  .day{break-inside:avoid-page}
+  .logo .o{-webkit-text-stroke-color:#000}
+  .print-only{display:block!important}
+}
+.print-only{display:none}
+
+/* ---------- crew app ---------- */
+.src{font:600 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.av.lg{width:32px;height:32px;font-size:11px}
+.fill{font-weight:800;font-size:13px;white-space:nowrap}
+.fill.full{color:var(--green)} .fill.short{color:var(--amber)} .fill.none{color:var(--dim)}
+.issue{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.issue.bad{background:rgba(255,112,134,.13);color:var(--red)}
+.issue.warn{background:rgba(230,180,80,.13);color:var(--amber)}
+.issue.ok{background:rgba(91,201,148,.12);color:var(--green)}
+.issue.info{background:var(--raise);color:var(--muted)}
+
+/* shifts */
+.shift{display:grid;grid-template-columns:118px 1fr auto;gap:14px;align-items:start;padding:12px 8px;border-bottom:1px solid var(--line);border-radius:6px}
+.shift:hover{background:var(--panel)}
+.shift .time{font-weight:700;font-size:14px}
+.shift .hrs{font-size:11px;color:var(--muted);margin-top:2px}
+.shift .role{font-weight:700;font-size:15px;cursor:pointer}
+.shift .role:hover{color:var(--orange)}
+.shift .sub{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px;font-size:12px}
+.shift .end{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.slots{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.slot{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);background:var(--panel2);border-radius:30px;padding:3px 11px 3px 3px;font-size:12px;font-weight:600;cursor:pointer;max-width:230px;color:var(--text)}
+.slot:hover{border-color:var(--muted)}
+.slot .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot .sd{width:7px;height:7px;border-radius:50%;flex:none}
+.slot .ex{font-weight:900;font-size:12px;line-height:1}
+.slot.a-confirmed .sd{background:var(--green)}
+.slot.a-offered .sd{background:var(--amber)}
+.slot.a-declined{opacity:.5} .slot.a-declined .nm{text-decoration:line-through} .slot.a-declined .sd{background:var(--red)}
+.slot.a-noshow .sd{background:var(--red)} .slot.a-noshow .nm{color:var(--red)}
+.slot.bad{border-color:var(--red)} .slot.bad .ex{color:var(--red)}
+.slot.warn{border-color:rgba(230,180,80,.55)} .slot.warn .ex{color:var(--amber)}
+.slot.empty{border-style:dashed;background:transparent;color:var(--muted);padding:5px 13px}
+.slot.empty:hover{border-color:var(--orange);color:var(--orange)}
+.legend .sd{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+
+/* picker */
+.pick-top{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:10px}
+.pick-info{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;margin-bottom:12px;font-size:13px}
+.pick{display:grid;grid-template-columns:20px 32px 1fr auto;gap:10px;align-items:center;padding:10px 8px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:6px;user-select:none}
+.pick:hover{background:var(--panel2)}
+.pick.sel{background:var(--orange-soft)}
+.pick.dis{opacity:.55;cursor:default}
+.pick .nm{font-weight:700}
+.pick .rl{font-size:12px;color:var(--muted)}
+.pick .issues{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.pick .rate{font-size:12px;color:var(--muted);text-align:right;white-space:nowrap}
+.box{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--line2);display:grid;place-items:center}
+.pick.sel .box,.pick.dis .box{background:var(--orange);border-color:var(--orange)}
+.pick.sel .box::after,.pick.dis .box::after{content:'';width:5px;height:9px;border:solid #0a0a0a;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.pick-sect{font:500 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--muted);padding:14px 8px 6px}
+
+/* tables: crew on event, call sheet */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font:500 10.5px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:8px 8px;border-bottom:1px solid var(--line2);white-space:nowrap}
+.tbl td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr.click{cursor:pointer} .tbl tr.click:hover td{background:var(--panel)}
+.tbl tr.grp td{padding-top:18px;font-weight:800;text-transform:uppercase;font-stretch:84%;font-size:14px;border-bottom:1px solid var(--line2);background:transparent!important}
+.tbl .r{text-align:right}
+.tbl .who{display:flex;align-items:center;gap:9px}
+.tbl-wrap{overflow-x:auto}
+.totals{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.cs-head{display:none}
+
+/* roster */
+.crow{display:grid;grid-template-columns:32px 1fr auto;gap:12px;align-items:center;padding:11px 8px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:6px}
+.crow:hover{background:var(--panel)}
+.crow .nm{font-weight:700}
+.crow .sub{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:3px;font-size:12px;color:var(--muted)}
+.crow .right{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted);text-align:right}
+.crow.off{opacity:.55}
+.rows-ed{display:flex;flex-direction:column;gap:6px}
+.rows-ed .r3{display:grid;grid-template-columns:1fr 150px 34px;gap:6px}
+.rows-ed .r4{display:grid;grid-template-columns:140px 140px 1fr 34px;gap:6px}
+.rows-ed .input{padding:6px 8px}
+.bk{display:grid;grid-template-columns:96px 1fr auto;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:13px;align-items:center;cursor:pointer}
+.bk:hover{background:var(--panel2)}
+
+/* planner */
+.pl-wrap{border:1px solid var(--line);border-radius:var(--radius);overflow:auto;background:var(--panel);max-height:calc(100vh - 240px)}
+.pl{min-width:max-content}
+.pl-row{display:grid;grid-template-columns:210px repeat(14,minmax(86px,1fr))}
+.pl-h{position:sticky;top:0;z-index:4;background:var(--panel);border-bottom:1px solid var(--line2)}
+.pl-name{position:sticky;left:0;z-index:2;background:var(--panel);border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 10px;display:flex;gap:9px;align-items:center;cursor:pointer;min-width:0}
+.pl-h .pl-name{z-index:5;border-bottom:0}
+.pl-name:hover .n{color:var(--orange)}
+.pl-name .n{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-name .r{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-name > div{min-width:0}
+.pl-day{padding:7px 4px;text-align:center;font-size:10.5px;color:var(--muted);border-left:1px solid var(--line);text-transform:uppercase;letter-spacing:.06em}
+.pl-day b{display:block;font-size:16px;color:var(--text);letter-spacing:0;font-stretch:84%}
+.pl-day.today b{color:var(--orange)}
+.pl-day.we,.pl-cell.we{background:rgba(255,255,255,.025)}
+.pl-cell{border-left:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px;display:flex;flex-direction:column;gap:3px;min-height:46px;min-width:0}
+.pl-b{font-size:10.5px;font-weight:700;border-radius:4px;padding:3px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;color:#0a0a0a;border:1px solid transparent;line-height:1.25}
+.pl-b small{display:block;font-weight:500;opacity:.8;font-size:9.5px}
+.pl-b.off{background:transparent!important;border-style:dashed}
+.pl-b.bad{box-shadow:0 0 0 2px var(--red)}
+.pl-away{font-size:10px;color:var(--muted);background:repeating-linear-gradient(135deg,#232327 0 5px,#2d2d32 5px 10px);border-radius:4px;padding:3px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pl-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:12px}
+.pl-legend i{display:inline-block;width:12px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.wk{display:flex;align-items:center;gap:6px}
+
+@media (max-width:1100px){.totals{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:820px){
+  .shift{grid-template-columns:1fr;gap:6px}
+  .shift .end{flex-direction:row;align-items:center;justify-content:space-between}
+  .pl-row{grid-template-columns:128px repeat(14,78px)}
+  .pl-name .av{display:none}
+  .pick{grid-template-columns:20px 1fr auto}.pick .av{display:none}
+  .rows-ed .r4{grid-template-columns:1fr 1fr 34px}.rows-ed .r4 .nt{grid-column:1/3}
+  .hide-sm{display:none}
+  .totals{grid-template-columns:repeat(2,1fr)}
+}
+@media print{
+  .cs-head{display:block!important;margin-bottom:14px}
+  .tbl th,.tbl td{padding:6px 6px}
+  .tbl tr{break-inside:avoid}
+  .slot,.pick,.btn{display:none!important}
+  .totals{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading">Loading…</div></div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true"></aside>
+<div class="toast" id="toast"></div>
+
+<script src="../vendor/supabase-2.117.3.js"></script>
+<script src="../brand.js?v=20261101b"></script>
+<script src="../config.js?v=20261101b"></script>
+<script src="../portal.js?v=20261101b"></script>
+<script>
+/* =========================================================================
+   Black Canvas · Crew
+   Crew assignment for the Black Canvas team portal: the crew roster, shifts per
+   event and who is booked on each one, with double-booking, rest-time,
+   availability and certificate checks, a two-week planner and call sheets.
+   Data lives in Supabase (table crew_records). Events come from the Projects app
+   (read-only, through crew_events()) plus any crew-only jobs added here.
+   Open with ?demo to try it with sample data stored only in this browser.
+   ========================================================================= */
+const CONFIG = {
+  TABLE: 'crew_records',
+  PORTAL_HOME: '../',
+  CURRENCY: 'SAR',
+  REST_HOURS: 10,      // warn when a turnaround between working days is shorter than this
+  LONG_SHIFT: 14,      // warn on shifts longer than this many hours
+};
+const DEMO = new URLSearchParams(location.search).has('demo');
+
+/* ---------------- reference lists ---------------- */
+const STATUSES = [['pitch','Pitch'],['confirmed','Confirmed'],['preprod','Pre-production'],['build','Build'],['live','Live'],['derig','De-rig'],['wrap','Wrap-up'],['closed','Closed'],['lost','Lost']];
+const EVENT_TYPES = ['Concert','Festival','Sports','Corporate','Brand activation','Exhibition','Tour','Ceremony','Other'];
+const ROLES = [
+  ['Production manager','Production'],['Stage manager','Production'],['Site manager','Production'],['Production assistant','Production'],['Runner','Production'],
+  ['Head rigger','Staging & Structures'],['Rigger','Staging & Structures'],['Stagehand','Staging & Structures'],['Carpenter','Staging & Structures'],['Scaffolder','Staging & Structures'],
+  ['Lighting technician','Lighting'],['Lighting programmer','Lighting'],['Follow-spot operator','Lighting'],
+  ['Audio engineer (FOH)','Audio'],['Monitor engineer','Audio'],['Audio technician','Audio'],['Backline technician','Audio'],
+  ['Video / LED technician','Video'],['Media server operator','Video'],['Camera operator','Video'],
+  ['Power / electrician','Power'],['Health & safety officer','Health & Safety'],['Driver','Logistics'],['Forklift operator','Logistics'],
+  ['Accreditation','Front of house'],['Hospitality','Hospitality'],
+];
+const ROLE_NAMES = ROLES.map(r => r[0]);
+const DEPTS = ['Production','Staging & Structures','Lighting','Audio','Video','Power','Logistics','Health & Safety','Front of house','Hospitality'];
+const deptOf = role => (ROLES.find(r => r[0].toLowerCase() === String(role || '').toLowerCase()) || [0, 'Production'])[1];
+const CREW_TYPES = [['freelance','Freelancer'],['staff','Staff'],['agency','Agency']];
+const A_STATUS = [['offered','Offered'],['confirmed','Confirmed'],['declined','Declined'],['noshow','No-show']];
+const CERTS = ['Working at height','IPAF','Rope access (IRATA)','Rigging certificate','First aid','Licensed electrician','Forklift licence','Fire marshal','Driving licence'];
+const label = (list, v) => (list.find(x => x[0] === v) || [v, v || '—'])[1];
+const EV_COLORS = ['#F04E23','#7FA2FF','#5BC994','#E6B450','#B39BFF','#FF7086','#4FC3D9','#D7D6D0'];
+
+/* Standard crew plan, added per day from the event's build, show and de-rig dates. */
+const PLAN = [
+  ['build','Production manager',1,'07:00','19:00','Production office'],
+  ['build','Head rigger',1,'07:00','19:00','Main stage'],
+  ['build','Rigger',4,'07:00','19:00','Main stage'],
+  ['build','Stagehand',8,'07:00','19:00','Loading dock'],
+  ['build','Power / electrician',1,'08:00','20:00','Site'],
+  ['show','Production manager',1,'10:00','00:00','Production office'],
+  ['show','Stage manager',1,'12:00','00:00','Main stage'],
+  ['show','Lighting technician',2,'12:00','00:00','Main stage'],
+  ['show','Audio technician',2,'11:00','00:00','Main stage'],
+  ['show','Video / LED technician',2,'12:00','00:00','Main stage'],
+  ['show','Stagehand',6,'14:00','00:00','Main stage'],
+  ['show','Runner',2,'10:00','23:00','Production office'],
+  ['derig','Rigger',4,'08:00','18:00','Main stage'],
+  ['derig','Stagehand',10,'08:00','18:00','Loading dock'],
+];
+
+/* ---------------- helpers ---------------- */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { if (!s) return null; const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const today = () => iso(new Date());
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const diff = (a, b) => Math.round((parse(b) - parse(a)) / 864e5);
+const fmt = (s, o = {weekday:'short', day:'numeric', month:'short'}) => s ? parse(s).toLocaleDateString('en-GB', o) : '';
+const fmtShort = s => fmt(s, {day:'numeric', month:'short'});
+function fmtRange(a, b) {
+  if (!a) return 'Dates TBC';
+  if (!b || a === b) return fmt(a, {day:'numeric', month:'short', year:'numeric'});
+  const A = parse(a), B = parse(b);
+  if (A.getMonth() === B.getMonth() && A.getFullYear() === B.getFullYear()) return `${A.getDate()}–${fmt(b,{day:'numeric',month:'short',year:'numeric'})}`;
+  return `${fmtShort(a)} – ${fmt(b,{day:'numeric',month:'short',year:'numeric'})}`;
+}
+const plural = (n, w, ws) => `${n} ${n === 1 ? w : (ws || w + 's')}`;
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const money = n => `${CONFIG.CURRENCY} ${Math.round(Number(n) || 0).toLocaleString('en-US')}`;
+const toMin = t => { if (!t) return null; const [h, m] = t.split(':').map(Number); return h * 60 + (m || 0); };
+/* A shift's start and end as timestamps; an end at or before the start runs past midnight. */
+function span(s) {
+  const base = parse(s.date)?.getTime() ?? 0;
+  const st = toMin(s.start) ?? 480;
+  let en = toMin(s.end); if (en == null) en = st + 600; if (en <= st) en += 1440;
+  return [base + st * 6e4, base + en * 6e4];
+}
+const hoursOf = s => { const [a, b] = span(s); return Math.round((b - a) / 36e5 * 10) / 10; };
+const timeRange = s => `${s.start || '—'}${s.end ? '–' + s.end : ''}`;
+const waNumber = ph => { let d = String(ph || '').replace(/[^\d]/g, '').replace(/^00/, ''); if (/^05\d{8}$/.test(d)) d = '966' + d.slice(1); return d; };
+const waLink = (ph, text) => `https://wa.me/${waNumber(ph)}${text ? '?text=' + encodeURIComponent(text) : ''}`;
+
+const ICON = {
+  grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="1"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M1 21v-1a7 7 0 0114 0v1"/><path d="M17 4a4 4 0 010 8M23 21v-1a7 7 0 00-4-6.3"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>',
+  left:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>',
+  right:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>',
+  x:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>',
+  print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
+  wand:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 4V2M15 10V8M11 6h2M17 6h2M3 21l12-12"/></svg>',
+  dl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>',
+  chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-5A8 8 0 1121 12z"/></svg>',
+};
+
+/* =========================================================================
+   Data layer: same interface for Supabase and demo mode
+   ========================================================================= */
+const COLLS = ['crew','events','shifts','assign','settings'];
+const db = Object.fromEntries(COLLS.map(c => [c, new Map()]));
+const pmEvents = new Map();          // events from the Projects app (read-only here)
+let sb = null, me = null, myName = '';
+
+const Backend = {
+  async load() {
+    COLLS.forEach(c => db[c].clear()); pmEvents.clear();
+    if (DEMO) {
+      const store = lsGet('bc-crew-demo', null) || seedDemo();
+      for (const c of COLLS) for (const [id, data] of Object.entries(store[c] || {})) db[c].set(id, data);
+      for (const [id, data] of Object.entries(store.pm || {})) pmEvents.set(id, data);
+      return;
+    }
+    let from = 0;
+    for (;;) {
+      const { data, error } = await sb.from(CONFIG.TABLE).select('coll,id,data').range(from, from + 999);
+      if (error) throw error;
+      data.forEach(r => db[r.coll]?.set(r.id, r.data));
+      if (data.length < 1000) break;
+      from += 1000;
+    }
+    await this.loadEvents();
+  },
+  async loadEvents() {
+    if (DEMO) return;
+    const { data, error } = await sb.rpc('crew_events');
+    if (error) { console.warn('Projects events unavailable', error); return; }
+    pmEvents.clear();
+    (data || []).forEach(r => pmEvents.set(r.id, { ...r.data, id: r.id }));
+  },
+  saveDemo() {
+    const store = { pm: Object.fromEntries(pmEvents) };
+    for (const c of COLLS) store[c] = Object.fromEntries(db[c]);
+    lsSet('bc-crew-demo', store);
+  },
+  async put(coll, id, data) {
+    db[coll].set(id, data);
+    if (DEMO) return this.saveDemo();
+    const { error } = await sb.from(CONFIG.TABLE).upsert({ coll, id, data });
+    if (error) throw error;
+  },
+  async putMany(rows) {
+    rows.forEach(r => db[r.coll].set(r.id, r.data));
+    if (DEMO) return this.saveDemo();
+    for (let i = 0; i < rows.length; i += 200) {
+      const { error } = await sb.from(CONFIG.TABLE).upsert(rows.slice(i, i + 200));
+      if (error) throw error;
+    }
+  },
+  async delMany(coll, ids) {
+    ids.forEach(id => db[coll].delete(id));
+    if (DEMO) return this.saveDemo();
+    for (let i = 0; i < ids.length; i += 100) {
+      const { error } = await sb.from(CONFIG.TABLE).delete().eq('coll', coll).in('id', ids.slice(i, i + 100));
+      if (error) throw error;
+    }
+  },
+  subscribe() {
+    if (DEMO) return;
+    sb.channel('crew-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: CONFIG.TABLE }, p => {
+        if (p.eventType === 'DELETE') { const o = p.old || {}; o.coll && db[o.coll]?.delete(o.id); }
+        else { const n = p.new; n?.coll && db[n.coll]?.set(n.id, n.data); }
+        scheduleRender();
+      })
+      .subscribe();
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) this.loadEvents().then(scheduleRender); });
+  },
+};
+
+async function save(coll, id, data, msg) {
+  try { await Backend.put(coll, id, data); render(); if (msg) toast(msg); }
+  catch (e) { failed(e); }
+}
+async function failed(e) {
+  console.error(e);
+  if (!DEMO && /jwt/i.test(e?.message || '')) { toast('Your sign-in has expired. Taking you to sign in…', true); return setTimeout(() => leave('?next=crew'), 1600); }
+  toast('Couldn’t save — ' + (e.message || 'check your connection'), true);
+  try { await Backend.load(); render(); } catch {}
+}
+
+/* ---------------- events ---------------- */
+const getEvent = id => pmEvents.get(id) || db.events.get(id) || null;
+const isPm = id => pmEvents.has(id);
+const allEvents = () => [...pmEvents.values(), ...db.events.values()];
+const evName = id => getEvent(id)?.name || 'Removed event';
+function anchorsOf(e) {
+  const d = e?.dates || {};
+  const show = d.showStart || null;
+  return { show, build: d.buildStart || show, showEnd: d.showEnd || show, derig: d.derigEnd || d.showEnd || show };
+}
+const evEnd = e => { const a = anchorsOf(e); return a.derig || a.show || ''; };
+function dayLabel(e, date) {
+  const a = anchorsOf(e);
+  if (!a.show) return '';
+  if (date >= a.show && date <= a.showEnd) return `Show day ${diff(a.show, date) + 1}`;
+  if (a.build && date >= a.build && date < a.show) return `Build day ${diff(a.build, date) + 1}`;
+  if (date > a.showEnd && date <= a.derig) return `De-rig day ${diff(a.showEnd, date)}`;
+  const n = diff(date, a.show);
+  return n > 0 ? `Show −${n}` : `Show +${-n}`;
+}
+function evColor(id) {
+  const ids = allEvents().map(e => e.id).sort();
+  return EV_COLORS[Math.max(0, ids.indexOf(id)) % EV_COLORS.length];
+}
+
+/* ---------------- crew ---------------- */
+const crewName = id => db.crew.get(id)?.name || 'Removed crew member';
+const firstName = id => crewName(id).split(/\s+/)[0];
+const initials = id => crewName(id).split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+const avatar = (id, lg) => `<span class="av ${lg ? 'lg' : ''}" title="${esc(crewName(id))}">${esc(initials(id))}</span>`;
+const crewRoles = c => [c.role, ...(c.skills || [])].filter(Boolean).map(r => r.toLowerCase());
+const rateOf = a => (a.rate !== '' && a.rate != null) ? Number(a.rate) || 0 : Number(db.crew.get(a.crewId)?.rate) || 0;
+const sortCrew = (a, b) => (a.name || '').localeCompare(b.name || '');
+
+/* =========================================================================
+   Derived index, rebuilt once per render: shifts per event, bookings per shift
+   and per crew member, and the issues on each booking.
+   ========================================================================= */
+let IDX = null;
+function idx() {
+  if (IDX) return IDX;
+  const byShift = new Map(), byCrew = new Map(), byEvent = new Map();
+  const push = (m, k, v) => { let l = m.get(k); if (!l) m.set(k, l = []); l.push(v); };
+  for (const s of db.shifts.values()) push(byEvent, s.eventId, s);
+  for (const a of db.assign.values()) {
+    const s = db.shifts.get(a.shiftId); if (!s) continue;
+    push(byShift, s.id, a);
+    if (a.status !== 'declined') push(byCrew, a.crewId, { a, s, sp: span(s) });
+  }
+  byCrew.forEach(l => l.sort((x, y) => x.sp[0] - y.sp[0]));
+  byEvent.forEach(l => l.sort(sortShifts));
+  IDX = { byShift, byCrew, byEvent, issues: new Map() };
+  return IDX;
+}
+const roleRank = r => { const i = ROLE_NAMES.findIndex(x => x.toLowerCase() === String(r || '').toLowerCase()); return i < 0 ? 99 : i; };
+const sortShifts = (a, b) => (a.date || '').localeCompare(b.date || '') || (a.start || '').localeCompare(b.start || '') || roleRank(a.role) - roleRank(b.role) || (a.role || '').localeCompare(b.role || '');
+const shiftAssigns = sid => idx().byShift.get(sid) || [];
+const live = a => a.status !== 'declined';
+
+/* Problems with putting crew member `crewId` on shift `s` (ignoring booking `ignoreId`). */
+function issuesFor(crewId, s, ignoreId) {
+  const c = db.crew.get(crewId), out = [], sp = span(s);
+  for (const b of idx().byCrew.get(crewId) || []) {
+    if (b.a.id === ignoreId || b.s.id === s.id) continue;
+    const where = `${evName(b.s.eventId)} · ${fmtShort(b.s.date)} ${timeRange(b.s)}`;
+    if (b.sp[0] < sp[1] && sp[0] < b.sp[1]) { out.push({ lvl: 'bad', t: `Double-booked: ${where}` }); continue; }
+    if (b.s.date !== s.date) {
+      const gap = b.sp[1] <= sp[0] ? sp[0] - b.sp[1] : b.sp[0] - sp[1];
+      if (gap < CONFIG.REST_HOURS * 36e5) out.push({ lvl: 'warn', t: `${Math.round(gap / 36e5)}h rest: ${where}` });
+    }
+  }
+  for (const w of c?.away || []) if (w.from && s.date >= w.from && s.date <= (w.to || w.from)) out.push({ lvl: 'bad', t: `Unavailable${w.note ? ': ' + w.note : ''}` });
+  for (const k of c?.certs || []) if (k.expires && k.expires < s.date) out.push({ lvl: 'warn', t: `${k.name || 'Certificate'} expired ${fmtShort(k.expires)}` });
+  if (c && c.active === false) out.push({ lvl: 'warn', t: 'Marked inactive' });
+  return out;
+}
+function bookingIssues(a) {
+  const I = idx().issues;
+  if (!I.has(a.id)) { const s = db.shifts.get(a.shiftId); I.set(a.id, s && live(a) ? issuesFor(a.crewId, s, a.id) : []); }
+  return I.get(a.id);
+}
+const worst = list => list.some(i => i.lvl === 'bad') ? 'bad' : list.length ? 'warn' : '';
+const issueTags = list => list.map(i => `<span class="issue ${i.lvl}">${esc(i.t)}</span>`).join('');
+
+function evStats(eid) {
+  const st = { need: 0, filled: 0, offered: 0, confirmed: 0, bad: 0, cost: 0, shifts: 0, people: new Set() };
+  for (const s of idx().byEvent.get(eid) || []) {
+    st.shifts++;
+    const need = Number(s.need) || 0, as = shiftAssigns(s.id).filter(live);
+    st.need += need; st.filled += Math.min(as.length, need);
+    for (const a of as) {
+      st.people.add(a.crewId); st.cost += rateOf(a);
+      if (a.status === 'offered') st.offered++;
+      if (a.status === 'confirmed') st.confirmed++;
+      if (worst(bookingIssues(a)) === 'bad') st.bad++;
+    }
+  }
+  st.open = st.need - st.filled;
+  st.pct = st.need ? Math.round(st.filled / st.need * 100) : 0;
+  return st;
+}
+function fillHTML(n, need) {
+  const cls = !need ? 'none' : n >= need ? 'full' : 'short';
+  return `<span class="fill num ${cls}">${n}/${need}</span>`;
+}
+
+/* =========================================================================
+   UI state & routing
+   ========================================================================= */
+const ui = Object.assign({ filter: 'upcoming', q: '', crewQ: '', crewRole: '', crewType: '', showInactive: false, plStart: '', plRole: '', plQ: '', plBooked: false, callDay: {}, pickQ: '', pickAll: false, newStatus: 'offered', hideFull: false },
+  lsGet('bc-crew-ui', {}));
+const persistUI = () => lsSet('bc-crew-ui', { filter: ui.filter, showInactive: ui.showInactive, plRole: ui.plRole, plBooked: ui.plBooked, newStatus: ui.newStatus, hideFull: ui.hideFull });
+function route() {
+  const h = location.hash.startsWith('#/') ? location.hash.slice(2) : '';
+  const [view = '', id = '', tab = ''] = h.split('/');
+  return { view: view || 'events', id, tab: tab || 'shifts' };
+}
+const go = h => { location.hash = h; };
+
+let renderQueued = false;
+function scheduleRender() { if (!renderQueued) { renderQueued = true; setTimeout(() => { renderQueued = false; render(); }, 120); } }
+
+function render() {
+  IDX = null;
+  const main = $('#main'); if (!main) return;
+  const act = document.activeElement, focusId = act && act.id && main.contains(act) ? act.id : null;
+  const sel = focusId && 'selectionStart' in act ? [act.selectionStart, act.selectionEnd] : null;
+  const r = route();
+  const views = { events: viewEvents, event: viewEvent, planner: viewPlanner, crew: viewCrew };
+  main.innerHTML = (DEMO ? '<div class="demo-bar no-print">Demo mode — sample data, saved only in this browser. Remove ?demo from the address to use the live portal data.</div>' : '') + (views[r.view] || viewEvents)(r);
+  document.querySelectorAll('.nav a').forEach(a => a.classList.toggle('on', a.dataset.v === (r.view === 'event' ? 'events' : r.view)));
+  const c = $('#openCount'), n = openSoon();
+  if (c) { c.textContent = n; c.classList.toggle('hidden', !n); }
+  if (focusId) { const el = document.getElementById(focusId); if (el) { el.focus(); if (sel) try { el.setSelectionRange(...sel); } catch {} } }
+  if (drawerState?.refresh) drawerState.refresh();
+}
+/* Unfilled positions in the next 7 days, shown on the Events nav item. */
+function openSoon() {
+  const t = today(), end = addDays(t, 7); let n = 0;
+  for (const s of db.shifts.values()) {
+    if (!s.date || s.date < t || s.date > end || !getEvent(s.eventId)) continue;
+    n += Math.max(0, (Number(s.need) || 0) - shiftAssigns(s.id).filter(live).length);
+  }
+  return n;
+}
+
+/* =========================================================================
+   Shell
+   ========================================================================= */
+function shell() {
+  $('#app').innerHTML = `
+  <div class="shell">
+    <aside class="side">
+      <div class="brand">
+        <a class="logo-svg" href="${esc(CONFIG.PORTAL_HOME)}" aria-label="Black Canvas — all apps">${BCPortal.logoSvg('line')}</a>
+        <div class="logo-sub">Crew</div>
+      </div>
+      <nav class="nav">
+        <a href="#/" data-v="events">${ICON.grid}<span>Events</span><span class="count hidden" id="openCount" title="Open positions in the next 7 days"></span></a>
+        <a href="#/planner" data-v="planner">${ICON.cal}<span>Planner</span></a>
+        <a href="#/crew" data-v="crew">${ICON.users}<span>Crew</span></a>
+      </nav>
+      <div class="side-foot">
+        <div class="me"><span class="av" style="border-color:var(--orange);color:var(--orange)">${esc((myName || 'Me').split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase())}</span><span>${esc(myName || me)}</span></div>
+        <a href="${esc(CONFIG.PORTAL_HOME)}">← All apps</a>
+        ${DEMO ? '<a href="#" data-act="resetDemo">Reset demo data</a>' : '<a href="#" data-act="signOut">Sign out</a>'}
+      </div>
+    </aside>
+    <main id="main"></main>
+  </div>`;
+  render();
+}
+
+/* =========================================================================
+   View: Events
+   ========================================================================= */
+function filteredEvents() {
+  const t = today(), q = ui.q.trim().toLowerCase();
+  return allEvents().filter(e => {
+    const past = ['closed','lost'].includes(e.status) || (evEnd(e) && evEnd(e) < t);
+    if (ui.filter === 'upcoming' && past) return false;
+    if (ui.filter === 'past' && !past) return false;
+    if (q && ![e.name, e.client, e.venue, e.city, e.code].join(' ').toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a, b) => {
+    const A = anchorsOf(a).build || '9999', B = anchorsOf(b).build || '9999';
+    return ui.filter === 'past' ? B.localeCompare(A) : A.localeCompare(B);
+  });
+}
+function viewEvents() {
+  const t = today(), in14 = addDays(t, 14), in7 = addDays(t, 6);
+  let open14 = 0, awaiting = 0, conflicts = 0; const week = new Set();
+  for (const s of db.shifts.values()) {
+    if (!s.date || s.date < t || !getEvent(s.eventId)) continue;
+    const as = shiftAssigns(s.id).filter(live);
+    if (s.date <= in14) open14 += Math.max(0, (Number(s.need) || 0) - as.length);
+    for (const a of as) {
+      if (a.status === 'offered') awaiting++;
+      if (worst(bookingIssues(a)) === 'bad') conflicts++;
+      if (s.date <= in7) week.add(a.crewId);
+    }
+  }
+  const all = allEvents(), pastCount = all.filter(e => ['closed','lost'].includes(e.status) || (evEnd(e) && evEnd(e) < t)).length;
+  const counts = { upcoming: all.length - pastCount, past: pastCount, all: all.length };
+  return `
+  <div class="page-head">
+    <div><div class="eyebrow">${esc(fmt(t,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))}</div><h1>Crew</h1></div>
+    <button class="btn" data-act="newJob" title="For work that isn’t an event in Projects">${ICON.plus} Crew-only job</button>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="eyebrow">Open positions · 14 days</div><div class="v num" style="${open14 ? 'color:var(--amber)' : ''}">${open14}</div></div>
+    <div class="kpi"><div class="eyebrow">Awaiting reply</div><div class="v num" style="${awaiting ? 'color:var(--amber)' : ''}">${awaiting}</div></div>
+    <div class="kpi ${conflicts ? 'alert' : ''}"><div class="eyebrow">Clashes</div><div class="v num">${conflicts}</div></div>
+    <div class="kpi"><div class="eyebrow">Crew working · 7 days</div><div class="v num">${week.size}</div></div>
+  </div>
+  <div class="toolbar">
+    <div class="chips">${[['upcoming','Upcoming'],['past','Past'],['all','All']].map(([k, l]) => `<button class="chip ${ui.filter === k ? 'on' : ''}" data-act="filter" data-v="${k}">${l} <span class="num">${counts[k]}</span></button>`).join('')}</div>
+    <div class="grow"></div>
+    <input class="input" id="evSearch" style="max-width:260px" placeholder="Search events, clients, venues…" value="${esc(ui.q)}" data-inp="q">
+  </div>
+  <div id="evGrid">${eventGrid()}</div>`;
+}
+function eventGrid() {
+  const es = filteredEvents();
+  if (!es.length) return allEvents().length
+    ? '<div class="empty"><b>No events here</b>Try another filter or search.</div>'
+    : `<div class="empty"><b>No events yet</b>Events you create in Project management show up here automatically, ready to crew.<br>For work that isn’t in Projects, add a crew-only job.<br><br><button class="btn primary" data-act="newJob">${ICON.plus} Crew-only job</button></div>`;
+  return `<div class="grid">${es.map(e => {
+    const s = evStats(e.id);
+    return `<div class="card" role="link" tabindex="0" data-act="open" data-id="${esc(e.id)}">
+      <div class="row"><span class="pill s-${esc(e.status || 'confirmed')}">${esc(label(STATUSES, e.status || 'confirmed'))}</span><span class="src">${isPm(e.id) ? 'Projects' : 'Crew-only job'}${e.code ? ' · ' + esc(e.code) : ''}</span></div>
+      <div><div class="name">${esc(e.name)}</div><div class="muted" style="font-size:13px;margin-top:3px">${esc([e.client, e.venue, e.city].filter(Boolean).join(' · ') || '—')}</div></div>
+      <div class="row" style="font-size:13px"><span class="num">${esc(fmtRange(anchorsOf(e).build, anchorsOf(e).derig))}</span>${s.need ? fillHTML(s.filled, s.need) : '<span class="dim">No shifts yet</span>'}</div>
+      <div class="bar ${s.open ? 'o' : ''}"><i style="width:${s.pct}%"></i></div>
+      <div class="meta">${s.need ? (s.open ? `<span style="color:var(--amber);font-weight:600">${s.open} open</span>` : '<span style="color:var(--green);font-weight:600">Fully crewed</span>') : ''}${s.offered ? `<span>${s.offered} awaiting reply</span>` : ''}${s.bad ? `<span class="bad">${plural(s.bad, 'clash', 'clashes')}</span>` : ''}${s.cost ? `<span class="num">${money(s.cost)}</span>` : ''}</div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+/* =========================================================================
+   View: one event
+   ========================================================================= */
+function viewEvent(r) {
+  const e = getEvent(r.id);
+  if (!e) {
+    const orphan = idx().byEvent.get(r.id) || [];
+    return `<a class="back" href="#/">${ICON.left} Events</a><div class="empty"><b>Event not found</b>It may have been removed in Projects.${orphan.length ? `<br><br><button class="btn danger" data-act="dropOrphan" data-id="${esc(r.id)}">${ICON.trash} Remove its ${plural(orphan.length, 'shift')}</button>` : ''}</div>`;
+  }
+  const a = anchorsOf(e), s = evStats(e.id), tab = r.tab;
+  return `
+  <a class="back" href="#/">${ICON.left} Events</a>
+  <div class="ev-head">
+    <div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+        <span class="pill s-${esc(e.status || 'confirmed')}">${esc(label(STATUSES, e.status || 'confirmed'))}</span>
+        ${e.code ? `<span class="tag">${esc(e.code)}</span>` : ''}<span class="src">${isPm(e.id) ? 'From Projects' : 'Crew-only job'}</span>
+      </div>
+      <h1>${esc(e.name)}</h1>
+      <div class="muted" style="margin-top:6px">${esc([e.client, e.venue, e.city].filter(Boolean).join(' · ') || '—')}</div>
+    </div>
+    <div class="countdown">
+      <div class="big num" style="${s.need && !s.open ? 'color:var(--green)' : ''}">${s.need ? (s.open ? s.open : 'Crewed') : '—'}</div>
+      <div class="eyebrow" style="margin-top:6px">${s.need ? (s.open ? (s.open === 1 ? 'open position' : 'open positions') : `${s.filled} of ${s.need} filled`) : 'No shifts yet'}</div>
+      ${isPm(e.id) ? '' : `<div class="ev-actions no-print"><button class="btn sm" data-act="editJob" data-id="${esc(e.id)}">Edit job</button></div>`}
+    </div>
+  </div>
+  <div class="phases">
+    <div class="phase"><div class="eyebrow">Build / load-in</div><div class="d num">${a.build ? esc(fmt(a.build)) : '—'}</div></div>
+    <div class="phase"><div class="eyebrow">Show</div><div class="d num">${a.show ? esc(fmtRange(a.show, a.showEnd)) : 'TBC'}</div></div>
+    <div class="phase"><div class="eyebrow">De-rig ends</div><div class="d num">${a.derig ? esc(fmt(a.derig)) : '—'}</div></div>
+    <div class="phase"><div class="eyebrow">Crew cost</div><div class="d num">${money(s.cost)} <span class="muted" style="font-weight:500;font-size:12px">${plural(s.people.size, 'person', 'people')}</span></div></div>
+  </div>
+  <div class="tabs">
+    ${[['shifts','Shifts',s.shifts],['people','Crew & costs',s.people.size],['callsheet','Call sheets',null]].map(([k, l, n]) => `<a href="#/event/${esc(e.id)}/${k}" class="${tab === k ? 'on' : ''}">${l}${n != null ? `<span class="n num">${n}</span>` : ''}</a>`).join('')}
+  </div>
+  ${tab === 'people' ? tabPeople(e) : tab === 'callsheet' ? tabCall(e) : tabShifts(e)}`;
+}
+
+/* ---- Shifts tab ---- */
+function tabShifts(e) {
+  const shifts = idx().byEvent.get(e.id) || [];
+  const head = `<div class="toolbar no-print">
+    <button class="btn primary" data-act="newShift" data-id="${esc(e.id)}">${ICON.plus} Add shift</button>
+    <button class="btn" data-act="seedPlan" data-id="${esc(e.id)}">${ICON.wand} Standard crew plan</button>
+    <div class="grow"></div>
+    <label class="check"><input type="checkbox" data-chg="hideFull" ${ui.hideFull ? 'checked' : ''}> Only shifts with open places</label>
+    <div class="legend"><span><i class="sd" style="background:var(--green)"></i>Confirmed</span><span><i class="sd" style="background:var(--amber)"></i>Offered</span><span><i class="sd" style="background:var(--red)"></i>Clash / declined</span></div>
+  </div>`;
+  if (!shifts.length) return head + `<div class="empty"><b>No shifts yet</b>Add shifts by role and day — e.g. 4 riggers, 07:00–19:00 on each build day — or start from the standard crew plan built from the event’s dates.<br><br><button class="btn primary" data-act="seedPlan" data-id="${esc(e.id)}">${ICON.wand} Standard crew plan</button></div>`;
+  const byDay = {};
+  shifts.forEach(s => (byDay[s.date || ''] ||= []).push(s));
+  let html = '';
+  for (const [d, list] of Object.entries(byDay)) {
+    const shown = ui.hideFull ? list.filter(s => shiftAssigns(s.id).filter(live).length < (Number(s.need) || 0)) : list;
+    if (!shown.length) continue;
+    const need = list.reduce((n, s) => n + (Number(s.need) || 0), 0);
+    const filled = list.reduce((n, s) => n + Math.min(shiftAssigns(s.id).filter(live).length, Number(s.need) || 0), 0);
+    html += `<div class="day">
+      <div class="day-h"><span class="d">${d ? esc(fmt(d, {weekday:'long', day:'numeric', month:'long'})) : 'No date'}</span><span class="eyebrow" style="color:var(--orange)">${esc(d ? dayLabel(e, d) : '')}</span><span style="margin-left:auto">${fillHTML(filled, need)}</span></div>
+      ${shown.map(shiftRow).join('')}
+    </div>`;
+  }
+  return head + (html || '<div class="empty"><b>Every shift is filled</b>Untick “Only shifts with open places” to see them all.</div>');
+}
+function shiftRow(s) {
+  const as = shiftAssigns(s.id).sort((x, y) => (x.status === 'declined') - (y.status === 'declined') || crewName(x.crewId).localeCompare(crewName(y.crewId)));
+  const need = Number(s.need) || 0, n = as.filter(live).length, open = Math.max(0, need - n), h = hoursOf(s);
+  const chips = as.map(a => {
+    const w = worst(bookingIssues(a));
+    return `<button class="slot a-${esc(a.status)} ${w}" data-act="booking" data-id="${esc(a.id)}" title="${esc(label(A_STATUS, a.status))}${w ? ' · ' + bookingIssues(a).map(i => i.t).join(' · ') : ''}">${avatar(a.crewId)}<span class="nm">${esc(crewName(a.crewId))}</span>${w ? '<span class="ex">!</span>' : ''}<span class="sd"></span></button>`;
+  }).join('');
+  const empties = open === 0 ? '' : open <= 4
+    ? Array.from({ length: open }, () => `<button class="slot empty" data-act="pick" data-id="${esc(s.id)}">+ Assign</button>`).join('')
+    : `<button class="slot empty" data-act="pick" data-id="${esc(s.id)}">+ Assign · ${open} open</button>`;
+  return `<div class="shift">
+    <div><div class="time num">${esc(timeRange(s))}</div><div class="hrs num">${h}h${h > CONFIG.LONG_SHIFT ? ' <span style="color:var(--amber)">· long</span>' : ''}</div></div>
+    <div style="min-width:0">
+      <div class="role" data-act="shift" data-id="${esc(s.id)}">${esc(s.role || 'Crew')}</div>
+      <div class="sub"><span class="tag">${esc(s.dept || deptOf(s.role))}</span>${s.location ? `<span class="muted">${esc(s.location)}</span>` : ''}${s.notes ? `<span class="dim">· ${esc(s.notes)}</span>` : ''}</div>
+      <div class="slots">${chips}${empties}${!need && !as.length ? '<span class="dim" style="font-size:12px">Set how many people this shift needs.</span>' : ''}</div>
+    </div>
+    <div class="end">${fillHTML(n, need)}${open ? '' : `<button class="btn sm ghost no-print" data-act="pick" data-id="${esc(s.id)}" title="Add or swap crew">Assign</button>`}</div>
+  </div>`;
+}
+
+/* ---- Crew & costs tab ---- */
+function eventBookings(eid) {
+  const out = [];
+  for (const s of idx().byEvent.get(eid) || []) for (const a of shiftAssigns(s.id)) out.push({ a, s });
+  return out;
+}
+function tabPeople(e) {
+  const list = eventBookings(e.id);
+  const head = `<div class="toolbar no-print"><button class="btn" data-act="csv" data-id="${esc(e.id)}">${ICON.dl} Export CSV</button><button class="btn" data-act="confirmAll" data-id="${esc(e.id)}">Mark all offered as confirmed</button><div class="grow"></div><button class="btn ghost" data-act="print">${ICON.print}</button></div>`;
+  if (!list.length) return head + '<div class="empty"><b>No one booked yet</b>Assign crew on the Shifts tab and they’ll be listed here with their days and costs.</div>';
+  const people = new Map();
+  for (const b of list) { let p = people.get(b.a.crewId); if (!p) people.set(b.a.crewId, p = { id: b.a.crewId, items: [] }); p.items.push(b); }
+  const rows = [...people.values()].map(p => {
+    const liveItems = p.items.filter(b => live(b.a));
+    return { ...p, live: liveItems, cost: liveItems.reduce((n, b) => n + rateOf(b.a), 0), days: new Set(liveItems.map(b => b.s.date)).size,
+      hours: liveItems.reduce((n, b) => n + hoursOf(b.s), 0), conf: liveItems.filter(b => b.a.status === 'confirmed').length,
+      off: liveItems.filter(b => b.a.status === 'offered').length, issues: liveItems.flatMap(b => bookingIssues(b.a)) };
+  }).sort((x, y) => (db.crew.get(x.id)?.role || '').localeCompare(db.crew.get(y.id)?.role || '') || crewName(x.id).localeCompare(crewName(y.id)));
+  const total = rows.reduce((n, r) => n + r.cost, 0), shifts = list.filter(b => live(b.a)).length, conf = list.filter(b => b.a.status === 'confirmed').length;
+  const byRole = {};
+  for (const b of list) if (live(b.a)) { const k = b.s.role || 'Crew'; (byRole[k] ||= { n: 0, cost: 0 }); byRole[k].n++; byRole[k].cost += rateOf(b.a); }
+  return head + `
+  <div class="print-only"><div class="logo-svg" style="width:180px;color:#000">${BCPortal.logoSvg('line', '#000')}</div><h2 style="margin-top:12px">${esc(e.name)} — crew list</h2><div class="muted">${esc(fmtRange(anchorsOf(e).build, anchorsOf(e).derig))} · printed ${esc(fmt(today()))}</div><br></div>
+  <div class="totals">
+    <div class="kpi"><div class="eyebrow">People</div><div class="v num">${rows.filter(r => r.live.length).length}</div></div>
+    <div class="kpi"><div class="eyebrow">Shifts booked</div><div class="v num">${shifts}</div></div>
+    <div class="kpi"><div class="eyebrow">Confirmed</div><div class="v num">${shifts ? Math.round(conf / shifts * 100) : 0}%</div></div>
+    <div class="kpi"><div class="eyebrow">Crew cost</div><div class="v num" style="font-size:24px">${money(total)}</div></div>
+  </div>
+  <div class="tbl-wrap"><table class="tbl">
+    <thead><tr><th>Crew</th><th class="hide-sm">Phone</th><th class="r">Days</th><th class="r hide-sm">Hours</th><th>Status</th><th class="r">Cost</th><th class="no-print"></th></tr></thead>
+    <tbody>${rows.map(r => {
+      const c = db.crew.get(r.id) || {}, w = worst(r.issues);
+      return `<tr class="click" data-act="crew" data-id="${esc(r.id)}">
+        <td><div class="who">${avatar(r.id)}<div><div style="font-weight:700">${esc(crewName(r.id))}${w ? ` <span class="issue ${w}" title="${esc(r.issues.map(i => i.t).join(' · '))}">!</span>` : ''}</div><div class="muted" style="font-size:12px">${esc(c.role || '—')}</div></div></div></td>
+        <td class="hide-sm num">${esc(c.phone || '—')}</td>
+        <td class="r num">${r.days}</td><td class="r num hide-sm">${Math.round(r.hours)}</td>
+        <td>${r.conf ? `<span class="issue ok">${r.conf} confirmed</span> ` : ''}${r.off ? `<span class="issue warn">${r.off} offered</span>` : ''}${!r.live.length ? '<span class="issue bad">Declined</span>' : ''}</td>
+        <td class="r num">${!r.cost && c.type === 'staff' ? '<span class="dim">Staff</span>' : money(r.cost)}</td>
+        <td class="no-print r">${c.phone && r.live.length ? `<a class="btn sm" href="${esc(waLink(c.phone, waText(r.id, r.live, e)))}" target="_blank" rel="noopener" data-stop>${ICON.chat} WhatsApp</a>` : ''}</td>
+      </tr>`;
+    }).join('')}</tbody>
+    <tfoot><tr><td colspan="5" style="font-weight:700;padding-top:14px">Total</td><td class="r num" style="font-weight:800;padding-top:14px">${money(total)}</td><td class="no-print"></td></tr></tfoot>
+  </table></div>
+  <h2 style="margin:28px 0 10px">Cost by role</h2>
+  <div class="tbl-wrap" style="max-width:560px"><table class="tbl"><thead><tr><th>Role</th><th class="r">Shifts</th><th class="r">Cost</th></tr></thead>
+    <tbody>${Object.entries(byRole).sort((a, b) => b[1].cost - a[1].cost).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="r num">${v.n}</td><td class="r num">${money(v.cost)}</td></tr>`).join('')}</tbody></table></div>
+  <p class="dim" style="font-size:12px;margin-top:12px">Costs use each person’s day rate per shift, or the rate set on the booking.</p>`;
+}
+function waText(crewId, items, e) {
+  const lines = items.slice().sort((x, y) => x.sp?.[0] - y.sp?.[0] || sortShifts(x.s, y.s)).map(b => `• ${fmt(b.s.date)} · ${timeRange(b.s)} · ${b.s.role || 'Crew'}${b.s.location ? ' · ' + b.s.location : ''}`);
+  return `Hi ${firstName(crewId)}, this is Black Canvas. You're booked on ${e.name}${e.venue ? ' at ' + e.venue : ''}:\n${lines.join('\n')}\nPlease reply to confirm. Thank you!`;
+}
+
+/* ---- Call sheets tab ---- */
+function tabCall(e) {
+  const shifts = idx().byEvent.get(e.id) || [];
+  const days = [...new Set(shifts.map(s => s.date).filter(Boolean))].sort();
+  if (!days.length) return '<div class="empty"><b>No call sheets yet</b>Add shifts and assign crew, then print a call sheet for each day.</div>';
+  let day = ui.callDay[e.id];
+  if (!days.includes(day)) day = days.find(d => d >= today()) || days[0];
+  const list = shifts.filter(s => s.date === day).sort((a, b) => (a.start || '').localeCompare(b.start || '') || (a.role || '').localeCompare(b.role || ''));
+  const rows = list.map(s => {
+    const as = shiftAssigns(s.id).filter(live).sort((x, y) => crewName(x.crewId).localeCompare(crewName(y.crewId)));
+    const open = Math.max(0, (Number(s.need) || 0) - as.length);
+    return `<tr class="grp"><td colspan="5">${esc(timeRange(s))} · ${esc(s.role || 'Crew')}${s.location ? ` <span class="muted" style="font-weight:500;text-transform:none;font-stretch:100%;font-size:13px">· ${esc(s.location)}</span>` : ''}</td></tr>
+      ${as.map(a => { const c = db.crew.get(a.crewId) || {}; return `<tr>
+        <td class="num" style="font-weight:700;width:90px">${esc(s.start || '—')}</td>
+        <td><b>${esc(crewName(a.crewId))}</b></td>
+        <td class="num">${c.phone ? `<a href="tel:${esc(c.phone.replace(/\s/g, ''))}" data-stop style="text-decoration:none">${esc(c.phone)}</a>` : '—'}</td>
+        <td>${a.status === 'confirmed' ? '<span class="issue ok">Confirmed</span>' : `<span class="issue warn">${esc(label(A_STATUS, a.status))}</span>`}</td>
+        <td class="no-print r">${c.phone ? `<a class="btn sm" href="${esc(waLink(c.phone, `Hi ${firstName(a.crewId)}, call time for ${e.name} on ${fmt(day)}: ${s.start || ''}${s.location ? ' at ' + s.location : ''} (${s.role || 'crew'}). See you there — Black Canvas`))}" target="_blank" rel="noopener" data-stop>${ICON.chat}</a>` : ''}</td>
+      </tr>`; }).join('')}
+      ${open ? `<tr><td></td><td colspan="4" style="color:var(--amber);font-weight:600">${plural(open, 'place')} still open</td></tr>` : ''}`;
+  }).join('');
+  return `<div class="toolbar no-print">
+      <div class="chips">${days.map(d => `<button class="chip ${d === day ? 'on' : ''}" data-act="callDay" data-id="${esc(e.id)}" data-v="${d}">${esc(fmt(d, {weekday:'short', day:'numeric', month:'short'}))}</button>`).join('')}</div>
+      <div class="grow"></div><button class="btn primary" data-act="print">${ICON.print} Print call sheet</button>
+    </div>
+    <div class="cs-head"><div class="logo-svg" style="width:180px;color:#000">${BCPortal.logoSvg('line', '#000')}</div>
+      <h2 style="margin-top:14px;font-size:20px">${esc(e.name)} — call sheet</h2>
+      <div>${esc(fmt(day, {weekday:'long', day:'numeric', month:'long', year:'numeric'}))} · ${esc(dayLabel(e, day))}</div>
+      <div class="muted">${esc([e.venue, e.city].filter(Boolean).join(' · '))}${e.code ? ' · ' + esc(e.code) : ''}</div></div>
+    <div class="day-h no-print" style="margin-bottom:6px"><span class="d">${esc(fmt(day, {weekday:'long', day:'numeric', month:'long'}))}</span><span class="eyebrow" style="color:var(--orange)">${esc(dayLabel(e, day))}</span></div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Call</th><th>Name</th><th>Phone</th><th>Status</th><th class="no-print"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+/* =========================================================================
+   View: Planner (who is where over two weeks)
+   ========================================================================= */
+const weekStart = s => { const d = parse(s); d.setDate(d.getDate() - d.getDay()); return iso(d); }; // weeks start on Sunday
+function viewPlanner() {
+  const t = today();
+  const start = ui.plStart || weekStart(t), days = Array.from({ length: 14 }, (_, i) => addDays(start, i)), end = days[13];
+  const q = ui.plQ.trim().toLowerCase();
+  const bookedIn = id => (idx().byCrew.get(id) || []).some(b => b.s.date >= start && b.s.date <= end);
+  const crew = [...db.crew.values()].filter(c => c.active !== false || bookedIn(c.id))
+    .filter(c => !ui.plRole || crewRoles(c).includes(ui.plRole.toLowerCase()))
+    .filter(c => !q || [c.name, c.role, c.city].join(' ').toLowerCase().includes(q))
+    .filter(c => !ui.plBooked || bookedIn(c.id))
+    .sort((a, b) => (a.role || '').localeCompare(b.role || '') || sortCrew(a, b));
+  const roles = [...new Set([...db.crew.values()].map(c => c.role).filter(Boolean))].sort();
+  const seen = new Set();
+  const head = `<div class="page-head"><div><div class="eyebrow">Two weeks · ${esc(fmtShort(start))} – ${esc(fmt(end, {day:'numeric', month:'short', year:'numeric'}))}</div><h1>Planner</h1></div>
+    <div class="wk"><button class="btn sm" data-act="plMove" data-v="-7" aria-label="Previous week">${ICON.left}</button><button class="btn sm" data-act="plToday">This week</button><button class="btn sm" data-act="plMove" data-v="7" aria-label="Next week">${ICON.right}</button></div></div>
+  <div class="toolbar">
+    <input class="input" id="plSearch" style="max-width:220px" placeholder="Search crew…" value="${esc(ui.plQ)}" data-inp="plQ">
+    <select class="input" style="width:auto" data-chg="plRole"><option value="">All roles</option>${roles.map(r => `<option ${ui.plRole === r ? 'selected' : ''}>${esc(r)}</option>`).join('')}</select>
+    <label class="check"><input type="checkbox" data-chg="plBooked" ${ui.plBooked ? 'checked' : ''}> Only people with bookings</label>
+    <div class="grow"></div><span class="muted">${plural(crew.length, 'person', 'people')}</span>
+  </div>`;
+  if (!db.crew.size) return head + `<div class="empty"><b>No crew yet</b>Add your crew on the Crew page to see who’s booked where.<br><br><a class="btn primary" href="#/crew">${ICON.users} Go to Crew</a></div>`;
+  const dayHead = days.map(d => { const D = parse(d), we = D.getDay() === 5 || D.getDay() === 6; return `<div class="pl-day ${we ? 'we' : ''} ${d === t ? 'today' : ''}">${esc(D.toLocaleDateString('en-GB', {weekday:'short'}))}<b class="num">${D.getDate()}</b></div>`; }).join('');
+  const rows = crew.map(c => {
+    const books = (idx().byCrew.get(c.id) || []).filter(b => b.s.date >= start && b.s.date <= end);
+    const cells = days.map(d => {
+      const D = parse(d), we = D.getDay() === 5 || D.getDay() === 6;
+      const away = (c.away || []).find(w => w.from && d >= w.from && d <= (w.to || w.from));
+      const bs = books.filter(b => b.s.date === d);
+      return `<div class="pl-cell ${we ? 'we' : ''}">${away ? `<div class="pl-away" title="${esc(away.note || 'Unavailable')}">${esc(away.note || 'Away')}</div>` : ''}${bs.map(b => {
+        const e = getEvent(b.s.eventId), col = evColor(b.s.eventId), off = b.a.status !== 'confirmed', bad = worst(bookingIssues(b.a)) === 'bad';
+        seen.add(b.s.eventId);
+        return `<div class="pl-b ${off ? 'off' : ''} ${bad ? 'bad' : ''}" style="background:${col};${off ? `color:${col};border-color:${col}` : ''}" data-act="booking" data-id="${esc(b.a.id)}" title="${esc(evName(b.s.eventId))} · ${esc(b.s.role || '')} · ${esc(timeRange(b.s))} · ${esc(label(A_STATUS, b.a.status))}">${esc(e?.code || evName(b.s.eventId))}<small class="num">${esc(timeRange(b.s))}</small></div>`;
+      }).join('')}</div>`;
+    }).join('');
+    return `<div class="pl-row"><div class="pl-name" data-act="crew" data-id="${esc(c.id)}">${avatar(c.id)}<div><div class="n">${esc(c.name)}</div><div class="r">${esc(c.role || '—')}</div></div></div>${cells}</div>`;
+  }).join('');
+  return head + `<div class="pl-wrap"><div class="pl"><div class="pl-row pl-h"><div class="pl-name"><span class="eyebrow">Crew</span></div>${dayHead}</div>${rows || '<div class="empty" style="margin:16px">No crew match these filters.</div>'}</div></div>
+  <div class="pl-legend">${[...seen].map(id => `<span><i style="background:${evColor(id)}"></i>${esc(evName(id))}</span>`).join('')}<span><i style="border:1px dashed var(--muted)"></i>Offered, not confirmed</span><span><i style="background:repeating-linear-gradient(135deg,#232327 0 3px,#3a3a40 3px 6px)"></i>Unavailable</span><span><i style="box-shadow:0 0 0 2px var(--red)"></i>Clash</span></div>`;
+}
+
+/* =========================================================================
+   View: Crew roster
+   ========================================================================= */
+function viewCrew() {
+  const t = today(), soon = addDays(t, 30), q = ui.crewQ.trim().toLowerCase();
+  const all = [...db.crew.values()];
+  const roles = [...new Set(all.flatMap(c => [c.role, ...(c.skills || [])]).filter(Boolean))].sort();
+  const list = all.filter(c => (ui.showInactive || c.active !== false))
+    .filter(c => !ui.crewType || (c.type || 'freelance') === ui.crewType)
+    .filter(c => !ui.crewRole || crewRoles(c).includes(ui.crewRole.toLowerCase()))
+    .filter(c => !q || [c.name, c.role, c.city, c.phone, c.email, c.agency, ...(c.skills || [])].join(' ').toLowerCase().includes(q))
+    .sort((a, b) => (a.active === false) - (b.active === false) || sortCrew(a, b));
+  const counts = { '': all.filter(c => ui.showInactive || c.active !== false).length };
+  CREW_TYPES.forEach(([k]) => counts[k] = all.filter(c => (ui.showInactive || c.active !== false) && (c.type || 'freelance') === k).length);
+  return `<div class="page-head"><div><div class="eyebrow">Roster</div><h1>Crew</h1></div>
+    <div style="display:flex;gap:8px"><button class="btn" data-act="importCrew">Import list</button><button class="btn primary" data-act="newCrew">${ICON.plus} Add crew</button></div></div>
+  <div class="toolbar">
+    <div class="chips">${[['', 'All'], ...CREW_TYPES].map(([k, l]) => `<button class="chip ${ui.crewType === k ? 'on' : ''}" data-act="crewType" data-v="${k}">${l} <span class="num">${counts[k]}</span></button>`).join('')}</div>
+    <select class="input" style="width:auto" data-chg="crewRole"><option value="">All roles</option>${roles.map(r => `<option ${ui.crewRole === r ? 'selected' : ''}>${esc(r)}</option>`).join('')}</select>
+    <label class="check"><input type="checkbox" data-chg="showInactive" ${ui.showInactive ? 'checked' : ''}> Show inactive</label>
+    <div class="grow"></div>
+    <input class="input" id="crewSearch" style="max-width:240px" placeholder="Search name, role, phone…" value="${esc(ui.crewQ)}" data-inp="crewQ">
+  </div>
+  ${list.length ? `<div style="max-width:980px">${list.map(c => {
+    const bs = idx().byCrew.get(c.id) || [], next = bs.find(b => b.s.date >= t);
+    const expired = (c.certs || []).filter(k => k.expires && k.expires < t), expiring = (c.certs || []).filter(k => k.expires && k.expires >= t && k.expires <= soon);
+    const away = (c.away || []).find(w => w.from && t >= w.from && t <= (w.to || w.from));
+    return `<div class="crow ${c.active === false ? 'off' : ''}" data-act="crew" data-id="${esc(c.id)}">
+      ${avatar(c.id, true)}
+      <div style="min-width:0"><div class="nm">${esc(c.name)}${c.active === false ? ' <span class="dim">(inactive)</span>' : ''}</div>
+        <div class="sub"><span>${esc(c.role || '—')}</span>${(c.skills || []).length ? `<span class="dim">+ ${esc(c.skills.join(', '))}</span>` : ''}<span class="tag">${esc(label(CREW_TYPES, c.type || 'freelance'))}${c.agency ? ' · ' + esc(c.agency) : ''}</span>${c.city ? `<span>${esc(c.city)}</span>` : ''}
+        ${expired.length ? `<span class="issue bad">${esc(expired.map(k => k.name).join(', '))} expired</span>` : ''}${expiring.length ? `<span class="issue warn">${esc(expiring.map(k => k.name).join(', '))} expires soon</span>` : ''}${away ? '<span class="issue info">Unavailable today</span>' : ''}</div></div>
+      <div class="right"><div><div class="num" style="color:var(--text);font-weight:600">${c.rate ? money(c.rate) + '<span class="dim" style="font-weight:400"> /day</span>' : '—'}</div><div class="hide-sm">${next ? `Next: ${esc(getEvent(next.s.eventId)?.code || evName(next.s.eventId))} · ${esc(fmtShort(next.s.date))}` : 'No upcoming bookings'}</div></div></div>
+    </div>`;
+  }).join('')}</div>` : all.length ? '<div class="empty"><b>No one matches</b>Try another filter or search.</div>'
+    : `<div class="empty"><b>No crew yet</b>Add your staff and freelancers with their roles, day rates and certificates — or paste a list from a spreadsheet.<br><br><button class="btn primary" data-act="newCrew">${ICON.plus} Add crew</button> <button class="btn" data-act="importCrew">Import list</button></div>`}`;
+}
+
+/* =========================================================================
+   Forms & drawer
+   ========================================================================= */
+const getPath = (o, k) => k.split('.').reduce((v, p) => v?.[p], o);
+const setPath = (o, k, v) => { const ps = k.split('.'); let c = o; ps.slice(0, -1).forEach(p => c = c[p] ||= {}); c[ps.at(-1)] = v; };
+function formHTML(fields, values = {}) {
+  return fields.map(f => {
+    if (f.sect) return `<div class="sect eyebrow">${esc(f.sect)}</div>`;
+    if (f.html) return `<div class="f ${f.span ? 'span' : ''}">${f.html}</div>`;
+    const v = getPath(values, f.k) ?? f.default ?? '';
+    const id = 'f_' + f.k.replace(/\./g, '_');
+    let ctl;
+    if (f.type === 'select') ctl = `<select class="input" id="${id}" data-k="${f.k}">${f.options.map(([ov, ol]) => `<option value="${esc(ov)}" ${String(v) === String(ov) ? 'selected' : ''}>${esc(ol)}</option>`).join('')}</select>`;
+    else if (f.type === 'textarea') ctl = `<textarea class="input" id="${id}" data-k="${f.k}" placeholder="${esc(f.placeholder || '')}">${esc(v)}</textarea>`;
+    else ctl = `<input class="input" id="${id}" data-k="${f.k}" type="${f.type || 'text'}" value="${esc(v)}" placeholder="${esc(f.placeholder || '')}" ${f.list ? `list="${f.list}"` : ''} ${f.min != null ? `min="${f.min}"` : ''} ${f.step ? `step="${f.step}"` : ''}>`;
+    return `<div class="f ${f.span ? 'span' : ''}"><label for="${id}">${esc(f.label)}</label>${ctl}${f.hint ? `<span class="dim" style="font-size:12px">${f.hint}</span>` : ''}</div>`;
+  }).join('');
+}
+function readForm(el, base = {}) {
+  const o = structuredClone(base);
+  el.querySelectorAll('[data-k]').forEach(i => { let v = i.value.trim(); if (i.type === 'number') v = v === '' ? '' : Number(v); setPath(o, i.dataset.k, v); });
+  return o;
+}
+const datalists = () => `<datalist id="dlRoles">${ROLE_NAMES.map(r => `<option value="${esc(r)}">`).join('')}</datalist><datalist id="dlCerts">${CERTS.map(r => `<option value="${esc(r)}">`).join('')}</datalist>`;
+
+let drawerState = null;
+function openDrawer({ title, body, onSave, onDelete, saveLabel = 'Save', wide = false, extra = '', refresh = null }) {
+  drawerState = { onSave, onDelete, refresh };
+  const d = $('#drawer');
+  d.className = 'drawer' + (wide ? ' wide' : '');
+  d.innerHTML = `<div class="dr-h"><h2>${esc(title)}</h2><button class="btn ghost" data-act="closeDrawer" aria-label="Close">${ICON.x}</button></div>
+    <div class="dr-b" id="drBody">${body}${datalists()}</div>
+    <div class="dr-f">${onDelete ? `<button class="btn danger" data-act="drDelete">${typeof onDelete === 'object' ? esc(onDelete.label) : 'Delete'}</button>` : ''}${extra}<span class="sp"></span><button class="btn ghost" data-act="closeDrawer">Cancel</button>${onSave ? `<button class="btn primary" data-act="drSave" id="drSaveBtn">${esc(saveLabel)}</button>` : ''}</div>`;
+  requestAnimationFrame(() => { d.classList.add('on'); $('#scrim').classList.add('on'); d.setAttribute('aria-hidden', 'false'); const f = d.querySelector('.dr-b input:not([type=checkbox]), .dr-b textarea, .dr-b select'); f && !('ontouchstart' in window) && f.focus(); });
+}
+function closeDrawer() { const d = $('#drawer'); d.classList.remove('on'); $('#scrim').classList.remove('on'); d.setAttribute('aria-hidden', 'true'); drawerState = null; }
+
+/* ---- shift drawer ---- */
+function shiftDrawer(shift, eventId) {
+  const isNew = !shift, e = getEvent(shift?.eventId || eventId);
+  const a = anchorsOf(e);
+  const s = shift ? structuredClone(shift) : { id: uid(), eventId, date: a.build || a.show || today(), start: '08:00', end: '18:00', role: '', dept: '', need: 1, location: '', notes: '' };
+  const n = shiftAssigns(s.id).length;
+  const fields = [
+    { k: 'role', label: 'Role', list: 'dlRoles', placeholder: 'e.g. Rigger', span: true },
+    { k: 'need', label: 'People needed', type: 'number', min: 0 },
+    { k: 'dept', label: 'Department', type: 'select', options: [['', 'From the role'], ...DEPTS.map(d => [d, d])] },
+    { k: 'date', label: isNew ? 'Date (first day)' : 'Date', type: 'date' },
+    ...(isNew ? [{ k: 'until', label: 'Repeat every day until', type: 'date', hint: 'Optional — one shift per day, e.g. across build days.' }] : []),
+    { k: 'start', label: 'Call time', type: 'time' }, { k: 'end', label: 'Finish', type: 'time', hint: 'Earlier than the call time means it runs past midnight.' },
+    { k: 'location', label: 'Call location', placeholder: 'e.g. Loading dock, Gate B', span: true },
+    { k: 'notes', label: 'Notes', type: 'textarea', span: true, placeholder: 'PPE, uniform, parking, who to report to…' },
+  ];
+  openDrawer({
+    title: isNew ? `New shift · ${e?.name || ''}` : `${s.role || 'Shift'} · ${fmtShort(s.date)}`,
+    body: `<div class="form">${formHTML(fields, s)}</div>${!isNew && n ? `<p class="dim" style="font-size:12px;margin-top:16px">${plural(n, 'person is', 'people are')} booked on this shift. Changing the date or times re-checks them for clashes.</p>` : ''}`,
+    extra: isNew ? '' : '<button class="btn" data-act="dupShift">Duplicate to next day</button>',
+    saveLabel: isNew ? 'Add shift' : 'Save',
+    onSave: async () => {
+      const o = readForm($('#drBody'), s);
+      if (!o.role) return toast('Give the shift a role', true);
+      if (!o.date) return toast('Pick a date', true);
+      o.need = Math.max(0, Number(o.need) || 0);
+      if (!o.dept) o.dept = deptOf(o.role);
+      const until = o.until; delete o.until;
+      const rows = [];
+      if (isNew && until && until > o.date) {
+        if (diff(o.date, until) > 60) return toast('Repeat up to 60 days at a time', true);
+        for (let d = o.date; d <= until; d = addDays(d, 1)) { const id = rows.length ? uid() : o.id; rows.push({ coll: 'shifts', id, data: { ...o, id, date: d } }); }
+      } else rows.push({ coll: 'shifts', id: o.id, data: o });
+      try { await Backend.putMany(rows); closeDrawer(); render(); toast(isNew ? (rows.length > 1 ? `${rows.length} shifts added` : 'Shift added') : 'Shift saved'); } catch (err) { failed(err); }
+    },
+    onDelete: isNew ? null : async () => {
+      if (n && await confirmDialog({ title: 'Delete this shift?', body: `<p>${plural(n, 'booking')} on it will be removed too.</p>`, ok: 'Delete shift', danger: true }) !== 'ok') return;
+      try { await Backend.delMany('assign', shiftAssigns(s.id).map(x => x.id)); await Backend.delMany('shifts', [s.id]); closeDrawer(); render(); toast('Shift deleted'); } catch (err) { failed(err); }
+    },
+  });
+  drawerState.shift = s;
+}
+
+/* ---- assign picker ---- */
+function pickDrawer(shiftId) {
+  const s = db.shifts.get(shiftId); if (!s) return;
+  const e = getEvent(s.eventId);
+  ui.pickQ = '';
+  const role = (s.role || '').toLowerCase();
+  ui.pickAll = ![...db.crew.values()].some(c => c.active !== false && crewRoles(c).includes(role));
+  const sel = new Set();
+  const listHTML = () => {
+    IDX = null;
+    const as = shiftAssigns(s.id), booked = new Map(as.map(a => [a.crewId, a]));
+    const need = Number(s.need) || 0, have = as.filter(live).length;
+    const q = ui.pickQ.trim().toLowerCase();
+    const cands = [...db.crew.values()].filter(c => c.active !== false || booked.has(c.id))
+      .filter(c => !q || [c.name, c.role, c.city, ...(c.skills || [])].join(' ').toLowerCase().includes(q))
+      .map(c => { const match = crewRoles(c).includes(role), iss = booked.has(c.id) ? [] : issuesFor(c.id, s); return { c, match, iss, w: worst(iss), b: booked.get(c.id), days: new Set((idx().byCrew.get(c.id) || []).filter(x => x.s.eventId === s.eventId).map(x => x.s.date)).size }; })
+      .filter(x => x.b || ui.pickAll || x.match || sel.has(x.c.id))
+      .sort((x, y) => (!!y.b - !!x.b) || (y.match - x.match) || ((x.w === 'bad') - (y.w === 'bad')) || (x.iss.length - y.iss.length) || (y.days - x.days) || sortCrew(x.c, y.c));
+    const row = x => `<div class="pick ${x.b ? 'dis' : sel.has(x.c.id) ? 'sel' : ''}" data-act="${x.b ? 'booking' : 'pickToggle'}" data-id="${esc(x.b ? x.b.id : x.c.id)}">
+      <span class="box"></span>${avatar(x.c.id, true)}
+      <div style="min-width:0"><div class="nm">${esc(x.c.name)}${x.b ? ` <span class="issue ${x.b.status === 'confirmed' ? 'ok' : x.b.status === 'declined' ? 'bad' : 'warn'}">${esc(label(A_STATUS, x.b.status))}</span>` : ''}</div>
+        <div class="rl">${esc([x.c.role, ...(x.c.skills || [])].filter(Boolean).join(' · ') || '—')}${x.c.city ? ' · ' + esc(x.c.city) : ''}${x.days ? ` · <span style="color:var(--text)">${plural(x.days, 'day')} on this event</span>` : ''}</div>
+        ${x.iss.length ? `<div class="issues">${issueTags(x.iss)}</div>` : !x.b ? '<div class="issues"><span class="issue ok">Free</span></div>' : ''}</div>
+      <div class="rate num">${x.c.rate ? money(x.c.rate) : ''}</div></div>`;
+    const bookedRows = cands.filter(x => x.b), matchRows = cands.filter(x => !x.b && x.match), otherRows = cands.filter(x => !x.b && !x.match);
+    return `<div class="pick-info"><span><b>${esc(s.role || 'Crew')}</b> · ${esc(fmt(s.date))} · <span class="num">${esc(timeRange(s))}</span>${s.location ? ' · ' + esc(s.location) : ''}</span>${fillHTML(have + sel.size, need)}</div>
+      ${!db.crew.size ? `<div class="empty"><b>No crew yet</b>Add people on the Crew page first.<br><br><a class="btn primary" href="#/crew" data-act="closeDrawer">${ICON.users} Go to Crew</a></div>` : ''}
+      ${bookedRows.length ? `<div class="pick-sect">On this shift</div>${bookedRows.map(row).join('')}` : ''}
+      ${matchRows.length ? `<div class="pick-sect">Matching role · ${esc(s.role || 'Crew')}</div>${matchRows.map(row).join('')}` : ''}
+      ${otherRows.length ? `<div class="pick-sect">Other crew</div>${otherRows.map(row).join('')}` : ''}
+      ${db.crew.size && !matchRows.length && !otherRows.length ? `<div class="empty" style="margin-top:10px"><b>No one listed</b>${ui.pickAll ? 'No crew match your search.' : `No one has “${esc(s.role)}” as a role. Tick “Show all crew” to pick from everyone.`}</div>` : ''}
+`;
+  };
+  const paint = () => {
+    $('#pickList').innerHTML = listHTML();
+    const b = $('#drSaveBtn'); if (b) { b.textContent = sel.size ? `Book ${plural(sel.size, 'person', 'people')}` : 'Book'; b.disabled = !sel.size; }
+  };
+  openDrawer({
+    title: `Assign · ${e?.name || ''}`, wide: true,
+    body: `<div class="pick-top"><input class="input" id="pickQ" placeholder="Search crew…" data-pick="q" autocomplete="off">
+        <select class="input" style="width:auto" data-pick="status"><option value="offered" ${ui.newStatus === 'offered' ? 'selected' : ''}>Book as offered</option><option value="confirmed" ${ui.newStatus === 'confirmed' ? 'selected' : ''}>Book as confirmed</option></select></div>
+      <label class="check" style="margin-bottom:6px"><input type="checkbox" data-pick="all" ${ui.pickAll ? 'checked' : ''}> Show all crew, not only people with this role</label>
+      <div id="pickList"></div>`,
+    saveLabel: 'Book',
+    onSave: async () => {
+      if (!sel.size) return toast('Pick at least one person', true);
+      const now = new Date().toISOString();
+      const rows = [...sel].map(cid => { const id = uid(); return { coll: 'assign', id, data: { id, shiftId: s.id, eventId: s.eventId, crewId: cid, status: ui.newStatus, rate: '', note: '', createdAt: now, createdBy: me } }; });
+      try { await Backend.putMany(rows); closeDrawer(); render(); toast(`${plural(rows.length, 'person', 'people')} booked as ${ui.newStatus}`); } catch (err) { failed(err); }
+    },
+    refresh: () => paint(),
+  });
+  Object.assign(drawerState, { pick: { s, sel, paint } });
+  paint();
+}
+
+/* ---- booking drawer ---- */
+function bookingDrawer(aId) {
+  const a = db.assign.get(aId); if (!a) return;
+  const s = db.shifts.get(a.shiftId), c = db.crew.get(a.crewId) || {}, e = getEvent(a.eventId);
+  if (!s) return;
+  const iss = live(a) ? issuesFor(a.crewId, s, a.id) : [];
+  const fields = [
+    { k: 'status', label: 'Status', type: 'select', options: A_STATUS },
+    { k: 'rate', label: `Day rate for this shift (${CONFIG.CURRENCY})`, type: 'number', min: 0, placeholder: c.rate ? `${c.rate} (their usual)` : 'Their usual rate' },
+    { k: 'note', label: 'Note', type: 'textarea', span: true, placeholder: 'e.g. Driving the van, bring harness…' },
+  ];
+  const msg = waText(a.crewId, [{ s }], e || { name: '' });
+  openDrawer({
+    title: crewName(a.crewId),
+    body: `<div class="pick-info" style="display:block"><div style="font-weight:700">${esc(e?.name || 'Removed event')}</div><div class="muted" style="margin-top:4px">${esc(s.role || 'Crew')} · ${esc(fmt(s.date, {weekday:'long', day:'numeric', month:'long'}))} · <span class="num">${esc(timeRange(s))}</span>${s.location ? ' · ' + esc(s.location) : ''}</div></div>
+      ${iss.length ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">${issueTags(iss)}</div>` : ''}
+      <div class="form">${formHTML(fields, a)}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px">
+        ${c.phone ? `<a class="btn" href="tel:${esc(c.phone.replace(/\s/g, ''))}">Call ${esc(c.phone)}</a><a class="btn" href="${esc(waLink(c.phone, msg))}" target="_blank" rel="noopener">${ICON.chat} Send booking on WhatsApp</a>` : '<span class="dim">No phone number saved for this person.</span>'}
+        <button class="btn ghost" data-act="crew" data-id="${esc(a.crewId)}">Open profile</button>
+        ${route().view !== 'event' ? `<a class="btn ghost" href="#/event/${esc(a.eventId)}/shifts">Open event</a>` : ''}
+      </div>`,
+    onSave: async () => {
+      const o = readForm($('#drBody').querySelector('.form'), a);
+      if (o.status !== a.status) o.statusAt = new Date().toISOString();
+      closeDrawer(); await save('assign', o.id, o, 'Booking saved');
+    },
+    onDelete: { label: 'Remove from shift', run: true },
+  });
+  drawerState.onDelete = async () => { try { await Backend.delMany('assign', [a.id]); closeDrawer(); render(); toast(`${firstName(a.crewId)} removed from the shift`); } catch (err) { failed(err); } };
+}
+
+/* ---- crew drawer ---- */
+function crewDrawer(id) {
+  const isNew = !id, c0 = id ? db.crew.get(id) : null;
+  if (id && !c0) return;
+  const c = c0 ? structuredClone(c0) : { id: uid(), name: '', role: '', skills: [], type: 'freelance', phone: '', email: '', city: '', rate: '', certs: [], away: [], notes: '', active: true };
+  c.certs ||= []; c.away ||= [];
+  const t = today(), books = idx().byCrew.get(c.id) || [], upcoming = books.filter(b => b.s.date >= t), past = books.filter(b => b.s.date < t);
+  const fields = [
+    { k: 'name', label: 'Full name', span: true },
+    { k: 'role', label: 'Main role', list: 'dlRoles', placeholder: 'e.g. Rigger' },
+    { k: 'skillsText', label: 'Other roles', list: 'dlRoles', placeholder: 'Comma separated, e.g. Stagehand, Driver' },
+    { k: 'type', label: 'Type', type: 'select', options: CREW_TYPES },
+    { k: 'agency', label: 'Agency / company', placeholder: 'If through an agency' },
+    { k: 'phone', label: 'Mobile', type: 'tel', placeholder: '+966 5x xxx xxxx' },
+    { k: 'email', label: 'Email', type: 'email' },
+    { k: 'city', label: 'Based in', placeholder: 'Riyadh' },
+    { k: 'rate', label: `Day rate (${CONFIG.CURRENCY})`, type: 'number', min: 0 },
+    { k: 'activeSel', label: 'Status', type: 'select', options: [['1', 'Active'], ['0', 'Inactive — hide from picking']] },
+    { k: 'notes', label: 'Notes', type: 'textarea', span: true, placeholder: 'Languages, sizes for uniform, past feedback…' },
+  ];
+  const paintRows = () => {
+    $('#certRows').innerHTML = c.certs.map((k, i) => `<div class="r3"><input class="input" list="dlCerts" placeholder="Certificate" value="${esc(k.name)}" data-cert="${i}" data-f="name"><input class="input" type="date" value="${esc(k.expires || '')}" data-cert="${i}" data-f="expires" title="Expires"><button class="btn sm ghost" data-act="rowDel" data-list="certs" data-i="${i}" aria-label="Remove">${ICON.x}</button></div>`).join('') || '<span class="dim" style="font-size:12px">None added.</span>';
+    $('#awayRows').innerHTML = c.away.map((w, i) => `<div class="r4"><input class="input" type="date" value="${esc(w.from || '')}" data-away="${i}" data-f="from" title="From"><input class="input" type="date" value="${esc(w.to || '')}" data-away="${i}" data-f="to" title="To"><input class="input nt" placeholder="Reason (optional)" value="${esc(w.note || '')}" data-away="${i}" data-f="note"><button class="btn sm ghost" data-act="rowDel" data-list="away" data-i="${i}" aria-label="Remove">${ICON.x}</button></div>`).join('') || '<span class="dim" style="font-size:12px">Always available.</span>';
+  };
+  const bk = b => `<div class="bk" data-act="booking" data-id="${esc(b.a.id)}"><span class="num">${esc(fmt(b.s.date))}</span><span style="min-width:0"><b>${esc(evName(b.s.eventId))}</b> <span class="muted">· ${esc(b.s.role || '')} · <span class="num">${esc(timeRange(b.s))}</span></span></span><span class="issue ${b.a.status === 'confirmed' ? 'ok' : 'warn'}">${esc(label(A_STATUS, b.a.status))}</span></div>`;
+  openDrawer({
+    title: isNew ? 'Add crew' : c.name, wide: true,
+    body: `<div class="form">${formHTML(fields, { ...c, skillsText: (c.skills || []).join(', '), activeSel: c.active === false ? '0' : '1' })}
+      <div class="sect"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="eyebrow">Certificates</span><button class="btn sm" data-act="rowAdd" data-list="certs">${ICON.plus} Add</button></div><div class="rows-ed" id="certRows"></div></div>
+      <div class="sect"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="eyebrow">Unavailable dates</span><button class="btn sm" data-act="rowAdd" data-list="away">${ICON.plus} Add</button></div><div class="rows-ed" id="awayRows"></div></div>
+      ${isNew ? '' : `<div class="sect"><div class="eyebrow" style="margin-bottom:6px">Bookings · ${upcoming.length} upcoming · ${past.length} past</div>${upcoming.slice(0, 12).map(bk).join('') || '<span class="dim" style="font-size:12px">No upcoming bookings.</span>'}${upcoming.length > 12 ? `<div class="dim" style="font-size:12px;margin-top:6px">+ ${upcoming.length - 12} more</div>` : ''}</div>`}
+    </div>`,
+    extra: !isNew && c.phone ? `<a class="btn" href="${esc(waLink(c.phone))}" target="_blank" rel="noopener">${ICON.chat} WhatsApp</a>` : '',
+    saveLabel: isNew ? 'Add crew' : 'Save',
+    onSave: async () => {
+      const o = readForm($('#drBody').querySelector('.form'), c);
+      if (!o.name) return toast('Add their name', true);
+      o.skills = String(o.skillsText || '').split(',').map(x => x.trim()).filter(Boolean); delete o.skillsText;
+      o.active = o.activeSel !== '0'; delete o.activeSel;
+      o.certs = c.certs.filter(k => k.name); o.away = c.away.filter(w => w.from).map(w => ({ ...w, to: w.to && w.to >= w.from ? w.to : w.from }));
+      o.createdAt ||= new Date().toISOString();
+      closeDrawer(); await save('crew', o.id, o, isNew ? `${o.name} added` : 'Saved');
+    },
+    onDelete: isNew ? null : async () => {
+      const mine = [...db.assign.values()].filter(a => a.crewId === c.id);
+      const r = await confirmDialog({ title: `Delete ${c.name}?`, body: mine.length ? `<p>They have ${plural(mine.length, 'booking')}, which will be removed too. To keep their history, mark them inactive instead.</p>` : '<p>This removes them from the roster.</p>', ok: 'Delete', danger: true, alt: mine.length ? 'Mark inactive' : null });
+      if (r === 'alt') { closeDrawer(); return save('crew', c.id, { ...c0, active: false }, 'Marked inactive'); }
+      if (r !== 'ok') return;
+      try { await Backend.delMany('assign', mine.map(a => a.id)); await Backend.delMany('crew', [c.id]); closeDrawer(); render(); toast('Deleted'); } catch (err) { failed(err); }
+    },
+  });
+  Object.assign(drawerState, { crew: c, paintRows });
+  paintRows();
+}
+
+/* ---- import crew from a pasted list ---- */
+const IMPORT_COLS = [['name', ['name', 'full name']], ['role', ['role', 'position', 'job']], ['phone', ['phone', 'mobile', 'number', 'whatsapp']], ['email', ['email', 'e-mail']], ['rate', ['rate', 'day rate', 'daily rate']], ['type', ['type']], ['city', ['city', 'based']]];
+function parseCrewList(text) {
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  if (!lines.length) return [];
+  const sep = lines[0].includes('\t') ? '\t' : lines[0].includes(';') && !lines[0].includes(',') ? ';' : ',';
+  const split = l => { const out = []; let cur = '', q = false; for (const ch of l) { if (ch === '"') q = !q; else if (ch === sep && !q) { out.push(cur.trim()); cur = ''; } else cur += ch; } out.push(cur.trim()); return out; };
+  let rows = lines.map(split), cols = IMPORT_COLS.map(c => c[0]);
+  const head = rows[0].map(h => h.toLowerCase());
+  if (head.some(h => IMPORT_COLS.some(([, names]) => names.includes(h)))) {
+    cols = head.map(h => (IMPORT_COLS.find(([, names]) => names.includes(h)) || [null])[0]);
+    rows = rows.slice(1);
+  }
+  return rows.map(r => { const o = {}; cols.forEach((k, i) => { if (k && r[i]) o[k] = r[i]; }); return o; }).filter(o => o.name);
+}
+function importDrawer() {
+  openDrawer({
+    title: 'Import crew', wide: true,
+    body: `<p class="muted" style="margin-top:0">Copy rows from Excel or Google Sheets and paste them here. Use these columns, in this order or with a header row: <b style="color:var(--text)">Name, Role, Phone, Email, Day rate, Type, City</b>. Only the name is required.</p>
+      <textarea class="input" id="impText" style="min-height:220px;font-family:var(--mono);font-size:12px" placeholder="Name, Role, Phone, Email, Day rate, Type, City&#10;Ahmed Saleh, Rigger, 0551234567, , 900, freelance, Riyadh"></textarea>
+      <div id="impPrev" class="dim" style="margin-top:10px;font-size:13px"></div>`,
+    saveLabel: 'Import',
+    onSave: async () => {
+      const list = parseCrewList($('#impText').value);
+      if (!list.length) return toast('Paste at least one row with a name', true);
+      const known = new Set([...db.crew.values()].flatMap(c => [c.name.toLowerCase(), waNumber(c.phone)].filter(Boolean)));
+      const now = new Date().toISOString(), rows = [];
+      let skipped = 0;
+      for (const o of list) {
+        if (known.has(o.name.toLowerCase()) || (o.phone && known.has(waNumber(o.phone)))) { skipped++; continue; }
+        const id = uid(), type = (CREW_TYPES.find(([k, l]) => [k, l.toLowerCase()].includes(String(o.type || '').toLowerCase())) || ['freelance'])[0];
+        rows.push({ coll: 'crew', id, data: { id, name: o.name, role: o.role || '', skills: [], type, phone: o.phone || '', email: o.email || '', city: o.city || '', rate: Number(String(o.rate || '').replace(/[^\d.]/g, '')) || '', certs: [], away: [], notes: '', active: true, createdAt: now } });
+        known.add(o.name.toLowerCase());
+      }
+      if (!rows.length) return toast('Everyone in the list is already on the roster', true);
+      try { await Backend.putMany(rows); closeDrawer(); render(); toast(`${plural(rows.length, 'person', 'people')} imported${skipped ? ` · ${skipped} already listed` : ''}`); } catch (err) { failed(err); }
+    },
+  });
+}
+
+/* ---- crew-only job ---- */
+function jobDrawer(id) {
+  const isNew = !id, j = id ? structuredClone(db.events.get(id)) : { id: uid(), name: '', client: '', venue: '', city: '', code: '', type: 'Corporate', status: 'confirmed', dates: {} };
+  const fields = [
+    { k: 'name', label: 'Job name', span: true, placeholder: 'e.g. Warehouse stock take, Client showroom install' },
+    { k: 'client', label: 'Client' }, { k: 'code', label: 'Job code' },
+    { k: 'venue', label: 'Venue / site' }, { k: 'city', label: 'City', placeholder: 'Riyadh' },
+    { k: 'type', label: 'Type', type: 'select', options: EVENT_TYPES.map(x => [x, x]) },
+    { k: 'status', label: 'Status', type: 'select', options: STATUSES },
+    { sect: 'Dates' },
+    { k: 'dates.buildStart', label: 'Build / load-in starts', type: 'date' }, { k: 'dates.showStart', label: 'Show / job day 1', type: 'date' },
+    { k: 'dates.showEnd', label: 'Last show / job day', type: 'date' }, { k: 'dates.derigEnd', label: 'De-rig ends', type: 'date' },
+  ];
+  openDrawer({
+    title: isNew ? 'Crew-only job' : j.name,
+    body: `${isNew ? '<p class="muted" style="margin-top:0">Events from Project management appear in Crew automatically. Add a job here only for work that isn’t tracked in Projects.</p>' : ''}<div class="form">${formHTML(fields, j)}</div>`,
+    saveLabel: isNew ? 'Add job' : 'Save',
+    onSave: async () => {
+      const o = readForm($('#drBody').querySelector('.form'), j);
+      if (!o.name) return toast('Give the job a name', true);
+      const d = o.dates || {};
+      if (d.buildStart && d.showStart && d.buildStart > d.showStart) return toast('Build can’t start after day 1', true);
+      if (d.showStart && d.showEnd && d.showEnd < d.showStart) return toast('Last day is before day 1', true);
+      o.createdAt ||= new Date().toISOString();
+      try { await Backend.put('events', o.id, o); closeDrawer(); if (isNew) go(`#/event/${o.id}/shifts`); render(); toast(isNew ? 'Job added' : 'Saved'); } catch (err) { failed(err); }
+    },
+    onDelete: isNew ? null : async () => {
+      const sh = idx().byEvent.get(j.id) || [], as = [...db.assign.values()].filter(a => a.eventId === j.id);
+      if (await confirmDialog({ title: `Delete “${j.name}”?`, body: `<p>This removes the job, its ${plural(sh.length, 'shift')} and ${plural(as.length, 'booking')}. It can’t be undone.</p>`, ok: 'Delete job', danger: true }) !== 'ok') return;
+      try { await Backend.delMany('assign', as.map(a => a.id)); await Backend.delMany('shifts', sh.map(s => s.id)); await Backend.delMany('events', [j.id]); closeDrawer(); go('#/'); render(); toast('Job deleted'); } catch (err) { failed(err); }
+    },
+  });
+}
+
+/* ---- standard crew plan ---- */
+async function seedPlan(eid) {
+  const e = getEvent(eid), a = anchorsOf(e);
+  if (!a.show) return toast(isPm(eid) ? 'Set the show dates in Projects first' : 'Set the job dates first', true);
+  const days = { build: [], show: [], derig: [] };
+  for (let d = a.build; d < a.show; d = addDays(d, 1)) days.build.push(d);
+  for (let d = a.show; d <= a.showEnd; d = addDays(d, 1)) days.show.push(d);
+  for (let d = addDays(a.showEnd, 1); d <= a.derig; d = addDays(d, 1)) days.derig.push(d);
+  const overnight = !days.derig.length;
+  const existing = new Set((idx().byEvent.get(eid) || []).map(s => `${s.date}|${(s.role || '').toLowerCase()}`));
+  const rows = [];
+  for (const [phase, role, need, start, end, location] of PLAN) {
+    const list = phase === 'derig' && overnight ? [a.showEnd] : days[phase];
+    for (const d of list) {
+      if (existing.has(`${d}|${role.toLowerCase()}`) && !(phase === 'derig' && overnight)) continue;
+      const id = uid();
+      rows.push({ coll: 'shifts', id, data: { id, eventId: eid, date: d, start: phase === 'derig' && overnight ? '23:30' : start, end: phase === 'derig' && overnight ? '06:00' : end, role, dept: deptOf(role), need, location, notes: phase === 'derig' && overnight ? 'Overnight load-out' : '' } });
+    }
+  }
+  if (!rows.length) return toast('The standard plan is already in place', true);
+  const people = rows.reduce((n, r) => n + r.data.need, 0);
+  const r = await confirmDialog({ title: 'Add the standard crew plan?', body: `<p>Adds ${plural(rows.length, 'shift')} (${people} positions) across ${plural(days.build.length, 'build day')}, ${plural(days.show.length, 'show day')} and ${overnight ? 'an overnight load-out' : plural(days.derig.length, 'de-rig day')}: riggers, stagehands, technicians, a stage manager and runners.</p><p>Edit roles, numbers and times afterwards to suit the show.</p>`, ok: 'Add shifts' });
+  if (r !== 'ok') return;
+  try { await Backend.putMany(rows); render(); toast(`${rows.length} shifts added`); } catch (err) { failed(err); }
+}
+
+/* ---- CSV export ---- */
+function exportCsv(eid) {
+  const e = getEvent(eid);
+  const cell = v => /[",\n]/.test(String(v ?? '')) ? `"${String(v).replace(/"/g, '""')}"` : String(v ?? '');
+  const rows = [['Date', 'Call', 'Finish', 'Hours', 'Role', 'Location', 'Name', 'Phone', 'Type', 'Status', `Rate (${CONFIG.CURRENCY})`]];
+  for (const b of eventBookings(eid).sort((x, y) => sortShifts(x.s, y.s))) {
+    const c = db.crew.get(b.a.crewId) || {};
+    rows.push([b.s.date, b.s.start, b.s.end, hoursOf(b.s), b.s.role, b.s.location, crewName(b.a.crewId), c.phone, label(CREW_TYPES, c.type || 'freelance'), label(A_STATUS, b.a.status), live(b.a) ? rateOf(b.a) : 0]);
+  }
+  const blob = new Blob(['﻿' + rows.map(r => r.map(cell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob), link = document.createElement('a');
+  link.href = url; link.download = `${(e?.code || e?.name || 'event').replace(/[^\w-]+/g, '-')}-crew.csv`;
+  document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+/* =========================================================================
+   Events (delegated)
+   ========================================================================= */
+const actions = {
+  open: el => go(`#/event/${el.dataset.id}/shifts`),
+  filter: el => { ui.filter = el.dataset.v; persistUI(); render(); },
+  newJob: () => jobDrawer(null),
+  editJob: el => jobDrawer(el.dataset.id),
+  newShift: el => shiftDrawer(null, el.dataset.id),
+  shift: el => { const s = db.shifts.get(el.dataset.id); s && shiftDrawer(s); },
+  dupShift: () => { const s = readForm($('#drBody'), drawerState.shift); delete s.until; s.id = uid(); s.date = addDays(s.date, 1); closeDrawer(); save('shifts', s.id, s, `Shift copied to ${fmt(s.date)}`); },
+  seedPlan: el => seedPlan(el.dataset.id),
+  pick: el => pickDrawer(el.dataset.id),
+  pickToggle: el => { const p = drawerState?.pick; if (!p) return; const id = el.dataset.id; p.sel.has(id) ? p.sel.delete(id) : p.sel.add(id); p.paint(); },
+  booking: el => bookingDrawer(el.dataset.id),
+  crew: el => crewDrawer(el.dataset.id),
+  newCrew: () => crewDrawer(null),
+  importCrew: () => importDrawer(),
+  crewType: el => { ui.crewType = el.dataset.v; render(); },
+  rowAdd: el => { const c = drawerState?.crew; if (!c) return; c[el.dataset.list].push(el.dataset.list === 'certs' ? { name: '', expires: '' } : { from: today(), to: today(), note: '' }); drawerState.paintRows(); },
+  rowDel: el => { const c = drawerState?.crew; if (!c) return; c[el.dataset.list].splice(+el.dataset.i, 1); drawerState.paintRows(); },
+  callDay: el => { ui.callDay[el.dataset.id] = el.dataset.v; render(); },
+  plMove: el => { ui.plStart = addDays(ui.plStart || weekStart(today()), +el.dataset.v); render(); },
+  plToday: () => { ui.plStart = ''; render(); },
+  csv: el => exportCsv(el.dataset.id),
+  confirmAll: async el => {
+    const list = eventBookings(el.dataset.id).filter(b => b.a.status === 'offered');
+    if (!list.length) return toast('No offered bookings to confirm');
+    if (await confirmDialog({ title: `Confirm ${plural(list.length, 'booking')}?`, body: '<p>Use this once crew have replied yes. Everyone still marked “offered” on this event becomes confirmed.</p>', ok: 'Confirm all' }) !== 'ok') return;
+    const now = new Date().toISOString();
+    try { await Backend.putMany(list.map(b => ({ coll: 'assign', id: b.a.id, data: { ...b.a, status: 'confirmed', statusAt: now } }))); render(); toast(`${plural(list.length, 'booking')} confirmed`); } catch (err) { failed(err); }
+  },
+  dropOrphan: async el => {
+    const sh = idx().byEvent.get(el.dataset.id) || [], as = [...db.assign.values()].filter(a => a.eventId === el.dataset.id);
+    if (await confirmDialog({ title: 'Remove these shifts?', body: `<p>${plural(sh.length, 'shift')} and ${plural(as.length, 'booking')} for the removed event will be deleted.</p>`, ok: 'Remove', danger: true }) !== 'ok') return;
+    try { await Backend.delMany('assign', as.map(a => a.id)); await Backend.delMany('shifts', sh.map(s => s.id)); go('#/'); render(); toast('Removed'); } catch (err) { failed(err); }
+  },
+  print: () => window.print(),
+  closeDrawer: el => { closeDrawer(); const h = el.tagName === 'A' && el.getAttribute('href'); if (h && h.startsWith('#')) location.hash = h; },
+  drSave: () => drawerState?.onSave?.(),
+  drDelete: () => drawerState?.onDelete?.(),
+  signOut: async () => { try { await sb.auth.signOut(); } finally { leave(''); } },
+  resetDemo: () => { if (confirm('Reset demo data?')) { try { localStorage.removeItem('bc-crew-demo'); } catch {} location.reload(); } },
+};
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-stop]')) return;
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  if (el.tagName === 'A') e.preventDefault();
+  actions[el.dataset.act]?.(el, e);
+});
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.cert != null && drawerState?.crew) { drawerState.crew.certs[+el.dataset.cert][el.dataset.f] = el.value; return; }
+  if (el.dataset.away != null && drawerState?.crew) { drawerState.crew.away[+el.dataset.away][el.dataset.f] = el.value; return; }
+  if (el.dataset.pick === 'status') { ui.newStatus = el.value; persistUI(); return; }
+  if (el.dataset.pick === 'all') { ui.pickAll = el.checked; drawerState?.pick?.paint(); return; }
+  const k = el.dataset.chg; if (!k) return;
+  ui[k] = el.type === 'checkbox' ? el.checked : el.value;
+  persistUI(); render();
+});
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.dataset.pick === 'q') { ui.pickQ = el.value; drawerState?.pick?.paint(); return; }
+  if (el.id === 'impText') { const n = parseCrewList(el.value).length; $('#impPrev').textContent = n ? `${plural(n, 'person', 'people')} found` : ''; return; }
+  const k = el.dataset.inp; if (!k) return;
+  ui[k] = el.value;
+  if (k === 'q') $('#evGrid').innerHTML = eventGrid(); else render();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && drawerState && !document.querySelector('.modal')) return closeDrawer();
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('[role=link][data-act]')) { e.preventDefault(); e.target.click(); }
+});
+$('#scrim').addEventListener('click', closeDrawer);
+window.addEventListener('hashchange', () => { closeDrawer(); render(); window.scrollTo(0, 0); });
+
+/* ---------------- confirm dialog ---------------- */
+function confirmDialog({ title, body, ok = 'Confirm', danger = false, alt = null }) {
+  return new Promise(resolve => {
+    const m = document.createElement('div');
+    m.className = 'modal'; m.setAttribute('role', 'alertdialog'); m.setAttribute('aria-modal', 'true');
+    m.innerHTML = `<div class="modal-box"><h2>${esc(title)}</h2>${body}
+      <div class="acts"><button class="btn ghost" data-r="cancel">Cancel</button>${alt ? `<button class="btn" data-r="alt">${esc(alt)}</button>` : ''}<button class="btn ${danger ? 'danger-solid' : 'primary'}" data-r="ok">${esc(ok)}</button></div></div>`;
+    const done = r => { m.remove(); document.removeEventListener('keydown', key, true); resolve(r); };
+    const key = e => { if (e.key === 'Escape') { e.stopPropagation(); done('cancel'); } };
+    m.addEventListener('click', e => { const b = e.target.closest('[data-r]'); if (b) done(b.dataset.r); else if (e.target === m) done('cancel'); });
+    document.addEventListener('keydown', key, true);
+    document.body.appendChild(m);
+    m.querySelector('[data-r=cancel]').focus();
+  });
+}
+
+/* ---------------- toast ---------------- */
+let toastT;
+function toast(msg, err = false) { const t = $('#toast'); t.textContent = msg; t.className = 'toast on' + (err ? ' err' : ''); clearTimeout(toastT); toastT = setTimeout(() => t.className = 'toast', err ? 4200 : 2200); }
+
+/* =========================================================================
+   Boot
+   ========================================================================= */
+function leave(to) { location.replace(CONFIG.PORTAL_HOME + to); }
+
+async function start() {
+  try {
+    if (DEMO) { me = 'you@blackcanvasglobal.com'; myName = 'You'; }
+    else {
+      if (!sb) throw new Error('The portal connection settings are missing (config.js).');
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return leave('?next=crew');
+      me = (session.user.email || '').toLowerCase();
+      myName = BCPortal.displayName(session.user);
+      sb.auth.onAuthStateChange((ev, ses) => { if (ev === 'SIGNED_OUT' || (!ses && ev !== 'INITIAL_SESSION')) leave(''); });
+      const { data: access, error } = await sb.rpc('my_access');
+      if (error) { if (/jwt/i.test(error.message || '')) return leave('?next=crew'); throw error; }
+      if (!(access?.apps || []).includes('crew')) return leave('?noaccess=crew');
+    }
+    await Backend.load();
+    Backend.subscribe();
+    shell();
+  } catch (e) {
+    console.error(e);
+    $('#app').innerHTML = `<div class="loading"><div style="text-align:center"><b>Couldn’t load Crew</b><br><span class="muted">${esc(e.message || e)}</span><br><br><button class="btn" onclick="location.reload()">Try again</button></div></div>`;
+  }
+}
+
+/* =========================================================================
+   Demo data (only used with ?demo)
+   ========================================================================= */
+function seedDemo() {
+  const t = today(), store = { pm: {}, ...Object.fromEntries(COLLS.map(c => [c, {}])) };
+  const CREW = [
+    ['Omar Haddad','Production manager',[],'staff',0,'Riyadh'],['Lina Mansour','Stage manager',['Production assistant'],'staff',0,'Riyadh'],
+    ['Khalid Al-Harbi','Head rigger',['Rigger'],'freelance',1400,'Riyadh'],['Yousef Darwish','Rigger',['Stagehand'],'freelance',950,'Riyadh'],
+    ['Marco Ferri','Rigger',[],'freelance',1100,'Jeddah'],['Hassan Qureshi','Rigger',['Scaffolder'],'agency',850,'Riyadh'],
+    ['Rami Saad','Rigger',[],'freelance',950,'Dammam'],['Bilal Ahmed','Stagehand',['Driver'],'agency',450,'Riyadh'],
+    ['Joel Santos','Stagehand',[],'agency',450,'Riyadh'],['Arjun Nair','Stagehand',['Forklift operator'],'agency',500,'Riyadh'],
+    ['Samir Khoury','Stagehand',[],'agency',450,'Riyadh'],['Tariq Mahmoud','Stagehand',['Carpenter'],'freelance',600,'Riyadh'],
+    ['Nabil Farouk','Stagehand',[],'agency',450,'Jeddah'],['Dennis Cruz','Stagehand',[],'agency',450,'Riyadh'],
+    ['Imran Sheikh','Stagehand',[],'agency',450,'Riyadh'],['Faisal Otaibi','Lighting technician',['Lighting programmer'],'freelance',1200,'Riyadh'],
+    ['Chris Walker','Lighting technician',[],'freelance',1300,'Riyadh'],['Nour Haddad','Audio technician',['Monitor engineer'],'freelance',1100,'Riyadh'],
+    ['Adel Nasser','Audio technician',[],'freelance',1000,'Jeddah'],['Sara Kamal','Video / LED technician',['Media server operator'],'freelance',1250,'Riyadh'],
+    ['Ali Raza','Video / LED technician',[],'freelance',1000,'Riyadh'],['Hamza Yilmaz','Power / electrician',[],'freelance',1100,'Riyadh'],
+    ['Reem Alsaeed','Runner',['Accreditation'],'freelance',400,'Riyadh'],['Majed Fahad','Runner',['Driver'],'freelance',400,'Riyadh'],
+  ];
+  const ids = CREW.map(([name, role, skills, type, rate, city], i) => {
+    const id = 'c' + i;
+    store.crew[id] = { id, name, role, skills, type, rate: rate || '', city, phone: `+966 5${(i % 9) + 1} ${String(100 + i * 7).padStart(3, '0')} ${String(2000 + i * 131).slice(-4)}`, email: '', certs: [], away: [], notes: '', active: true, agency: type === 'agency' ? 'Gulf Crew Services' : '' };
+    return id;
+  });
+  store.crew.c2.certs = [{ name: 'Rope access (IRATA)', expires: addDays(t, 200) }, { name: 'First aid', expires: addDays(t, 18) }];
+  store.crew.c4.certs = [{ name: 'Working at height', expires: addDays(t, -10) }];
+  store.crew.c3.certs = [{ name: 'Working at height', expires: addDays(t, 300) }];
+  store.crew.c16.away = [{ from: addDays(t, 2), to: addDays(t, 4), note: 'Annual leave' }];
+  const EV = [
+    ['Desert Lights Concert', 'Horizon Entertainment', 'Boulevard Arena', 'Riyadh', 'Concert', 'build', -1, 3, 4, 5, 'BC-2611'],
+    ['Padel Open Finals', 'Ace Sports Group', 'Kingdom Courts', 'Riyadh', 'Sports', 'preprod', 4, 6, 7, 8, 'BC-2614'],
+    ['Northwind Product Launch', 'Northwind Motors', 'Waterfront Pavilion', 'Jeddah', 'Corporate', 'confirmed', 20, 22, 22, 22, 'BC-2620'],
+  ];
+  EV.forEach(([name, client, venue, city, type, status, b, s, e, r, code], k) => {
+    const id = 'ev' + k;
+    store.pm[id] = { id, name, client, venue, city, type, status, code, dates: { buildStart: addDays(t, b), showStart: addDays(t, s), showEnd: addDays(t, e), derigEnd: addDays(t, r) } };
+  });
+  store.events.job0 = { id: 'job0', name: 'Showroom install', client: 'Northwind Motors', venue: 'Olaya showroom', city: 'Riyadh', code: 'BC-J07', type: 'Corporate', status: 'confirmed', dates: { buildStart: addDays(t, 1), showStart: addDays(t, 1), showEnd: addDays(t, 1), derigEnd: addDays(t, 1) } };
+  // shifts: standard plan for the first two events, a small crew for the install
+  const addShift = (eventId, date, role, need, start, end, location, notes = '') => { const id = uid(); store.shifts[id] = { id, eventId, date, role, dept: deptOf(role), need, start, end, location, notes }; return id; };
+  const plan = (eid) => {
+    const a = anchorsOf(store.pm[eid]), out = [];
+    for (const [phase, role, need, start, end, location] of PLAN) {
+      const list = phase === 'build' ? (() => { const l = []; for (let d = a.build; d < a.show; d = addDays(d, 1)) l.push(d); return l; })()
+        : phase === 'show' ? (() => { const l = []; for (let d = a.show; d <= a.showEnd; d = addDays(d, 1)) l.push(d); return l; })()
+        : (() => { const l = []; for (let d = addDays(a.showEnd, 1); d <= a.derig; d = addDays(d, 1)) l.push(d); return l; })();
+      list.forEach(d => out.push(addShift(eid, d, role, need, start, end, location)));
+    }
+    return out;
+  };
+  const s0 = plan('ev0'), s1 = plan('ev1');
+  const j1 = addShift('job0', addDays(t, 1), 'Carpenter', 2, '08:00', '17:00', 'Olaya showroom', 'Bring own tools');
+  const j2 = addShift('job0', addDays(t, 1), 'Lighting technician', 1, '12:00', '20:00', 'Olaya showroom');
+  // fill most positions by role, leaving gaps and a couple of clashes for the demo
+  const byRole = {}; ids.forEach(id => { const c = store.crew[id]; [c.role, ...c.skills].forEach(r => (byRole[r] ||= []).push(id)); });
+  const busy = new Set();
+  const book = (sid, cid, status) => { const id = uid(); const s = store.shifts[sid]; busy.add(cid + '|' + s.date); store.assign[id] = { id, shiftId: sid, eventId: s.eventId, crewId: cid, status, rate: '', note: '', createdAt: new Date().toISOString() }; };
+  [[s0, 0], [s1, 1]].forEach(([list, k]) => list.forEach((sid, n) => {
+    const s = store.shifts[sid], pool = (byRole[s.role] || []).filter(cid => !busy.has(cid + '|' + s.date)).sort((x, y) => (store.crew[y].role === s.role) - (store.crew[x].role === s.role));
+    const take = Math.max(0, Math.min(pool.length, s.need - ((n + k) % 4 === 0 ? 1 : 0)));
+    for (let i = 0; i < take; i++) book(sid, pool[(i + k) % pool.length], s.date <= addDays(t, 2) || (i + n) % 3 ? 'confirmed' : 'offered');
+  }));
+  book(j1, 'c11', 'confirmed'); book(j2, 'c15', 'offered'); // c11 is also a stagehand on the concert build that day: a clash to show
+  store.settings.ui = {};
+  lsSet('bc-crew-demo', store);
+  return store;
+}
+
+if (!DEMO) sb = BCPortal.client();
+start();
+</script>
+</body>
+</html>

@@ -204,12 +204,12 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
         <p>Quotes and tax invoices in SAR, with VAT, ZATCA QR and PDF export.</p>
         <div class="foot"><span class="chip" style="color:var(--good);border-color:currentColor">Live</span><span class="go">Open →</span></div>
       </a>
-      <div class="tile soon" aria-disabled="true" data-app="crew" hidden>
+      <a class="tile" href="crew/" id="tCrew" data-app="crew" hidden>
         <span class="ic"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="20" cy="18" r="7"/><path d="M6 46c0-9 6-15 14-15s14 6 14 15"/><circle cx="38" cy="20" r="6"/><path d="M36 31c8 0 14 5 14 14"/><rect x="44" y="6" width="8" height="8" fill="#F04E23" stroke="none"/></svg></span>
         <div><h2>Crew assignment</h2></div>
-        <p>Assign crew to shows, shifts and roles.</p>
-        <div class="foot"><span class="chip">Coming soon</span></div>
-      </div>
+        <p>Book crew onto shifts and roles for each event, with clash checks, a two-week planner and call sheets.</p>
+        <div class="foot"><span class="chip" style="color:var(--good);border-color:currentColor">Live</span><span class="go">Open →</span></div>
+      </a>
       <a class="tile" href="projects/" id="tProjects" data-app="projects" hidden>
         <span class="ic"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="5" y="7" width="13" height="42"/><rect x="22" y="7" width="13" height="30"/><rect x="39" y="7" width="13" height="20"/><path d="M9 15h5M9 22h5M26 15h5M43 15h5"/><rect x="24" y="41" width="9" height="9" fill="#F04E23" stroke="none"/></svg></span>
         <div><h2>Project management</h2></div>
@@ -280,7 +280,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
   var hash = new URLSearchParams(location.hash.replace(/^#/, ""));
   var linkType = hash.get("type");               // "invite" or "recovery" from email links
   var linkError = hash.get("error_description");
-  var nextApp = { billing: "billing", projects: "projects" }[params.get("next")] || "";
+  var nextApp = { billing: "billing", crew: "crew", projects: "projects" }[params.get("next")] || "";
   var next = nextApp ? nextApp + "/" : "";
   var noAccess = params.get("noaccess");
 

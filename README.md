@@ -29,11 +29,12 @@ Each folder has the page (`index.html`) and the person's contact file (`.vcf`), 
 
 ## Team portal
 
-`portal/` is a hidden, sign-in-only area at blackcanvasglobal.com/portal/. It isn't linked from the site and is marked `noindex`. After signing in, the team sees an apps screen: **Billing** (quotes and tax invoices) and **Project management** (event deliveries and tasks) are live, and **Crew assignment** is a placeholder for later.
+`portal/` is a hidden, sign-in-only area at blackcanvasglobal.com/portal/. It isn't linked from the site and is marked `noindex`. After signing in, the team sees an apps screen with **Billing** (quotes and tax invoices), **Crew assignment** (crew on shifts for each event) and **Project management** (event deliveries and tasks).
 
 - `portal/index.html`: sign in, forgot password, set password (from invite and reset emails), and the apps screen.
 - `portal/billing/`: the billing app.
 - `portal/projects/`: the project management app for events: an events dashboard, tasks by department on a board or list, timed templates that build each event's delivery checklist from its show dates, a printable production schedule, contacts and suppliers per event, and a timeline across all events. Add `?demo` to its address to try it with sample data kept only in your browser.
+- `portal/crew/`: the crew assignment app: a roster of staff, freelancers and agency crew with roles, day rates, certificates and unavailable dates; shifts by role and day for each event (events from Projects appear automatically, and crew-only jobs can be added); booking crew onto shifts with checks for double-booking, short rest between days, unavailable dates and expired certificates; a two-week planner of who is where; crew costs and CSV export per event; printable call sheets and WhatsApp booking messages. Add `?demo` to its address to try it with sample data kept only in your browser.
 - `portal/config.js`: the Supabase project URL and publishable key. Both are meant to be public.
 - `portal/portal.js`, `portal/brand.js`, `portal/vendor/`: shared sign-in helper, logo artwork and the Supabase library.
 - `supabase/setup.sql`: the database tables and access rules.
@@ -41,7 +42,7 @@ Each folder has the page (`index.html`) and the person's contact file (`.vcf`), 
 
 When you change `brand.js`, `config.js` or `portal.js`, raise the `?v=` tag on their `<script>` links in both portal pages. GitHub Pages caches files for about 10 minutes, and the new tag makes browsers load the new version straight away.
 
-Sign-in and data run on [Supabase](https://supabase.com). Access is per app: each person has a row in the `portal_access` table listing the apps they may open (`billing`, `crew`, `projects`) and whether they're an admin. The database enforces it: billing data is only readable and writable by people with the `billing` app, and project data only by people with the `projects` app, so hiding a tile isn't the only protection. The code is public in this repository, but the data isn't.
+Sign-in and data run on [Supabase](https://supabase.com). Access is per app: each person has a row in the `portal_access` table listing the apps they may open (`billing`, `crew`, `projects`) and whether they're an admin. The database enforces it: billing data is only readable and writable by people with the `billing` app, crew data only by people with the `crew` app, and project data only by people with the `projects` app, so hiding a tile isn't the only protection. The code is public in this repository, but the data isn't.
 
 ### Set up (once)
 

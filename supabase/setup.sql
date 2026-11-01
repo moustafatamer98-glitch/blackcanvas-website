@@ -189,6 +189,62 @@ begin
   end if;
 end $$;
 
+-- 10. Crew assignment app (portal/crew/): crew roster, crew-only jobs, shifts and who is
+--     booked on each shift, stored like the other apps as one row per item. Only people with
+--     the "crew" app can read or change them.
+create table if not exists public.crew_records (
+  coll       text        not null check (coll = any (array['crew','events','shifts','assign','settings'])),
+  id         text        not null,
+  data       jsonb       not null default '{}'::jsonb,
+  updated_at timestamptz not null default now(),
+  updated_by uuid        default auth.uid(),
+  primary key (coll, id)
+);
+create index if not exists crew_records_event_idx on public.crew_records ((data->>'eventId'));
+alter table public.crew_records enable row level security;
+revoke all on public.crew_records from anon;
+grant select, insert, update, delete on public.crew_records to authenticated;
+
+drop policy if exists "crew can read"   on public.crew_records;
+drop policy if exists "crew can add"    on public.crew_records;
+drop policy if exists "crew can change" on public.crew_records;
+drop policy if exists "crew can delete" on public.crew_records;
+create policy "crew can read"   on public.crew_records for select to authenticated using (public.has_app('crew'));
+create policy "crew can add"    on public.crew_records for insert to authenticated with check (public.has_app('crew'));
+create policy "crew can change" on public.crew_records for update to authenticated using (public.has_app('crew')) with check (public.has_app('crew'));
+create policy "crew can delete" on public.crew_records for delete to authenticated using (public.has_app('crew'));
+
+drop trigger if exists crew_records_touch on public.crew_records;
+create trigger crew_records_touch before insert or update on public.crew_records
+  for each row execute function public.touch_record();
+
+-- Events from the Projects app, so crew can be planned on them without Projects access.
+-- Only the basics (name, client, venue, city, code, status, type, dates) and only for
+-- people with the "crew" app.
+create or replace function public.crew_events()
+returns table (id text, data jsonb)
+language sql stable security definer set search_path = public
+as $$
+  select r.id, jsonb_build_object(
+    'id', r.id, 'name', r.data->'name', 'client', r.data->'client', 'venue', r.data->'venue',
+    'city', r.data->'city', 'code', r.data->'code', 'status', r.data->'status',
+    'type', r.data->'type', 'dates', r.data->'dates')
+  from public.pm_records r
+  where public.has_app('crew') and r.coll = 'projects';
+$$;
+revoke all on function public.crew_events() from public, anon;
+grant execute on function public.crew_events() to authenticated;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'crew_records'
+  ) then
+    alter publication supabase_realtime add table public.crew_records;
+  end if;
+end $$;
+
 -- First admin (run once, with your own email):
 -- insert into public.portal_access (email, apps, is_admin)
 -- values ('you@blackcanvasglobal.com', array['billing','crew','projects'], true)
