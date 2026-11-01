@@ -140,6 +140,55 @@ begin
   end if;
 end $$;
 
+-- 9. Projects app (portal/projects/): events, tasks, production schedules, contacts and
+--    templates, stored like billing as one row per item. Only people with the
+--    "projects" app can read or change them.
+create table if not exists public.pm_records (
+  coll       text        not null check (coll = any (array['projects','tasks','schedule','contacts','templates','settings'])),
+  id         text        not null,
+  data       jsonb       not null default '{}'::jsonb,
+  updated_at timestamptz not null default now(),
+  updated_by uuid        default auth.uid(),
+  primary key (coll, id)
+);
+create index if not exists pm_records_project_idx on public.pm_records ((data->>'projectId'));
+alter table public.pm_records enable row level security;
+
+drop policy if exists "projects can read"   on public.pm_records;
+drop policy if exists "projects can add"    on public.pm_records;
+drop policy if exists "projects can change" on public.pm_records;
+drop policy if exists "projects can delete" on public.pm_records;
+create policy "projects can read"   on public.pm_records for select to authenticated using (public.has_app('projects'));
+create policy "projects can add"    on public.pm_records for insert to authenticated with check (public.has_app('projects'));
+create policy "projects can change" on public.pm_records for update to authenticated using (public.has_app('projects')) with check (public.has_app('projects'));
+create policy "projects can delete" on public.pm_records for delete to authenticated using (public.has_app('projects'));
+
+drop trigger if exists pm_records_touch on public.pm_records;
+create trigger pm_records_touch before insert or update on public.pm_records
+  for each row execute function public.touch_record();
+
+-- People who can be given tasks: only callable by, and only lists, people with Projects access.
+create or replace function public.pm_team()
+returns table (email text, note text)
+language sql stable security definer set search_path = public
+as $$
+  select a.email, a.note from public.portal_access a
+  where public.has_app('projects') and 'projects' = any (a.apps)
+  order by a.email;
+$$;
+revoke all on function public.pm_team() from public, anon;
+grant execute on function public.pm_team() to authenticated;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'pm_records'
+  ) then
+    alter publication supabase_realtime add table public.pm_records;
+  end if;
+end $$;
+
 -- First admin (run once, with your own email):
 -- insert into public.portal_access (email, apps, is_admin)
 -- values ('you@blackcanvasglobal.com', array['billing','crew','projects'], true)

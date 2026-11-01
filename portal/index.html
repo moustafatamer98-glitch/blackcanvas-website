@@ -210,12 +210,12 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
         <p>Assign crew to shows, shifts and roles.</p>
         <div class="foot"><span class="chip">Coming soon</span></div>
       </div>
-      <div class="tile soon" aria-disabled="true" data-app="projects" hidden>
+      <a class="tile" href="projects/" id="tProjects" data-app="projects" hidden>
         <span class="ic"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="5" y="7" width="13" height="42"/><rect x="22" y="7" width="13" height="30"/><rect x="39" y="7" width="13" height="20"/><path d="M9 15h5M9 22h5M26 15h5M43 15h5"/><rect x="24" y="41" width="9" height="9" fill="#F04E23" stroke="none"/></svg></span>
         <div><h2>Project management</h2></div>
-        <p>Plan projects, milestones and tasks from pitch to load-out.</p>
-        <div class="foot"><span class="chip">Coming soon</span></div>
-      </div>
+        <p>Event deliveries and tasks by department, production schedules and a timeline from pitch to load-out.</p>
+        <div class="foot"><span class="chip" style="color:var(--good);border-color:currentColor">Live</span><span class="go">Open →</span></div>
+      </a>
       <button class="tile" type="button" data-app="admin" id="tAccess" hidden>
         <span class="ic"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="10" y="24" width="36" height="26"/><path d="M18 24v-7a10 10 0 0 1 20 0v7"/><rect x="24" y="33" width="8" height="8" fill="#F04E23" stroke="none"/></svg></span>
         <div><h2>Team access</h2></div>
@@ -280,7 +280,8 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
   var hash = new URLSearchParams(location.hash.replace(/^#/, ""));
   var linkType = hash.get("type");               // "invite" or "recovery" from email links
   var linkError = hash.get("error_description");
-  var next = params.get("next") === "billing" ? "billing/" : "";
+  var nextApp = { billing: "billing", projects: "projects" }[params.get("next")] || "";
+  var next = nextApp ? nextApp + "/" : "";
   var noAccess = params.get("noaccess");
 
   var sb = BCPortal.client();
@@ -311,7 +312,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
     sb.rpc("my_access").then(function (r) {
       if (r.error) { show("vApps"); msg($("#appsNote"), "Couldn't load your apps. Reload the page to try again."); return; }
       access = r.data || access;
-      if (next && access.apps.indexOf("billing") >= 0) { location.replace(next); return; }
+      if (next && access.apps.indexOf(nextApp) >= 0) { location.replace(next); return; }
       paintTiles();
       if (location.hash === "#access" && access.is_admin) openAccess(); else show("vApps");
     });

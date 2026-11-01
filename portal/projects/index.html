@@ -1,0 +1,1401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="../../card/apple-touch-icon.png">
+<title>Black Canvas Projects</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,400..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* same palette as the portal and Billing */
+  --bg:#0B0B0C; --panel:#141416; --panel2:#1D1D21; --raise:#24242A; --line:#2B2B30; --line2:#45454B;
+  --text:#F4F3EF; --muted:#9C9EA3; --dim:#66686D;
+  --orange:#F04E23; --orange-soft:rgba(240,78,35,.14);
+  --red:#FF7086; --amber:#E6B450; --blue:#7FA2FF; --violet:#B39BFF; --green:#5BC994; --white:#F4F3EF;
+  --radius:6px; --side:220px;
+  --font:'Archivo',Arial,sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.hidden{display:none!important}
+
+/* ---------- logo ---------- */
+.logo-svg{display:block;width:150px;color:var(--text)}
+.logo-svg svg{display:block;width:100%;height:auto}
+.logo{font-weight:900;font-stretch:80%;letter-spacing:.01em;line-height:.9;font-size:20px;text-transform:uppercase;user-select:none}
+.logo .o{color:transparent;-webkit-text-stroke:1.1px var(--text)}
+.logo .dot{display:inline-block;width:.32em;height:.32em;background:var(--orange);margin-left:.08em}
+.logo-sub{font-size:10px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase;margin-top:6px;font-weight:600}
+
+/* ---------- shell ---------- */
+.shell{display:grid;grid-template-columns:var(--side) 1fr;min-height:100vh}
+.side{position:sticky;top:0;height:100vh;border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:22px;background:var(--bg)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;text-decoration:none;color:var(--muted);font-weight:500}
+.nav a:hover{background:var(--panel2);color:var(--text)}
+.nav a.on{background:var(--panel2);color:var(--text)}
+.nav a.on svg{color:var(--orange)}
+.nav svg{width:17px;height:17px;flex:none}
+.nav .count{margin-left:auto;font-size:11px;background:var(--red);color:#fff;border-radius:20px;padding:0 6px;font-weight:700}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--muted)}
+.side-foot a{text-decoration:none}
+.side-foot a:hover{color:var(--text)}
+.me{display:flex;align-items:center;gap:8px}
+main{min-width:0;padding:28px 34px 80px}
+.demo-bar{background:var(--orange-soft);color:var(--orange);border:1px solid rgba(240,78,35,.35);padding:7px 12px;border-radius:8px;font-size:12px;margin-bottom:18px;font-weight:600}
+
+/* ---------- type ---------- */
+h1{font-size:40px;font-weight:900;font-stretch:62.5%;text-transform:uppercase;letter-spacing:.005em;margin:0;line-height:1}
+h2{font-size:15px;font-weight:700;margin:0;text-transform:uppercase;letter-spacing:.06em;font-stretch:90%}
+.eyebrow{font:500 11px/1.3 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)} .dim{color:var(--dim)}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+
+/* ---------- controls ---------- */
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);background:var(--panel2);padding:8px 13px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap;text-decoration:none}
+.btn:hover{border-color:#4a4a4a;background:var(--raise)}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#0a0a0a}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--text);background:var(--panel2)}
+.btn.danger{color:var(--red);border-color:rgba(255,77,79,.4);background:transparent}
+.btn.sm{padding:5px 9px;font-size:12px}
+.btn svg{width:15px;height:15px}
+.input,select.input,textarea.input{width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;outline:none}
+.input:focus{border-color:var(--orange)}
+textarea.input{resize:vertical;min-height:84px}
+select.input{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 15px) 52%,calc(100% - 10px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:28px}
+input[type=date].input,input[type=time].input{color-scheme:dark}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:6px 11px;cursor:pointer;color:var(--muted);font-size:12px;font-weight:600}
+.seg button.on{background:var(--raise);color:var(--text)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line2);background:transparent;border-radius:30px;padding:5px 12px;font-size:12px;cursor:pointer;color:var(--muted);font-weight:600}
+.chip.on{background:var(--text);color:#0a0a0a;border-color:var(--text)}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.toolbar .grow{flex:1;min-width:180px}
+.check{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;cursor:pointer;user-select:none}
+
+/* ---------- pills ---------- */
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:20px;border:1px solid currentColor;white-space:nowrap;line-height:1.3}
+.pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.s-pitch{color:var(--muted)} .s-confirmed{color:var(--white)} .s-preprod{color:var(--blue)} .s-build{color:var(--amber)}
+.s-live{color:var(--orange)} .s-derig{color:var(--violet)} .s-wrap{color:var(--green)} .s-closed{color:var(--dim)} .s-lost{color:var(--red)}
+.s-live::before{animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:5px;background:var(--raise);color:var(--muted);white-space:nowrap;font-weight:500}
+.prio{width:8px;height:8px;border-radius:2px;flex:none;display:inline-block}
+.p-low{background:var(--dim)} .p-normal{background:var(--blue)} .p-high{background:var(--amber)} .p-critical{background:var(--red)}
+
+select.status-sel{width:auto;padding:4px 28px 4px 12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-radius:20px;border-color:currentColor;background-color:transparent}
+select.status-sel option{color:var(--text);background:var(--panel)}
+/* ---------- KPI & cards ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.kpi .v{font-size:30px;font-weight:800;font-stretch:80%;line-height:1;margin-top:8px}
+.kpi.alert .v{color:var(--red)}
+.hero{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--orange);border-radius:var(--radius);padding:18px 22px;margin-bottom:22px;cursor:pointer}
+.hero:hover{border-color:var(--line2);border-left-color:var(--orange)}
+.hero .big{font-size:56px;font-weight:900;font-stretch:72%;line-height:.85;color:var(--orange)}
+.hero .big small{display:block;font-size:11px;letter-spacing:.2em;color:var(--muted);font-stretch:100%;font-weight:600;margin-top:6px;text-transform:uppercase}
+.hero .t{font-size:22px;font-weight:800;font-stretch:82%;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;text-align:left}
+.card:hover{border-color:var(--line2);background:var(--panel2)}
+.card .name{font-size:18px;font-weight:800;font-stretch:84%;text-transform:uppercase;line-height:1.1}
+.card .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.bar{height:4px;background:var(--raise);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--text)}
+.bar.o i{background:var(--orange)}
+.meta{display:flex;gap:12px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.meta .bad{color:var(--red);font-weight:600}
+.empty{border:1px dashed var(--line2);border-radius:var(--radius);padding:40px 20px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--text);font-size:15px;margin-bottom:4px}
+
+.av{width:24px;height:24px;border-radius:50%;background:var(--raise);border:1px solid var(--line2);display:inline-grid;place-items:center;font-size:10px;font-weight:700;color:var(--text);flex:none;letter-spacing:0}
+.av.me{border-color:var(--orange);color:var(--orange)}
+.av.none{border-style:dashed;color:var(--dim)}
+
+/* ---------- event header ---------- */
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:14px}
+.back:hover{color:var(--text)}
+.ev-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px}
+.ev-head h1{font-size:52px}
+.phases{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:18px}
+.phase{background:var(--panel);padding:12px 14px}
+.phase .d{font-size:15px;font-weight:700;margin-top:4px}
+.phase.now{background:var(--panel2);box-shadow:inset 0 2px 0 var(--orange)}
+.countdown{text-align:right}
+.countdown .big{font-size:44px;font-weight:900;font-stretch:72%;line-height:.9;color:var(--orange);text-transform:uppercase}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto}
+.tabs a{padding:10px 14px;text-decoration:none;color:var(--muted);font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs a.on{color:var(--text);border-color:var(--orange)}
+.tabs a .n{font-size:11px;color:var(--dim);margin-left:4px}
+.depts{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 18px;margin-bottom:20px}
+.dept-row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:12px}
+.dept-row .bar{grid-column:1/-1}
+
+/* ---------- board ---------- */
+.board{display:grid;grid-template-columns:repeat(5,minmax(220px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:10px;min-height:200px;display:flex;flex-direction:column;gap:8px}
+.col.over{border-color:var(--orange);background:var(--panel2)}
+.col-h{display:flex;justify-content:space-between;align-items:center;padding:2px 4px 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.col-h .n{color:var(--dim)}
+.tcard{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px;cursor:grab;display:flex;flex-direction:column;gap:8px}
+.tcard:hover{border-color:var(--line2)}
+.tcard.dragging{opacity:.4}
+.tcard .tt{font-weight:600;line-height:1.3}
+.tcard .tm{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
+.tcard .tm .av{margin-left:auto}
+.due{font-size:11px;color:var(--muted);white-space:nowrap}
+.due.late{color:var(--red);font-weight:700}
+.due.soon{color:var(--amber);font-weight:600}
+.st-todo{color:var(--muted)} .st-doing{color:var(--blue)} .st-waiting{color:var(--violet)} .st-blocked{color:var(--red)} .st-done{color:var(--green)}
+
+/* ---------- list ---------- */
+.group{margin-bottom:20px}
+.group-h{display:flex;align-items:center;gap:10px;padding:0 2px 8px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.group-h .n{color:var(--dim);font-size:12px}
+.trow{display:grid;grid-template-columns:22px 1fr auto;gap:10px;align-items:center;padding:9px 6px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:6px}
+.trow:hover{background:var(--panel)}
+.trow .tt{font-weight:500}
+.trow.done .tt{color:var(--dim);text-decoration:line-through}
+.trow .right{display:flex;align-items:center;gap:10px}
+.trow .sub{display:flex;gap:6px;align-items:center;margin-top:3px;flex-wrap:wrap}
+.tick{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--line2);display:grid;place-items:center;cursor:pointer;background:transparent;padding:0}
+.tick:hover{border-color:var(--green)}
+.tick.on{background:var(--green);border-color:var(--green)}
+.tick.on::after{content:'';width:5px;height:9px;border:solid #0a0a0a;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.quick{display:flex;gap:8px;margin-bottom:14px}
+.quick .input{flex:1;min-width:0}
+.quick select.input{flex:none;width:210px}
+@media (max-width:820px){.quick{flex-wrap:wrap}.quick input.input{flex-basis:100%}.quick select.input{flex:1}}
+
+/* ---------- schedule ---------- */
+.day{margin-bottom:22px}
+.day-h{display:flex;align-items:baseline;gap:12px;padding-bottom:8px;border-bottom:1px solid var(--line2);margin-bottom:2px}
+.day-h .d{font-size:18px;font-weight:800;font-stretch:84%;text-transform:uppercase}
+.srow{display:grid;grid-template-columns:110px 120px 1fr 160px 150px;gap:12px;align-items:center;padding:10px 6px;border-bottom:1px solid var(--line);cursor:pointer}
+.srow:hover{background:var(--panel)}
+.srow .time{font-weight:700}
+.srow.show-item .time,.srow.show-item .ttl{color:var(--orange)}
+
+/* ---------- contacts ---------- */
+.ccard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:6px;cursor:pointer}
+.ccard:hover{border-color:var(--line2)}
+.ccard .nm{font-weight:700;font-size:15px}
+.ccard .links{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+
+/* ---------- timeline ---------- */
+.tl-wrap{border:1px solid var(--line);border-radius:var(--radius);overflow:auto;background:var(--panel);max-height:calc(100vh - 210px)}
+.tl{position:relative;display:grid}
+.tl-head,.tl-row{display:flex}
+.tl-label{position:sticky;left:0;z-index:3;width:230px;flex:none;background:var(--panel);border-right:1px solid var(--line);padding:10px 12px;display:flex;flex-direction:column;justify-content:center;cursor:pointer}
+.tl-label:hover .n{color:var(--orange)}
+.tl-label .n{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-label .c{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-head{position:sticky;top:0;z-index:4;background:var(--panel);border-bottom:1px solid var(--line2)}
+.tl-head .tl-label{z-index:5}
+.tl-days{position:relative;flex:none}
+.tl-month{position:absolute;top:0;height:22px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 6px;border-left:1px solid var(--line2);color:var(--muted);white-space:nowrap}
+.tl-day{position:absolute;top:22px;height:24px;font-size:10px;text-align:center;color:var(--dim);line-height:24px}
+.tl-day.we{color:var(--muted)}
+.tl-day.today{color:var(--orange);font-weight:800}
+.tl-track{position:relative;flex:none;border-bottom:1px solid var(--line);height:52px}
+.tl-we{position:absolute;top:0;bottom:0;background:rgba(255,255,255,.025)}
+.tl-today{position:absolute;top:0;bottom:0;width:2px;background:var(--orange);z-index:2;pointer-events:none}
+.tl-bar{position:absolute;top:15px;height:22px;border-radius:4px;cursor:pointer;display:flex;align-items:center;padding:0 7px;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden}
+.tl-bar.b{background:#3a3a37;color:#cfcfcb}
+.tl-bar.s{background:var(--orange);color:#0a0a0a;z-index:1}
+.tl-bar.d{background:repeating-linear-gradient(135deg,#2c2c2a 0 5px,#383836 5px 10px);color:#b0b0ac}
+.tl-ms{position:absolute;top:8px;width:9px;height:9px;background:var(--red);transform:rotate(45deg);z-index:2;cursor:pointer;border:1px solid var(--panel)}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--muted);align-items:center;flex-wrap:wrap}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+/* ---------- drawer / modal ---------- */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;opacity:0;pointer-events:none;transition:opacity .15s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100vw);background:var(--panel);border-left:1px solid var(--line2);z-index:51;transform:translateX(100%);transition:transform .2s ease;display:flex;flex-direction:column}
+.drawer.wide{width:min(860px,100vw)}
+.drawer.on{transform:none}
+.dr-h{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line)}
+.dr-b{padding:20px 22px;overflow-y:auto;flex:1}
+.dr-f{display:flex;gap:8px;padding:14px 22px;border-top:1px solid var(--line);align-items:center}
+.dr-f .sp{flex:1}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form .f{display:flex;flex-direction:column;gap:5px}
+.form .f.span{grid-column:1/-1}
+.form label{font:500 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.form .sect{grid-column:1/-1;border-top:1px solid var(--line);padding-top:14px;margin-top:4px}
+.cl{display:flex;flex-direction:column;gap:6px}
+.cl-row{display:flex;align-items:center;gap:8px}
+.cl-row .input{padding:6px 8px}
+.cl-row.done .input{color:var(--dim);text-decoration:line-through}
+.tpl-table{width:100%;border-collapse:collapse}
+.tpl-table th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:6px 4px;font-weight:700}
+.tpl-table td{padding:3px 4px}
+.tpl-table .input{padding:6px 7px;font-size:13px}
+.tpl-table select.input{padding-right:22px;background-position:calc(100% - 12px) 52%,calc(100% - 7px) 52%}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#0a0a0a;padding:10px 16px;border-radius:8px;font-weight:600;z-index:60;opacity:0;transition:.2s;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.toast.err{background:var(--red);color:#fff}
+
+/* ---------- auth ---------- */
+.auth{min-height:100vh;display:grid;place-items:center;padding:20px}
+.auth-box{width:min(380px,100%);display:flex;flex-direction:column;gap:14px}
+.auth-box .logo{font-size:34px;margin-bottom:6px}
+.loading{min-height:100vh;display:grid;place-items:center;color:var(--muted)}
+
+/* ---------- responsive ---------- */
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.srow{grid-template-columns:100px 1fr;}.srow .hide-sm{display:none}}
+@media (max-width:820px){
+  .shell{grid-template-columns:1fr}
+  .side{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;padding:6px 8px;border-right:0;border-top:1px solid var(--line);z-index:40;gap:0}
+  .side .brand,.side-foot{display:none}
+  .nav{flex-direction:row;justify-content:space-around;width:100%}
+  .nav a{flex-direction:column;gap:3px;font-size:10px;padding:6px 8px}
+  .nav .count{position:absolute;margin:0;transform:translate(10px,-4px)}
+  main{padding:18px 16px 90px}
+  h1{font-size:28px}.ev-head h1{font-size:30px}
+  .phases{grid-template-columns:repeat(2,1fr)}
+  .hero{grid-template-columns:1fr}
+  .form{grid-template-columns:1fr}
+  .countdown{text-align:left}
+  .board{grid-template-columns:repeat(5,82vw)}
+  .tl-label{width:140px}
+}
+
+/* ---------- print (production schedule & task lists) ---------- */
+@media print{
+  :root{--bg:#fff;--panel:#fff;--panel2:#fff;--text:#000;--muted:#555;--dim:#777;--line:#ccc;--line2:#999;--raise:#eee}
+  body{background:#fff}
+  .side,.toolbar,.tabs,.back,.demo-bar,.no-print,.drawer,.scrim,.ev-head,.phases,.depts{display:none!important}
+  .shell{display:block} main{padding:0}
+  .srow{grid-template-columns:110px 110px 1fr 150px 140px;break-inside:avoid}
+  .day{break-inside:avoid-page}
+  .logo .o{-webkit-text-stroke-color:#000}
+  .print-only{display:block!important}
+}
+.print-only{display:none}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading">Loading…</div></div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true"></aside>
+<div class="toast" id="toast"></div>
+
+<script src="../vendor/supabase-2.117.3.js"></script>
+<script src="../brand.js?v=20261101b"></script>
+<script src="../config.js?v=20261101b"></script>
+<script src="../portal.js?v=20261101b"></script>
+<script>
+/* =========================================================================
+   Black Canvas · Projects
+   Event project management for the Black Canvas team portal.
+   Data lives in Supabase (table pm_records). Sign-in, the Supabase client and the
+   logo come from the shared portal files (../config.js, ../portal.js, ../brand.js).
+   Open with ?demo to try it with sample data stored only in this browser.
+   ========================================================================= */
+const CONFIG = {
+  TABLE: 'pm_records',
+  PORTAL_HOME: '../',         // the portal's apps screen (sign-in lives there too)
+  CURRENCY: 'SAR',
+};
+const DEMO = new URLSearchParams(location.search).has('demo');
+
+/* ---------------- reference lists ---------------- */
+const STATUSES = [['pitch','Pitch'],['confirmed','Confirmed'],['preprod','Pre-production'],['build','Build'],['live','Live'],['derig','De-rig'],['wrap','Wrap-up'],['closed','Closed'],['lost','Lost']];
+const ACTIVE = new Set(['confirmed','preprod','build','live','derig','wrap']);
+const EVENT_TYPES = ['Concert','Festival','Sports','Corporate','Brand activation','Exhibition','Tour','Ceremony','Other'];
+const TASK_STATUS = [['todo','To do'],['doing','In progress'],['waiting','Waiting on others'],['blocked','Blocked'],['done','Done']];
+const PRIORITY = [['low','Low'],['normal','Normal'],['high','High'],['critical','Critical']];
+const DEPTS = ['Production','Creative','Technical','Staging & Structures','Logistics','Permits & Compliance','Health & Safety','Talent & Artists','Hospitality','Ticketing & Access','Marketing & Content','Finance'];
+const PHASES = [['pitch','Pitch & proposal'],['pre','Pre-production'],['build','Build / load-in'],['show','Show'],['derig','De-rig'],['wrap','Wrap']];
+const ANCHORS = [['show','Show day 1'],['build','Build start'],['showEnd','Last show day'],['derig','De-rig end']];
+const SCHED_TYPES = ['Load-in','Rigging','Build','Tech / focus','Soundcheck','Rehearsal','Meeting','Doors','Show','Changeover','Curfew','Load-out','Travel','Other'];
+const CONTACT_ROLES = ['Client','Venue','Supplier','Artist / talent','Crew','Authority','Other'];
+const label = (list, v) => (list.find(x => x[0] === v) || [v, v || '—'])[1];
+
+/* ---------------- default event template ---------------- */
+const DEFAULT_TEMPLATE = {
+  name: 'Standard live event',
+  description: 'Full delivery checklist from kick-off to wrap report, timed against the show dates.',
+  items: [
+    ['Kick-off meeting & scope sign-off','Production','pre','show',-90,'high'],
+    ['Client budget approved','Finance','pre','show',-84,'high'],
+    ['Venue / site contract signed','Production','pre','show',-75,'critical'],
+    ['Event permit & licensing application submitted','Permits & Compliance','pre','show',-70,'critical'],
+    ['Creative concept signed off','Creative','pre','show',-60,'high'],
+    ['Site survey & measurements','Staging & Structures','pre','show',-56,'normal'],
+    ['Technical design issued (lighting, audio, video)','Technical','pre','show',-45,'high'],
+    ['CAD / site plan v1 issued','Staging & Structures','pre','show',-42,'high'],
+    ['Artist contracts & riders received','Talent & Artists','pre','show',-35,'high'],
+    ['Risk assessment & method statements','Health & Safety','pre','show',-30,'high'],
+    ['Structural calcs & engineer sign-off','Staging & Structures','pre','show',-30,'critical'],
+    ['Freight, trucking & customs plan','Logistics','pre','show',-28,'normal'],
+    ['Supplier orders confirmed','Technical','pre','show',-28,'high'],
+    ['Crew booked & confirmed','Production','pre','show',-21,'high'],
+    ['Hotels, transport & catering booked','Hospitality','pre','show',-21,'normal'],
+    ['Accreditation & access plan','Ticketing & Access','pre','show',-21,'normal'],
+    ['Production schedule issued','Production','pre','show',-14,'high'],
+    ['Permits approved','Permits & Compliance','pre','show',-14,'critical'],
+    ['Final CAD signed off by client','Staging & Structures','pre','show',-14,'high'],
+    ['Emergency plan, evacuation & medical cover','Health & Safety','pre','show',-10,'critical'],
+    ['Run of show & cue sheets final','Production','pre','show',-7,'high'],
+    ['Content capture plan (photo / video)','Marketing & Content','pre','show',-7,'normal'],
+    ['Site handover & load-in','Logistics','build','build',0,'high'],
+    ['Daily production meeting set up','Production','build','build',0,'normal'],
+    ['Technical rehearsal','Technical','build','show',-1,'high'],
+    ['Pre-show safety walk','Health & Safety','show','show',0,'critical'],
+    ['Show call — doors & show','Production','show','show',0,'critical'],
+    ['Load-out & site clean','Logistics','derig','derig',0,'high'],
+    ['Site handback & sign-off','Production','derig','derig',1,'high'],
+    ['Supplier invoices reconciled','Finance','wrap','derig',7,'normal'],
+    ['Wrap report & client debrief','Production','wrap','derig',10,'high'],
+    ['Final invoice sent to client','Finance','wrap','derig',14,'high'],
+    ['Recap video & case study','Marketing & Content','wrap','derig',14,'normal'],
+  ].map(([title,dept,phase,anchor,offset,priority]) => ({title,dept,phase,anchor,offset,priority})),
+};
+
+/* ---------------- helpers ---------------- */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { if (!s) return null; const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const today = () => iso(new Date());
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const diff = (a, b) => Math.round((parse(b) - parse(a)) / 864e5);
+const fmt = (s, o = {weekday:'short', day:'numeric', month:'short'}) => s ? parse(s).toLocaleDateString('en-GB', o) : '';
+const fmtShort = s => fmt(s, {day:'numeric', month:'short'});
+function fmtRange(a, b) {
+  if (!a) return 'Dates TBC';
+  if (!b || a === b) return fmt(a, {day:'numeric', month:'short', year:'numeric'});
+  const A = parse(a), B = parse(b);
+  if (A.getMonth() === B.getMonth() && A.getFullYear() === B.getFullYear()) return `${A.getDate()}–${fmt(b,{day:'numeric',month:'short',year:'numeric'})}`;
+  return `${fmtShort(a)} – ${fmt(b,{day:'numeric',month:'short',year:'numeric'})}`;
+}
+const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const money = n => n || n === 0 ? `${CONFIG.CURRENCY} ${Number(n).toLocaleString('en-US')}` : '—';
+
+const ICON = {
+  grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+  timeline:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h10M7 12h12M5 18h8"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',
+  layers:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l10 6-10 6L2 8z"/><path d="M2 16l10 6 10-6"/></svg>',
+  users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M1 21v-1a7 7 0 0114 0v1"/><path d="M17 4a4 4 0 010 8M23 21v-1a7 7 0 00-4-6.3"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>',
+  left:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>',
+  x:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+  print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
+};
+
+/* =========================================================================
+   Data layer: same interface for Supabase and demo mode
+   ========================================================================= */
+const COLLS = ['projects','tasks','schedule','contacts','templates','settings'];
+const db = Object.fromEntries(COLLS.map(c => [c, new Map()]));
+let sb = null, me = null, myName = '', team = [];
+
+const Backend = {
+  async load() {
+    COLLS.forEach(c => db[c].clear());
+    if (DEMO) {
+      const store = lsGet('bc-pm-demo', null) || seedDemo();
+      for (const c of COLLS) for (const [id, data] of Object.entries(store[c] || {})) db[c].set(id, data);
+      return;
+    }
+    let from = 0;
+    for (;;) {
+      const { data, error } = await sb.from(CONFIG.TABLE).select('coll,id,data').range(from, from + 999);
+      if (error) throw error;
+      data.forEach(r => db[r.coll]?.set(r.id, r.data));
+      if (data.length < 1000) break;
+      from += 1000;
+    }
+  },
+  saveDemo() {
+    const store = {};
+    for (const c of COLLS) store[c] = Object.fromEntries(db[c]);
+    lsSet('bc-pm-demo', store);
+  },
+  async put(coll, id, data) {
+    db[coll].set(id, data);
+    if (DEMO) return this.saveDemo();
+    const { error } = await sb.from(CONFIG.TABLE).upsert({ coll, id, data });
+    if (error) throw error;
+  },
+  async putMany(rows) {
+    rows.forEach(r => db[r.coll].set(r.id, r.data));
+    if (DEMO) return this.saveDemo();
+    for (let i = 0; i < rows.length; i += 200) {
+      const { error } = await sb.from(CONFIG.TABLE).upsert(rows.slice(i, i + 200));
+      if (error) throw error;
+    }
+  },
+  async del(coll, id) {
+    db[coll].delete(id);
+    if (DEMO) return this.saveDemo();
+    const { error } = await sb.from(CONFIG.TABLE).delete().match({ coll, id });
+    if (error) throw error;
+  },
+  async delProject(pid) {
+    for (const c of ['tasks','schedule','contacts']) for (const [id, d] of db[c]) if (d.projectId === pid) db[c].delete(id);
+    db.projects.delete(pid);
+    if (DEMO) return this.saveDemo();
+    for (const c of ['tasks','schedule','contacts']) {
+      const { error } = await sb.from(CONFIG.TABLE).delete().eq('coll', c).eq('data->>projectId', pid);
+      if (error) throw error;
+    }
+    const { error } = await sb.from(CONFIG.TABLE).delete().match({ coll: 'projects', id: pid });
+    if (error) throw error;
+  },
+  async team() {
+    if (DEMO) return DEMO_TEAM.map(([email, name, role]) => ({ email, note: name, role }));
+    const { data, error } = await sb.rpc('pm_team');
+    if (error) { console.warn(error); return [{ email: me, note: '' }]; }
+    return data || [];
+  },
+  subscribe() {
+    if (DEMO) return;
+    sb.channel('pm-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: CONFIG.TABLE }, p => {
+        if (p.eventType === 'DELETE') { const o = p.old || {}; o.coll && db[o.coll]?.delete(o.id); }
+        else { const n = p.new; n?.coll && db[n.coll]?.set(n.id, n.data); }
+        scheduleRender();
+      })
+      .subscribe();
+  },
+};
+
+async function save(coll, id, data, msg) {
+  try { await Backend.put(coll, id, data); render(); if (msg) toast(msg); }
+  catch (e) { failed(e); }
+}
+async function failed(e) {
+  console.error(e);
+  if (!DEMO && /jwt/i.test(e?.message || '')) { toast('Your sign-in has expired. Taking you to sign in…', true); return setTimeout(() => leave('?next=projects'), 1600); }
+  toast('Couldn’t save — ' + (e.message || 'check your connection'), true);
+  try { await Backend.load(); render(); } catch {}
+}
+
+/* ---------------- people ---------------- */
+function teamSettings() { return db.settings.get('team') || { members: {} }; }
+function nameOf(email) {
+  if (!email) return 'Unassigned';
+  const s = teamSettings().members[email];
+  if (s?.name) return s.name;
+  if (email === me && myName) return myName;
+  const t = team.find(m => m.email === email);
+  if (t?.note) return t.note;
+  const local = email.split('@')[0].replace(/[._-]+/g, ' ');
+  return local.replace(/\b\w/g, c => c.toUpperCase());
+}
+const roleOf = email => teamSettings().members[email]?.role || team.find(m => m.email === email)?.role || '';
+const initials = email => email ? nameOf(email).split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase() : '?';
+const avatar = email => `<span class="av ${email === me ? 'me' : ''} ${email ? '' : 'none'}" title="${esc(nameOf(email))}">${esc(initials(email))}</span>`;
+function teamOptions(selected) {
+  const list = [...new Set([...team.map(t => t.email), ...(selected ? [selected] : [])])];
+  return [['', 'Unassigned'], ...list.map(e => [e, nameOf(e) + (e === me ? ' (you)' : '')])];
+}
+
+/* ---------------- project logic ---------------- */
+function anchorsOf(p) {
+  const d = p.dates || {};
+  const show = d.showStart || null;
+  return { show, build: d.buildStart || show, showEnd: d.showEnd || show, derig: d.derigEnd || d.showEnd || show };
+}
+function phaseInfo(p) {
+  const a = anchorsOf(p), t = today();
+  if (!a.show) return { label: 'Dates TBC', big: 'TBC', unit: 'Show date', now: null };
+  if (t < a.build) { const n = diff(t, a.show); return { label: `Show in ${plural(n,'day')}`, big: n, unit: n === 1 ? 'day to show' : 'days to show', now: 'pre' }; }
+  if (t < a.show) { const n = diff(t, a.show); return { label: `Building · show in ${plural(n,'day')}`, big: n, unit: n === 1 ? 'day to show' : 'days to show', now: 'build' }; }
+  if (t <= a.showEnd) { const day = diff(a.show, t) + 1, tot = diff(a.show, a.showEnd) + 1; return { label: tot > 1 ? `Live · show day ${day} of ${tot}` : 'Live today', big: 'Live', unit: tot > 1 ? `Show day ${day} of ${tot}` : 'Show day', now: 'show' }; }
+  if (t <= a.derig) { const n = diff(t, a.derig); return { label: 'De-rig', big: 'De-rig', unit: n ? `${plural(n,'day')} left` : 'Last day', now: 'derig' }; }
+  const n = diff(a.derig, t); return { label: `Finished ${plural(n,'day')} ago`, big: n, unit: 'days since de-rig', now: 'done' };
+}
+function stats(pid) {
+  const t = today(); let total = 0, done = 0, late = 0, open = 0;
+  for (const x of db.tasks.values()) {
+    if (x.projectId !== pid) continue;
+    total++;
+    if (x.status === 'done') done++; else { open++; if (x.due && x.due < t) late++; }
+  }
+  return { total, done, late, open, pct: total ? Math.round(done / total * 100) : 0 };
+}
+const projectTasks = pid => [...db.tasks.values()].filter(t => t.projectId === pid);
+const sortTasks = (a, b) => (a.status === 'done') - (b.status === 'done') || (a.due || '9999').localeCompare(b.due || '9999') || PRIORITY.findIndex(p => p[0] === b.priority) - PRIORITY.findIndex(p => p[0] === a.priority) || (a.title || '').localeCompare(b.title || '');
+
+function tasksFromTemplate(tpl, project, skipTitles = new Set()) {
+  const a = anchorsOf(project), now = new Date().toISOString();
+  return (tpl.items || []).filter(i => i.title && !skipTitles.has(i.title.trim().toLowerCase())).map((i, n) => {
+    const base = a[i.anchor] || a.show;
+    const id = uid();
+    return { coll: 'tasks', id, data: {
+      id, projectId: project.id, title: i.title.trim(), dept: i.dept || 'Production', phase: i.phase || 'pre',
+      priority: i.priority || 'normal', status: 'todo', owner: '', due: base ? addDays(base, Number(i.offset) || 0) : '',
+      notes: '', checklist: [], createdAt: now, order: n,
+    }};
+  });
+}
+
+/* ---------------- dueness ---------------- */
+function dueHTML(t) {
+  if (!t.due) return '<span class="due">No date</span>';
+  if (t.status === 'done') return `<span class="due">${esc(fmtShort(t.due))}</span>`;
+  const n = diff(today(), t.due);
+  if (n < 0) return `<span class="due late">${n === -1 ? 'Yesterday' : `${-n}d late`}</span>`;
+  if (n === 0) return '<span class="due soon">Today</span>';
+  if (n === 1) return '<span class="due soon">Tomorrow</span>';
+  if (n <= 6) return `<span class="due soon">${esc(fmt(t.due,{weekday:'short'}))}</span>`;
+  return `<span class="due">${esc(fmtShort(t.due))}</span>`;
+}
+
+/* =========================================================================
+   UI state & routing
+   ========================================================================= */
+const ui = Object.assign({ filter: 'active', q: '', taskView: 'board', groupBy: 'dept', fOwner: '', fDept: '', hideDone: false, tlClosed: false, quick: '', quickDept: 'Production' }, lsGet('bc-pm-ui', {}));
+const persistUI = () => lsSet('bc-pm-ui', { filter: ui.filter, taskView: ui.taskView, groupBy: ui.groupBy, hideDone: ui.hideDone, tlClosed: ui.tlClosed });
+function route() {
+  const h = location.hash.startsWith('#/') ? location.hash.slice(2) : '';
+  const [view = '', id = '', tab = ''] = h.split('/');
+  return { view: view || 'events', id, tab: tab || 'tasks' };
+}
+const go = h => { location.hash = h; };
+
+let renderQueued = false;
+function scheduleRender() { if (!renderQueued) { renderQueued = true; setTimeout(() => { renderQueued = false; render(); }, 120); } }
+
+function render() {
+  const main = $('#main'); if (!main) return;
+  const act = document.activeElement, focusId = act && act.id && main.contains(act) ? act.id : null;
+  const sel = focusId && 'selectionStart' in act ? [act.selectionStart, act.selectionEnd] : null;
+  const r = route();
+  const views = { events: viewEvents, timeline: viewTimeline, mine: viewMine, event: viewEvent, templates: viewTemplates, team: viewTeam };
+  main.innerHTML = (DEMO ? '<div class="demo-bar no-print">Demo mode — sample data, saved only in this browser. Remove ?demo from the address to use the live portal data.</div>' : '') + (views[r.view] || viewEvents)(r);
+  document.querySelectorAll('.nav a').forEach(a => a.classList.toggle('on', a.dataset.v === (r.view === 'event' ? 'events' : r.view)));
+  const mine = [...db.tasks.values()].filter(t => t.owner === me && t.status !== 'done' && t.due && t.due < today()).length;
+  const c = $('#mineCount'); if (c) { c.textContent = mine; c.classList.toggle('hidden', !mine); }
+  if (focusId) { const el = document.getElementById(focusId); if (el) { el.focus(); if (sel) try { el.setSelectionRange(...sel); } catch {} } }
+}
+
+/* =========================================================================
+   Shell
+   ========================================================================= */
+function shell() {
+  $('#app').innerHTML = `
+  <div class="shell">
+    <aside class="side">
+      <div class="brand">
+        <a class="logo-svg" href="${esc(CONFIG.PORTAL_HOME)}" aria-label="Black Canvas — all apps">${BCPortal.logoSvg('line')}</a>
+        <div class="logo-sub">Projects</div>
+      </div>
+      <nav class="nav">
+        <a href="#/" data-v="events">${ICON.grid}<span>Events</span></a>
+        <a href="#/timeline" data-v="timeline">${ICON.timeline}<span>Timeline</span></a>
+        <a href="#/mine" data-v="mine">${ICON.check}<span>My tasks</span><span class="count hidden" id="mineCount"></span></a>
+        <a href="#/templates" data-v="templates">${ICON.layers}<span>Templates</span></a>
+        <a href="#/team" data-v="team">${ICON.users}<span>Team</span></a>
+      </nav>
+      <div class="side-foot">
+        <div class="me">${avatar(me)}<span>${esc(nameOf(me))}</span></div>
+        <a href="${esc(CONFIG.PORTAL_HOME)}">← All apps</a>
+        ${DEMO ? '<a href="#" data-act="resetDemo">Reset demo data</a>' : '<a href="#" data-act="signOut">Sign out</a>'}
+      </div>
+    </aside>
+    <main id="main"></main>
+  </div>`;
+  render();
+}
+
+/* =========================================================================
+   View: Events (dashboard)
+   ========================================================================= */
+function filteredProjects() {
+  const q = ui.q.trim().toLowerCase();
+  return [...db.projects.values()].filter(p => {
+    if (ui.filter === 'active' && !ACTIVE.has(p.status)) return false;
+    if (ui.filter === 'pipeline' && p.status !== 'pitch') return false;
+    if (ui.filter === 'closed' && !['closed','lost'].includes(p.status)) return false;
+    if (q && ![p.name, p.client, p.venue, p.city, p.code].join(' ').toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a, b) => {
+    const A = a.dates?.showStart || '9999', B = b.dates?.showStart || '9999';
+    return ui.filter === 'closed' ? B.localeCompare(A) : A.localeCompare(B);
+  });
+}
+function viewEvents() {
+  const t = today(), all = [...db.projects.values()];
+  const active = all.filter(p => ACTIVE.has(p.status));
+  const next30 = active.filter(p => p.dates?.showStart && p.dates.showStart >= t && diff(t, p.dates.showStart) <= 30).length;
+  const activeIds = new Set(active.map(p => p.id));
+  let late = 0, week = 0;
+  for (const x of db.tasks.values()) {
+    if (!activeIds.has(x.projectId) || x.status === 'done' || !x.due) continue;
+    if (x.due < t) late++; else if (diff(t, x.due) <= 7) week++;
+  }
+  const upcoming = active.filter(p => { const a = anchorsOf(p); return a.show && a.derig >= t; })
+    .sort((a, b) => a.dates.showStart.localeCompare(b.dates.showStart))[0];
+  const counts = { active: active.length, pipeline: all.filter(p => p.status === 'pitch').length, closed: all.filter(p => ['closed','lost'].includes(p.status)).length, all: all.length };
+
+  return `
+  <div class="page-head">
+    <div><div class="eyebrow">${esc(fmt(t,{weekday:'long',day:'numeric',month:'long',year:'numeric'}))}</div><h1>Events</h1></div>
+    <button class="btn primary" data-act="newEvent">${ICON.plus} New event</button>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="eyebrow">Active events</div><div class="v num">${active.length}</div></div>
+    <div class="kpi"><div class="eyebrow">Shows next 30 days</div><div class="v num">${next30}</div></div>
+    <div class="kpi ${late ? 'alert' : ''}"><div class="eyebrow">Overdue tasks</div><div class="v num">${late}</div></div>
+    <div class="kpi"><div class="eyebrow">Due this week</div><div class="v num">${week}</div></div>
+  </div>
+  ${upcoming ? heroCard(upcoming) : ''}
+  <div class="toolbar">
+    <div class="chips">
+      ${[['active','Active'],['pipeline','Pipeline'],['closed','Closed'],['all','All']].map(([k, l]) => `<button class="chip ${ui.filter === k ? 'on' : ''}" data-act="filter" data-v="${k}">${l} <span class="num">${counts[k]}</span></button>`).join('')}
+    </div>
+    <div class="grow"></div>
+    <input class="input" id="evSearch" style="max-width:260px" placeholder="Search events, clients, venues…" value="${esc(ui.q)}" data-inp="q">
+  </div>
+  <div id="evGrid">${eventGrid()}</div>`;
+}
+function heroCard(p) {
+  const ph = phaseInfo(p), s = stats(p.id);
+  return `<div class="hero" data-act="open" data-id="${esc(p.id)}">
+    <div class="big num">${esc(ph.big)}<small>${esc(ph.unit)}</small></div>
+    <div><div class="eyebrow">Next up</div><div class="t">${esc(p.name)}</div>
+      <div class="muted">${esc([p.client, p.venue, p.city].filter(Boolean).join(' · '))} · ${esc(fmtRange(p.dates?.showStart, p.dates?.showEnd))}</div></div>
+    <div style="min-width:180px"><div class="row" style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><span class="muted">${s.done}/${s.total} tasks</span>${s.late ? `<span style="color:var(--red);font-weight:700">${s.late} overdue</span>` : ''}</div><div class="bar o"><i style="width:${s.pct}%"></i></div></div>
+  </div>`;
+}
+function eventGrid() {
+  const ps = filteredProjects();
+  if (!ps.length) return db.projects.size
+    ? '<div class="empty"><b>No events here</b>Try another filter or search.</div>'
+    : `<div class="empty"><b>No events yet</b>Create your first event — pick a template and the delivery checklist is built for you.<br><br><button class="btn primary" data-act="newEvent">${ICON.plus} New event</button></div>`;
+  return `<div class="grid">${ps.map(p => {
+    const s = stats(p.id), ph = phaseInfo(p);
+    return `<button class="card" data-act="open" data-id="${esc(p.id)}">
+      <div class="row"><span class="pill s-${esc(p.status)}">${esc(label(STATUSES, p.status))}</span>${p.code ? `<span class="tag">${esc(p.code)}</span>` : ''}</div>
+      <div><div class="name">${esc(p.name)}</div><div class="muted" style="font-size:13px;margin-top:3px">${esc([p.client, p.venue, p.city].filter(Boolean).join(' · ') || '—')}</div></div>
+      <div class="row" style="font-size:13px"><span class="num">${esc(fmtRange(p.dates?.showStart, p.dates?.showEnd))}</span><span class="${ph.now === 'show' ? '' : 'muted'}" style="${ph.now === 'show' ? 'color:var(--orange);font-weight:700' : ''}">${esc(ph.label)}</span></div>
+      <div class="bar"><i style="width:${s.pct}%"></i></div>
+      <div class="row"><div class="meta"><span>${s.done}/${s.total} done</span>${s.late ? `<span class="bad">${s.late} overdue</span>` : ''}</div>${p.producer ? avatar(p.producer) : ''}</div>
+    </button>`;
+  }).join('')}</div>`;
+}
+
+/* =========================================================================
+   View: Event detail
+   ========================================================================= */
+function viewEvent(r) {
+  const p = db.projects.get(r.id);
+  if (!p) return `<a class="back" href="#/">${ICON.left} Events</a><div class="empty"><b>Event not found</b>It may have been deleted.</div>`;
+  const ph = phaseInfo(p), a = anchorsOf(p), s = stats(p.id);
+  const nTasks = projectTasks(p.id).length, nSched = [...db.schedule.values()].filter(x => x.projectId === p.id).length, nCont = [...db.contacts.values()].filter(x => x.projectId === p.id).length;
+  const tab = r.tab;
+  return `
+  <a class="back" href="#/">${ICON.left} Events</a>
+  <div class="ev-head">
+    <div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
+        <select class="input status-sel s-${esc(p.status)}" title="Change status" data-chg="projStatus" data-id="${esc(p.id)}">${STATUSES.map(([v, l]) => `<option value="${v}" ${p.status === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+        ${p.type ? `<span class="tag">${esc(p.type)}</span>` : ''}${p.code ? `<span class="tag">${esc(p.code)}</span>` : ''}
+      </div>
+      <h1>${esc(p.name)}</h1>
+      <div class="muted" style="margin-top:6px">${esc([p.client, p.venue, p.city].filter(Boolean).join(' · ') || 'Add client and venue in Details')}</div>
+    </div>
+    <div class="countdown"><div class="big num">${esc(ph.big)}</div><div class="eyebrow" style="margin-top:6px">${esc(ph.unit)}</div></div>
+  </div>
+  <div class="phases">
+    <div class="phase ${ph.now === 'build' ? 'now' : ''}"><div class="eyebrow">Build / load-in</div><div class="d num">${a.build ? esc(fmt(a.build)) : '—'}</div></div>
+    <div class="phase ${ph.now === 'show' ? 'now' : ''}"><div class="eyebrow">Show</div><div class="d num">${a.show ? esc(fmtRange(a.show, a.showEnd)) : 'TBC'}</div></div>
+    <div class="phase ${ph.now === 'derig' ? 'now' : ''}"><div class="eyebrow">De-rig ends</div><div class="d num">${a.derig ? esc(fmt(a.derig)) : '—'}</div></div>
+    <div class="phase"><div class="eyebrow">Progress</div><div class="d num">${s.pct}% <span class="muted" style="font-weight:500;font-size:12px">${s.done}/${s.total}${s.late ? ` · <span style="color:var(--red)">${s.late} overdue</span>` : ''}</span></div></div>
+  </div>
+  <div class="tabs">
+    ${[['tasks','Tasks',nTasks],['schedule','Production schedule',nSched],['contacts','Contacts & suppliers',nCont],['details','Details',null]].map(([k, l, n]) => `<a href="#/event/${esc(p.id)}/${k}" class="${tab === k ? 'on' : ''}">${l}${n != null ? `<span class="n num">${n}</span>` : ''}</a>`).join('')}
+  </div>
+  ${tab === 'schedule' ? tabSchedule(p) : tab === 'contacts' ? tabContacts(p) : tab === 'details' ? tabDetails(p) : tabTasks(p)}`;
+}
+
+/* ---- Tasks tab ---- */
+function tabTasks(p) {
+  const all = projectTasks(p.id);
+  let tasks = all.filter(t => (!ui.fOwner || (ui.fOwner === '-' ? !t.owner : t.owner === ui.fOwner)) && (!ui.fDept || t.dept === ui.fDept));
+  const owners = [...new Set(all.map(t => t.owner).filter(Boolean))];
+  const deptStats = DEPTS.map(d => { const ts = all.filter(t => t.dept === d); return [d, ts.length, ts.filter(t => t.status === 'done').length, ts.filter(t => t.status !== 'done' && t.due && t.due < today()).length]; }).filter(x => x[1]);
+  const toolbar = `
+  <div class="quick no-print">
+    <input class="input" id="quickAdd" placeholder="Add a task and press Enter…" value="${esc(ui.quick)}" data-inp="quick" data-enter="quickAdd" data-id="${esc(p.id)}">
+    <select class="input" style="width:190px" data-chg="quickDept">${DEPTS.map(d => `<option ${ui.quickDept === d ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select>
+    <button class="btn primary" data-act="quickAdd" data-id="${esc(p.id)}">${ICON.plus} Add</button>
+  </div>
+  <div class="toolbar">
+    <div class="seg"><button class="${ui.taskView === 'board' ? 'on' : ''}" data-act="taskView" data-v="board">Board</button><button class="${ui.taskView === 'list' ? 'on' : ''}" data-act="taskView" data-v="list">List</button></div>
+    ${ui.taskView === 'list' ? `<select class="input" style="width:auto" data-chg="groupBy"><option value="dept" ${ui.groupBy === 'dept' ? 'selected' : ''}>Group by department</option><option value="phase" ${ui.groupBy === 'phase' ? 'selected' : ''}>Group by phase</option><option value="owner" ${ui.groupBy === 'owner' ? 'selected' : ''}>Group by owner</option><option value="due" ${ui.groupBy === 'due' ? 'selected' : ''}>Group by due date</option></select>` : ''}
+    <select class="input" style="width:auto" data-chg="fOwner"><option value="">Everyone</option><option value="-" ${ui.fOwner === '-' ? 'selected' : ''}>Unassigned</option>${owners.map(o => `<option value="${esc(o)}" ${ui.fOwner === o ? 'selected' : ''}>${esc(nameOf(o))}</option>`).join('')}</select>
+    <select class="input" style="width:auto" data-chg="fDept"><option value="">All departments</option>${DEPTS.map(d => `<option ${ui.fDept === d ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select>
+    ${ui.taskView === 'list' ? `<label class="check"><input type="checkbox" data-chg="hideDone" ${ui.hideDone ? 'checked' : ''}> Hide done</label>` : ''}
+    <div class="grow"></div>
+    <button class="btn" data-act="applyTpl" data-id="${esc(p.id)}">${ICON.layers} Add from template</button>
+    <button class="btn ghost" data-act="print">${ICON.print}</button>
+  </div>`;
+  if (!all.length) return toolbar + `<div class="empty"><b>No tasks yet</b>Add tasks above, or load a full event checklist from a template.<br><br><button class="btn primary" data-act="applyTpl" data-id="${esc(p.id)}">${ICON.layers} Add from template</button></div>`;
+  const deptBlock = `<div class="depts">${deptStats.map(([d, n, dn, lt]) => `<div class="dept-row"><span>${esc(d)}</span><span class="muted num">${dn}/${n}${lt ? ` <b style="color:var(--red)">· ${lt} late</b>` : ''}</span><div class="bar"><i style="width:${Math.round(dn / n * 100)}%"></i></div></div>`).join('')}</div>`;
+  return toolbar + deptBlock + `<div class="print-only"><h2>${esc(p.name)} — tasks</h2><br></div>` + (ui.taskView === 'board' ? taskBoard(tasks) : taskList(tasks, ui.groupBy, false));
+}
+function taskBoard(tasks) {
+  return `<div class="board">${TASK_STATUS.map(([s, l]) => {
+    const ts = tasks.filter(t => (t.status || 'todo') === s).sort(sortTasks);
+    return `<div class="col" data-drop="${s}">
+      <div class="col-h"><span class="st-${s}">${l}</span><span class="n num">${ts.length}</span></div>
+      ${ts.map(t => `<div class="tcard" draggable="true" data-drag="${esc(t.id)}" data-act="task" data-id="${esc(t.id)}">
+        <div class="tt">${esc(t.title)}</div>
+        <div class="tm"><span class="prio p-${esc(t.priority || 'normal')}" title="${esc(label(PRIORITY, t.priority))} priority"></span><span class="tag">${esc(t.dept)}</span>${dueHTML(t)}${(t.checklist || []).length ? `<span class="num">☑ ${t.checklist.filter(c => c.d).length}/${t.checklist.length}</span>` : ''}${avatar(t.owner)}</div>
+      </div>`).join('')}
+    </div>`;
+  }).join('')}</div>`;
+}
+function taskRow(t, showEvent) {
+  const p = showEvent ? db.projects.get(t.projectId) : null;
+  return `<div class="trow ${t.status === 'done' ? 'done' : ''}" data-act="task" data-id="${esc(t.id)}">
+    <button class="tick ${t.status === 'done' ? 'on' : ''}" data-act="toggle" data-id="${esc(t.id)}" title="Mark done" aria-label="Mark done"></button>
+    <div><div class="tt">${esc(t.title)}</div>
+      <div class="sub">${p ? `<span class="tag" style="color:var(--text)">${esc(p.name)}</span>` : ''}<span class="tag">${esc(t.dept)}</span>${t.status !== 'done' && t.status !== 'todo' ? `<span class="tag st-${esc(t.status)}">${esc(label(TASK_STATUS, t.status))}</span>` : ''}${(t.checklist || []).length ? `<span class="tag num">☑ ${t.checklist.filter(c => c.d).length}/${t.checklist.length}</span>` : ''}</div></div>
+    <div class="right"><span class="prio p-${esc(t.priority || 'normal')}" title="${esc(label(PRIORITY, t.priority))} priority"></span>${dueHTML(t)}${avatar(t.owner)}</div>
+  </div>`;
+}
+function taskList(tasks, groupBy, showEvent) {
+  if (ui.hideDone) tasks = tasks.filter(t => t.status !== 'done');
+  if (!tasks.length) return '<div class="empty"><b>Nothing to show</b>No tasks match these filters.</div>';
+  let groups;
+  if (groupBy === 'phase') groups = PHASES.map(([k, l]) => [l, tasks.filter(t => t.phase === k)]);
+  else if (groupBy === 'owner') { const os = [...new Set(tasks.map(t => t.owner || ''))].sort((a, b) => (a === '') - (b === '') || nameOf(a).localeCompare(nameOf(b))); groups = os.map(o => [nameOf(o), tasks.filter(t => (t.owner || '') === o)]); }
+  else if (groupBy === 'due') groups = dueGroups(tasks);
+  else groups = DEPTS.map(d => [d, tasks.filter(t => t.dept === d)]).concat([['Other', tasks.filter(t => !DEPTS.includes(t.dept))]]);
+  return groups.filter(g => g[1].length).map(([l, ts]) => `<div class="group"><div class="group-h"><h2>${esc(l)}</h2><span class="n num">${ts.filter(t => t.status === 'done').length}/${ts.length}</span></div>${ts.sort(sortTasks).map(t => taskRow(t, showEvent)).join('')}</div>`).join('');
+}
+function dueGroups(tasks) {
+  const t = today(), g = { late: [], today: [], week: [], later: [], none: [], done: [] };
+  for (const x of tasks) {
+    if (x.status === 'done') g.done.push(x);
+    else if (!x.due) g.none.push(x);
+    else if (x.due < t) g.late.push(x);
+    else if (x.due === t) g.today.push(x);
+    else if (diff(t, x.due) <= 7) g.week.push(x);
+    else g.later.push(x);
+  }
+  return [['Overdue', g.late], ['Today', g.today], ['Next 7 days', g.week], ['Later', g.later], ['No date', g.none], ['Done', g.done]];
+}
+
+/* ---- Schedule tab ---- */
+function dayLabel(p, date) {
+  const a = anchorsOf(p);
+  if (!a.show) return '';
+  if (date >= a.show && date <= a.showEnd) return `Show day ${diff(a.show, date) + 1}`;
+  if (a.build && date >= a.build && date < a.show) return `Build day ${diff(a.build, date) + 1}`;
+  if (date > a.showEnd && date <= a.derig) return `De-rig day ${diff(a.showEnd, date)}`;
+  const n = diff(date, a.show);
+  return n > 0 ? `Show −${n}` : `Show +${-n}`;
+}
+function tabSchedule(p) {
+  const items = [...db.schedule.values()].filter(x => x.projectId === p.id).sort((a, b) => (a.date || '').localeCompare(b.date || '') || (a.start || '').localeCompare(b.start || ''));
+  const byDay = {}; items.forEach(i => (byDay[i.date || ''] ||= []).push(i));
+  const head = `<div class="toolbar"><button class="btn primary" data-act="newSched" data-id="${esc(p.id)}">${ICON.plus} Add schedule item</button><button class="btn" data-act="seedSched" data-id="${esc(p.id)}">Add standard show days</button><div class="grow"></div><button class="btn" data-act="print">${ICON.print} Print schedule</button></div>
+  <div class="print-only"><div class="logo-svg" style="width:180px;color:#000">${BCPortal.logoSvg('line', '#000')}</div><h2 style="margin-top:12px">${esc(p.name)} — production schedule</h2><div class="muted">${esc([p.venue, p.city].filter(Boolean).join(' · '))} · printed ${esc(fmt(today()))}</div><br></div>`;
+  if (!items.length) return head + '<div class="empty"><b>No schedule yet</b>Build the day-by-day production schedule: load-in, rigging, rehearsals, doors, show, curfew and load-out.</div>';
+  return head + Object.entries(byDay).map(([d, list]) => `<div class="day">
+    <div class="day-h"><span class="d">${d ? esc(fmt(d, {weekday:'long', day:'numeric', month:'long'})) : 'No date'}</span><span class="eyebrow" style="color:var(--orange)">${esc(d ? dayLabel(p, d) : '')}</span></div>
+    ${list.map(i => `<div class="srow ${['Show','Doors'].includes(i.type) ? 'show-item' : ''}" data-act="sched" data-id="${esc(i.id)}">
+      <span class="time num">${esc(i.start || '—')}${i.end ? `–${esc(i.end)}` : ''}</span>
+      <span class="hide-sm"><span class="tag">${esc(i.type || 'Other')}</span></span>
+      <span><div class="ttl" style="font-weight:600">${esc(i.title)}</div>${i.notes ? `<div class="muted" style="font-size:12px">${esc(i.notes)}</div>` : ''}</span>
+      <span class="muted hide-sm">${esc(i.location || '')}</span>
+      <span class="muted hide-sm">${esc(i.who || '')}</span>
+    </div>`).join('')}
+  </div>`).join('');
+}
+
+/* ---- Contacts tab ---- */
+function tabContacts(p) {
+  const list = [...db.contacts.values()].filter(x => x.projectId === p.id).sort((a, b) => CONTACT_ROLES.indexOf(a.role) - CONTACT_ROLES.indexOf(b.role) || (a.name || '').localeCompare(b.name || ''));
+  const head = `<div class="toolbar"><button class="btn primary" data-act="newContact" data-id="${esc(p.id)}">${ICON.plus} Add contact</button></div>`;
+  if (!list.length) return head + '<div class="empty"><b>No contacts yet</b>Keep the client, venue, suppliers, artist management and authorities for this event in one place.</div>';
+  const wa = ph => ph ? 'https://wa.me/' + ph.replace(/[^\d]/g, '').replace(/^00/, '') : '';
+  return head + `<div class="grid">${list.map(c => `<div class="ccard" data-act="contact" data-id="${esc(c.id)}">
+    <div style="display:flex;justify-content:space-between;gap:8px"><span class="nm">${esc(c.name)}</span><span class="tag">${esc(c.role || 'Other')}</span></div>
+    <div class="muted">${esc([c.title, c.company].filter(Boolean).join(' · ') || '—')}</div>
+    ${c.notes ? `<div class="dim" style="font-size:12px">${esc(c.notes)}</div>` : ''}
+    <div class="links">${c.phone ? `<a class="btn sm" href="tel:${esc(c.phone.replace(/\s/g, ''))}" data-stop>Call</a><a class="btn sm" href="${esc(wa(c.phone))}" target="_blank" rel="noopener" data-stop>WhatsApp</a>` : ''}${c.email ? `<a class="btn sm" href="mailto:${esc(c.email)}" data-stop>Email</a>` : ''}</div>
+  </div>`).join('')}</div>`;
+}
+
+/* ---- Details tab ---- */
+const PROJECT_FIELDS = () => [
+  { k: 'name', label: 'Event name', span: true, required: true, placeholder: 'e.g. Winter Nights Concert' },
+  { k: 'client', label: 'Client' }, { k: 'code', label: 'Job code', placeholder: 'e.g. BC-2611' },
+  { k: 'venue', label: 'Venue / site' }, { k: 'city', label: 'City', placeholder: 'Riyadh' },
+  { k: 'type', label: 'Event type', type: 'select', options: EVENT_TYPES.map(x => [x, x]) },
+  { k: 'status', label: 'Status', type: 'select', options: STATUSES },
+  { sect: 'Key dates' },
+  { k: 'dates.buildStart', label: 'Build / load-in starts', type: 'date' }, { k: 'dates.showStart', label: 'Show day 1', type: 'date' },
+  { k: 'dates.showEnd', label: 'Last show day', type: 'date' }, { k: 'dates.derigEnd', label: 'De-rig ends', type: 'date' },
+  { sect: 'Team & money' },
+  { k: 'producer', label: 'Producer / PM', type: 'select', options: teamOptions(null) },
+  { k: 'attendance', label: 'Expected attendance', type: 'number' },
+  { k: 'budget', label: `Production budget (${CONFIG.CURRENCY})`, type: 'number' },
+  { k: 'po', label: 'Client PO / reference' },
+  { k: 'notes', label: 'Notes', type: 'textarea', span: true },
+];
+function tabDetails(p) {
+  return `<div style="max-width:760px">
+    <div class="form" id="detailsForm">${formHTML(PROJECT_FIELDS(), p)}</div>
+    <div style="display:flex;gap:8px;margin-top:20px;align-items:center">
+      <button class="btn primary" data-act="saveDetails" data-id="${esc(p.id)}">Save details</button>
+      <span class="dim" style="font-size:12px">Changing dates doesn’t move existing task due dates.</span>
+      <div style="flex:1"></div>
+      <button class="btn danger" data-act="deleteEvent" data-id="${esc(p.id)}">Delete event</button>
+    </div>
+  </div>`;
+}
+
+/* =========================================================================
+   View: Timeline across all events
+   ========================================================================= */
+function viewTimeline() {
+  const t = today();
+  const ps = [...db.projects.values()].filter(p => p.dates?.showStart && p.status !== 'lost' && (ui.tlClosed || p.status !== 'closed'))
+    .sort((a, b) => (anchorsOf(a).build).localeCompare(anchorsOf(b).build));
+  const head = `<div class="page-head"><div><div class="eyebrow">All events</div><h1>Timeline</h1></div>
+    <div class="legend"><span><i style="background:#3a3a37"></i>Build</span><span><i style="background:var(--orange)"></i>Show</span><span><i style="background:repeating-linear-gradient(135deg,#2c2c2a 0 3px,#383836 3px 6px)"></i>De-rig</span><span><i style="background:var(--red);width:9px;height:9px;transform:rotate(45deg)"></i>Open critical task</span>
+    <label class="check"><input type="checkbox" data-chg="tlClosed" ${ui.tlClosed ? 'checked' : ''}> Show closed</label></div></div>`;
+  if (!ps.length) return head + '<div class="empty"><b>Nothing on the timeline</b>Events with a show date appear here.</div>';
+  let start = addDays(t, -7), end = addDays(t, 75);
+  ps.forEach(p => { const a = anchorsOf(p); if (a.build < start) start = a.build; if (a.derig > end) end = a.derig; });
+  start = addDays(start < addDays(t, -120) ? addDays(t, -120) : start, -3);
+  end = addDays(end > addDays(t, 400) ? addDays(t, 400) : end, 7);
+  const W = 26, n = diff(start, end) + 1, width = n * W;
+  const x = d => diff(start, d) * W;
+  let months = '', days = '', we = '';
+  for (let i = 0; i < n; i++) {
+    const d = addDays(start, i), D = parse(d);
+    if (D.getDate() === 1 || i === 0) months += `<div class="tl-month" style="left:${i * W}px">${esc(D.toLocaleDateString('en-GB', {month:'short', year:'numeric'}))}</div>`;
+    const isWe = D.getDay() === 5 || D.getDay() === 6; // Fri & Sat weekend
+    days += `<div class="tl-day ${isWe ? 'we' : ''} ${d === t ? 'today' : ''}" style="left:${i * W}px;width:${W}px">${D.getDate()}</div>`;
+    if (isWe) we += `<div class="tl-we" style="left:${i * W}px;width:${W}px"></div>`;
+  }
+  const todayLine = t >= start && t <= end ? `<div class="tl-today" style="left:${x(t) + W / 2}px"></div>` : '';
+  const bar = (cls, a, b, txt, pid) => { if (!a || !b || b < a) return ''; const l = x(a), w = (diff(a, b) + 1) * W - 2; return `<div class="tl-bar ${cls}" style="left:${l + 1}px;width:${w}px" data-act="open" data-id="${esc(pid)}" title="${esc(txt)}">${w > 46 ? esc(txt) : ''}</div>`; };
+  const rows = ps.map(p => {
+    const a = anchorsOf(p);
+    const crit = projectTasks(p.id).filter(k => k.priority === 'critical' && k.status !== 'done' && k.due && k.due >= start && k.due <= end);
+    return `<div class="tl-row">
+      <div class="tl-label" data-act="open" data-id="${esc(p.id)}"><span class="n">${esc(p.name)}</span><span class="c"><span class="pill s-${esc(p.status)}" style="font-size:9px;padding:1px 6px;margin-right:6px">${esc(label(STATUSES, p.status))}</span>${esc(p.city || p.client || '')}</span></div>
+      <div class="tl-track" style="width:${width}px">${we}${todayLine}
+        ${a.build < a.show ? bar('b', a.build, addDays(a.show, -1), 'Build', p.id) : ''}
+        ${bar('s', a.show, a.showEnd, p.name, p.id)}
+        ${a.derig > a.showEnd ? bar('d', addDays(a.showEnd, 1), a.derig, 'De-rig', p.id) : ''}
+        ${crit.map(k => `<div class="tl-ms" style="left:${x(k.due) + W / 2 - 5}px" title="${esc(k.title)} · ${esc(fmt(k.due))}${k.due < t ? ' · OVERDUE' : ''}" data-act="task" data-id="${esc(k.id)}"></div>`).join('')}
+      </div></div>`;
+  }).join('');
+  return head + `<div class="tl-wrap" id="tlWrap"><div class="tl">
+    <div class="tl-head"><div class="tl-label"><span class="eyebrow">Event</span></div><div class="tl-days" style="width:${width}px;height:46px">${months}${days}</div></div>
+    ${rows}
+  </div></div>`;
+}
+
+/* =========================================================================
+   View: My tasks
+   ========================================================================= */
+function viewMine() {
+  const mine = [...db.tasks.values()].filter(t => t.owner === me && db.projects.has(t.projectId) && (ui.hideDone ? t.status !== 'done' : true));
+  const open = mine.filter(t => t.status !== 'done').length;
+  return `<div class="page-head"><div><div class="eyebrow">${esc(nameOf(me))}</div><h1>My tasks</h1></div>
+    <div class="toolbar" style="margin:0"><label class="check"><input type="checkbox" data-chg="hideDone" ${ui.hideDone ? 'checked' : ''}> Hide done</label><span class="muted">${plural(open, 'open task')}</span></div></div>
+  ${mine.length ? taskList(mine, 'due', true) : '<div class="empty"><b>You’re clear</b>Tasks assigned to you across all events show up here.</div>'}`;
+}
+
+/* =========================================================================
+   View: Templates
+   ========================================================================= */
+function viewTemplates() {
+  const list = [...db.templates.values()].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  return `<div class="page-head"><div><div class="eyebrow">Reusable checklists</div><h1>Templates</h1></div><button class="btn primary" data-act="newTpl">${ICON.plus} New template</button></div>
+  <p class="muted" style="max-width:640px;margin:-8px 0 20px">Each task is timed against the event’s dates — e.g. “30 days before show day 1”. When you apply a template, due dates are calculated for you.</p>
+  ${list.length ? `<div class="grid">${list.map(t => `<button class="card" data-act="tpl" data-id="${esc(t.id)}">
+    <div class="name">${esc(t.name)}</div><div class="muted" style="font-size:13px">${esc(t.description || '')}</div>
+    <div class="meta"><span>${plural((t.items || []).length, 'task')}</span><span>${new Set((t.items || []).map(i => i.dept)).size} departments</span></div>
+  </button>`).join('')}</div>` : '<div class="empty"><b>No templates</b>Create one to reuse your delivery checklist.</div>'}`;
+}
+
+/* =========================================================================
+   View: Team
+   ========================================================================= */
+function viewTeam() {
+  return `<div class="page-head"><div><div class="eyebrow">People with Projects access</div><h1>Team</h1></div></div>
+  <p class="muted" style="max-width:640px;margin:-8px 0 20px">Access is managed by portal admins. Set display names and roles here so tasks show who’s on what.</p>
+  <div style="max-width:760px">${team.map(m => {
+    const open = [...db.tasks.values()].filter(t => t.owner === m.email && t.status !== 'done');
+    const late = open.filter(t => t.due && t.due < today()).length;
+    return `<div class="trow" style="grid-template-columns:32px 1fr auto" data-act="member" data-id="${esc(m.email)}">
+      ${avatar(m.email)}<div><div class="tt">${esc(nameOf(m.email))}${m.email === me ? ' <span class="dim">(you)</span>' : ''}</div><div class="muted" style="font-size:12px">${esc([roleOf(m.email), m.email].filter(Boolean).join(' · '))}</div></div>
+      <div class="right"><span class="muted num">${plural(open.length, 'open task')}</span>${late ? `<span class="due late">${late} late</span>` : ''}</div>
+    </div>`;
+  }).join('') || '<div class="empty"><b>No team yet</b>Ask a portal admin to give people Projects access.</div>'}</div>`;
+}
+
+/* =========================================================================
+   Forms & drawer
+   ========================================================================= */
+const getPath = (o, k) => k.split('.').reduce((v, p) => v?.[p], o);
+const setPath = (o, k, v) => { const ps = k.split('.'); let c = o; ps.slice(0, -1).forEach(p => c = c[p] ||= {}); c[ps.at(-1)] = v; };
+function formHTML(fields, values = {}) {
+  return fields.map(f => {
+    if (f.sect) return `<div class="sect eyebrow">${esc(f.sect)}</div>`;
+    const v = getPath(values, f.k) ?? f.default ?? '';
+    const id = 'f_' + f.k.replace(/\./g, '_');
+    let ctl;
+    if (f.type === 'select') ctl = `<select class="input" id="${id}" data-k="${f.k}">${f.options.map(([ov, ol]) => `<option value="${esc(ov)}" ${String(v) === String(ov) ? 'selected' : ''}>${esc(ol)}</option>`).join('')}</select>`;
+    else if (f.type === 'textarea') ctl = `<textarea class="input" id="${id}" data-k="${f.k}" placeholder="${esc(f.placeholder || '')}">${esc(v)}</textarea>`;
+    else ctl = `<input class="input" id="${id}" data-k="${f.k}" type="${f.type || 'text'}" value="${esc(v)}" placeholder="${esc(f.placeholder || '')}" ${f.required ? 'required' : ''}>`;
+    return `<div class="f ${f.span ? 'span' : ''}"><label for="${id}">${esc(f.label)}</label>${ctl}</div>`;
+  }).join('');
+}
+function readForm(el, base = {}) {
+  const o = structuredClone(base);
+  el.querySelectorAll('[data-k]').forEach(i => { let v = i.value.trim(); if (i.type === 'number') v = v === '' ? null : Number(v); setPath(o, i.dataset.k, v); });
+  return o;
+}
+let drawerState = null;
+function openDrawer({ title, body, onSave, onDelete, saveLabel = 'Save', wide = false, extra = '' }) {
+  drawerState = { onSave, onDelete };
+  const d = $('#drawer');
+  d.className = 'drawer' + (wide ? ' wide' : '');
+  d.innerHTML = `<div class="dr-h"><h2>${esc(title)}</h2><button class="btn ghost" data-act="closeDrawer" aria-label="Close">${ICON.x}</button></div>
+    <div class="dr-b" id="drBody">${body}</div>
+    <div class="dr-f">${onDelete ? '<button class="btn danger" data-act="drDelete">Delete</button>' : ''}${extra}<span class="sp"></span><button class="btn ghost" data-act="closeDrawer">Cancel</button>${onSave ? `<button class="btn primary" data-act="drSave">${esc(saveLabel)}</button>` : ''}</div>`;
+  requestAnimationFrame(() => { d.classList.add('on'); $('#scrim').classList.add('on'); d.setAttribute('aria-hidden', 'false'); const f = d.querySelector('.dr-b input, .dr-b textarea, .dr-b select'); f && !('ontouchstart' in window) && f.focus(); });
+}
+function closeDrawer() { const d = $('#drawer'); d.classList.remove('on'); $('#scrim').classList.remove('on'); d.setAttribute('aria-hidden', 'true'); drawerState = null; }
+
+/* ---- event create/edit ---- */
+function newEventDrawer() {
+  const tpls = [...db.templates.values()];
+  const fields = PROJECT_FIELDS().filter(f => !['notes','po','attendance','budget'].includes(f.k) && f.sect !== 'Team & money');
+  fields.push({ k: 'producer', label: 'Producer / PM', type: 'select', options: teamOptions(me), default: me });
+  openDrawer({
+    title: 'New event',
+    body: `<div class="form">${formHTML(fields, { status: 'confirmed', type: 'Concert', producer: me })}
+      <div class="sect eyebrow">Delivery checklist</div>
+      <div class="f span"><label for="nTpl">Start from template</label><select class="input" id="nTpl"><option value="">No template — blank event</option>${tpls.map(t => `<option value="${esc(t.id)}" ${t.id === 'tpl-standard' ? 'selected' : ''}>${esc(t.name)} (${(t.items || []).length} tasks)</option>`).join('')}</select>
+      <span class="dim" style="font-size:12px">Due dates are worked out from the show dates. Set show day 1 first.</span></div></div>`,
+    saveLabel: 'Create event',
+    onSave: async () => {
+      const p = readForm($('#drBody'));
+      if (!p.name) return toast('Give the event a name', true);
+      const dErr = checkDates(p.dates); if (dErr) return toast(dErr, true);
+      p.id = uid(); p.createdAt = new Date().toISOString(); p.createdBy = me;
+      const rows = [{ coll: 'projects', id: p.id, data: p }];
+      const tpl = db.templates.get($('#nTpl').value);
+      if (tpl) rows.push(...tasksFromTemplate(tpl, p));
+      try { await Backend.putMany(rows); closeDrawer(); go(`#/event/${p.id}/tasks`); render(); toast(tpl ? `Event created with ${rows.length - 1} tasks` : 'Event created'); }
+      catch (e) { failed(e); }
+    },
+  });
+}
+function checkDates(d = {}) {
+  const { buildStart: b, showStart: s, showEnd: e, derigEnd: r } = d;
+  if (b && s && b > s) return 'Build can’t start after show day 1';
+  if (s && e && e < s) return 'Last show day is before show day 1';
+  if (r && (e || s) && r < (e || s)) return 'De-rig can’t end before the show';
+  return '';
+}
+
+/* ---- task drawer ---- */
+function taskDrawer(task, projectId) {
+  const isNew = !task;
+  const t = task ? structuredClone(task) : { id: uid(), projectId, title: '', status: 'todo', priority: 'normal', dept: ui.quickDept, phase: 'pre', owner: '', due: '', notes: '', checklist: [] };
+  t.checklist ||= [];
+  const projOpts = [...db.projects.values()].sort((a, b) => a.name.localeCompare(b.name)).map(p => [p.id, p.name]);
+  const fields = [
+    { k: 'title', label: 'Task', span: true, required: true },
+    { k: 'status', label: 'Status', type: 'select', options: TASK_STATUS },
+    { k: 'priority', label: 'Priority', type: 'select', options: PRIORITY },
+    { k: 'owner', label: 'Owner', type: 'select', options: teamOptions(t.owner) },
+    { k: 'due', label: 'Due', type: 'date' },
+    { k: 'dept', label: 'Department', type: 'select', options: DEPTS.map(d => [d, d]) },
+    { k: 'phase', label: 'Phase', type: 'select', options: PHASES },
+    { k: 'projectId', label: 'Event', type: 'select', options: projOpts, span: true },
+    { k: 'notes', label: 'Notes', type: 'textarea', span: true, placeholder: 'Details, links to drawings, supplier refs…' },
+  ];
+  const p = db.projects.get(t.projectId);
+  openDrawer({
+    title: isNew ? 'New task' : (p ? p.name : 'Task'),
+    body: `<div class="form">${formHTML(fields, t)}
+      <div class="sect"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="eyebrow">Checklist</span><span class="dim num" id="clCount"></span></div>
+      <div class="cl" id="cl"></div>
+      <div class="cl-row" style="margin-top:8px"><input class="input" id="clNew" placeholder="Add checklist item and press Enter" data-enter="clAdd"><button class="btn sm" data-act="clAdd">Add</button></div></div>
+    </div>`,
+    onSave: async () => {
+      const o = readForm($('#drBody'), t);
+      o.checklist = t.checklist;
+      if (!o.title) return toast('Give the task a name', true);
+      if (o.status === 'done' && !o.doneAt) { o.doneAt = new Date().toISOString(); o.doneBy = me; }
+      if (o.status !== 'done') { delete o.doneAt; delete o.doneBy; }
+      o.createdAt ||= new Date().toISOString();
+      closeDrawer(); await save('tasks', o.id, o, isNew ? 'Task added' : 'Task saved');
+    },
+    onDelete: isNew ? null : async () => { if (!confirm('Delete this task?')) return; closeDrawer(); try { await Backend.del('tasks', t.id); render(); toast('Task deleted'); } catch (e) { failed(e); } },
+  });
+  drawerState.checklist = t.checklist;
+  renderChecklist();
+}
+function renderChecklist() {
+  const cl = drawerState?.checklist; if (!cl) return;
+  $('#cl').innerHTML = cl.map((c, i) => `<div class="cl-row ${c.d ? 'done' : ''}"><button class="tick ${c.d ? 'on' : ''}" data-act="clTick" data-i="${i}" aria-label="Tick"></button><input class="input" value="${esc(c.t)}" data-cl="${i}"><button class="btn ghost sm" data-act="clDel" data-i="${i}" aria-label="Remove">${ICON.x}</button></div>`).join('');
+  $('#clCount').textContent = cl.length ? `${cl.filter(c => c.d).length}/${cl.length}` : '';
+}
+
+/* ---- schedule drawer ---- */
+function schedDrawer(item, projectId) {
+  const isNew = !item, p = db.projects.get(item?.projectId || projectId);
+  const last = [...db.schedule.values()].filter(x => x.projectId === p.id).sort((a, b) => (b.date || '').localeCompare(a.date || ''))[0];
+  const s = item ? structuredClone(item) : { id: uid(), projectId: p.id, date: last?.date || anchorsOf(p).build || today(), type: 'Build', start: '', end: '' };
+  openDrawer({
+    title: isNew ? 'Add schedule item' : 'Schedule item',
+    body: `<div class="form">${formHTML([
+      { k: 'title', label: 'What', span: true, required: true, placeholder: 'e.g. Rigging — mother grid' },
+      { k: 'date', label: 'Date', type: 'date' }, { k: 'type', label: 'Type', type: 'select', options: SCHED_TYPES.map(x => [x, x]) },
+      { k: 'start', label: 'Start', type: 'time' }, { k: 'end', label: 'End', type: 'time' },
+      { k: 'location', label: 'Where', placeholder: 'Main stage, FOH, loading dock…' }, { k: 'who', label: 'Who', placeholder: 'Riggers, lighting crew…' },
+      { k: 'notes', label: 'Notes', type: 'textarea', span: true },
+    ], s)}</div>`,
+    onSave: async () => { const o = readForm($('#drBody'), s); if (!o.title) return toast('Describe the item', true); closeDrawer(); await save('schedule', o.id, o, isNew ? 'Added to schedule' : 'Saved'); },
+    onDelete: isNew ? null : async () => { closeDrawer(); try { await Backend.del('schedule', s.id); render(); toast('Removed'); } catch (e) { failed(e); } },
+    extra: isNew ? '' : '<button class="btn" data-act="dupSched">Duplicate</button>',
+  });
+  drawerState.sched = s;
+}
+
+/* ---- contact drawer ---- */
+function contactDrawer(c, projectId) {
+  const isNew = !c, o0 = c ? structuredClone(c) : { id: uid(), projectId, role: 'Supplier' };
+  openDrawer({
+    title: isNew ? 'Add contact' : 'Contact',
+    body: `<div class="form">${formHTML([
+      { k: 'name', label: 'Name', span: true, required: true },
+      { k: 'role', label: 'Role', type: 'select', options: CONTACT_ROLES.map(x => [x, x]) }, { k: 'company', label: 'Company' },
+      { k: 'title', label: 'Job title / scope', placeholder: 'e.g. Lighting supplier, Venue manager' }, { k: 'phone', label: 'Phone', type: 'tel', placeholder: '+966 5…' },
+      { k: 'email', label: 'Email', type: 'email', span: true },
+      { k: 'notes', label: 'Notes', type: 'textarea', span: true, placeholder: 'PO number, what they’re supplying, on-site hours…' },
+    ], o0)}</div>`,
+    onSave: async () => { const o = readForm($('#drBody'), o0); if (!o.name) return toast('Add a name', true); closeDrawer(); await save('contacts', o.id, o, isNew ? 'Contact added' : 'Saved'); },
+    onDelete: isNew ? null : async () => { closeDrawer(); try { await Backend.del('contacts', o0.id); render(); toast('Contact removed'); } catch (e) { failed(e); } },
+  });
+}
+
+/* ---- template drawer ---- */
+function tplDrawer(tpl) {
+  const isNew = !tpl;
+  const t = tpl ? structuredClone(tpl) : { id: uid(), name: '', description: '', items: [{ title: '', dept: 'Production', phase: 'pre', anchor: 'show', offset: -14, priority: 'normal' }] };
+  drawerState = null;
+  openDrawer({
+    title: isNew ? 'New template' : 'Edit template', wide: true,
+    body: `<div class="form" style="margin-bottom:18px">${formHTML([{ k: 'name', label: 'Template name', required: true }, { k: 'description', label: 'Description' }], t)}</div>
+      <div class="eyebrow" style="margin-bottom:6px">Tasks · offset is days from the anchor date (negative = before)</div>
+      <div style="overflow-x:auto"><table class="tpl-table"><thead><tr><th style="min-width:220px">Task</th><th>Department</th><th>Phase</th><th>Anchor</th><th style="width:70px">Days</th><th>Priority</th><th></th></tr></thead><tbody id="tplRows"></tbody></table></div>
+      <button class="btn sm" style="margin-top:10px" data-act="tplRow">${ICON.plus} Add task</button>`,
+    onSave: async () => {
+      collectTplRows();
+      const o = readForm($('#drBody').querySelector('.form'), t);
+      o.items = drawerState.items.filter(i => i.title.trim());
+      if (!o.name) return toast('Name the template', true);
+      closeDrawer(); await save('templates', o.id, o, 'Template saved');
+    },
+    onDelete: isNew ? null : async () => { if (!confirm(`Delete template “${t.name}”? Events already created are not affected.`)) return; closeDrawer(); try { await Backend.del('templates', t.id); render(); } catch (e) { failed(e); } },
+    extra: isNew ? '' : '<button class="btn" data-act="dupTpl">Duplicate</button>',
+  });
+  drawerState.items = t.items.map(i => ({ ...i }));
+  drawerState.tpl = t;
+  renderTplRows();
+}
+const opt = (list, v) => list.map(([a, b]) => `<option value="${esc(a)}" ${a === v ? 'selected' : ''}>${esc(b)}</option>`).join('');
+function renderTplRows() {
+  $('#tplRows').innerHTML = drawerState.items.map((it, i) => `<tr data-row="${i}">
+    <td><input class="input" data-f="title" value="${esc(it.title)}"></td>
+    <td><select class="input" data-f="dept">${opt(DEPTS.map(d => [d, d]), it.dept)}</select></td>
+    <td><select class="input" data-f="phase">${opt(PHASES, it.phase)}</select></td>
+    <td><select class="input" data-f="anchor">${opt(ANCHORS, it.anchor)}</select></td>
+    <td><input class="input num" type="number" data-f="offset" value="${esc(it.offset)}"></td>
+    <td><select class="input" data-f="priority">${opt(PRIORITY, it.priority)}</select></td>
+    <td><button class="btn ghost sm" data-act="tplDel" data-i="${i}" aria-label="Remove">${ICON.x}</button></td></tr>`).join('');
+}
+function collectTplRows() {
+  document.querySelectorAll('#tplRows tr').forEach(tr => {
+    const it = drawerState.items[+tr.dataset.row];
+    tr.querySelectorAll('[data-f]').forEach(i => it[i.dataset.f] = i.dataset.f === 'offset' ? Number(i.value) || 0 : i.value);
+  });
+}
+
+/* ---- apply template to existing event ---- */
+function applyTplDrawer(pid) {
+  const p = db.projects.get(pid), tpls = [...db.templates.values()];
+  if (!tpls.length) return toast('Create a template first', true);
+  const existing = new Set(projectTasks(pid).map(t => t.title.trim().toLowerCase()));
+  openDrawer({
+    title: 'Add tasks from template',
+    body: `<div class="form"><div class="f span"><label for="aTpl">Template</label><select class="input" id="aTpl">${tpls.map(t => `<option value="${esc(t.id)}">${esc(t.name)} (${(t.items || []).length} tasks)</option>`).join('')}</select></div>
+      <div class="f span"><label class="check" style="font-size:13px;color:var(--text);text-transform:none;letter-spacing:0;font-weight:500"><input type="checkbox" id="aSkip" checked> Skip tasks this event already has (same name)</label></div>
+      ${!anchorsOf(p).show ? '<div class="f span" style="color:var(--amber)">This event has no show date yet, so tasks will be added without due dates. Set dates in Details first if you want them calculated.</div>' : ''}</div>`,
+    saveLabel: 'Add tasks',
+    onSave: async () => {
+      const tpl = db.templates.get($('#aTpl').value);
+      const rows = tasksFromTemplate(tpl, p, $('#aSkip').checked ? existing : new Set());
+      if (!rows.length) { closeDrawer(); return toast('Nothing new to add — the event already has these tasks'); }
+      try { await Backend.putMany(rows); closeDrawer(); render(); toast(`${rows.length} tasks added`); } catch (e) { failed(e); }
+    },
+  });
+}
+
+/* ---- team member drawer ---- */
+function memberDrawer(email) {
+  const s = teamSettings(), m = s.members[email] || {};
+  openDrawer({
+    title: email,
+    body: `<div class="form">${formHTML([{ k: 'name', label: 'Display name', span: true }, { k: 'role', label: 'Role', span: true, placeholder: 'e.g. Head of Operations' }], { name: m.name || nameOf(email), role: m.role || roleOf(email) })}</div>`,
+    onSave: async () => {
+      const o = readForm($('#drBody'));
+      const next = structuredClone(s); next.members ||= {}; next.members[email] = { name: o.name, role: o.role };
+      closeDrawer(); await save('settings', 'team', next, 'Saved');
+    },
+  });
+}
+
+/* ---- standard show-day schedule ---- */
+function seedSchedule(p) {
+  const a = anchorsOf(p);
+  if (!a.show) return toast('Set the show date in Details first', true);
+  const rows = [], add = (date, start, end, type, title, location = '') => { const id = uid(); rows.push({ coll: 'schedule', id, data: { id, projectId: p.id, date, start, end, type, title, location, who: '', notes: '' } }); };
+  if (a.build && a.build < a.show) {
+    add(a.build, '07:00', '08:00', 'Meeting', 'Site induction & safety briefing', 'Production office');
+    add(a.build, '08:00', '18:00', 'Load-in', 'Trucks in · staging & structures build', 'Loading dock');
+    for (let d = addDays(a.build, 1); d < a.show; d = addDays(d, 1)) { add(d, '08:00', '20:00', 'Rigging', 'Rigging · lighting, audio & video install'); }
+    add(addDays(a.show, -1), '20:00', '23:00', 'Tech / focus', 'Lighting focus & programming', 'FOH');
+  }
+  for (let d = a.show, i = 1; d <= a.showEnd; d = addDays(d, 1), i++) {
+    add(d, '10:00', '10:30', 'Meeting', `Production meeting — show day ${i}`, 'Production office');
+    add(d, '13:00', '16:00', 'Soundcheck', 'Line check & soundcheck', 'Main stage');
+    add(d, '16:30', '17:00', 'Meeting', 'Pre-show safety walk', 'Site');
+    add(d, '18:00', '', 'Doors', 'Doors open', 'Gates');
+    add(d, '20:00', '23:00', 'Show', 'Show', 'Main stage');
+    add(d, '23:30', '', 'Curfew', 'Curfew · audience egress');
+  }
+  for (let d = addDays(a.showEnd, 1); d <= a.derig; d = addDays(d, 1)) add(d, '08:00', '18:00', 'Load-out', 'De-rig & load-out', 'Loading dock');
+  if (a.derig === a.showEnd) add(a.showEnd, '23:30', '06:00', 'Load-out', 'Overnight load-out', 'Loading dock');
+  Backend.putMany(rows).then(() => { render(); toast(`${rows.length} schedule items added — edit times to suit`); }).catch(failed);
+}
+
+/* =========================================================================
+   Events (delegated)
+   ========================================================================= */
+const actions = {
+  newEvent: () => newEventDrawer(),
+  open: el => go(`#/event/${el.dataset.id}/tasks`),
+  filter: el => { ui.filter = el.dataset.v; persistUI(); render(); },
+  task: el => { const t = db.tasks.get(el.dataset.id); t && taskDrawer(t); },
+  toggle: el => { const t = db.tasks.get(el.dataset.id); if (!t) return; const o = { ...t, status: t.status === 'done' ? 'todo' : 'done' }; if (o.status === 'done') { o.doneAt = new Date().toISOString(); o.doneBy = me; } else { delete o.doneAt; delete o.doneBy; } save('tasks', o.id, o); },
+  taskView: el => { ui.taskView = el.dataset.v; persistUI(); render(); },
+  quickAdd: el => {
+    const title = ui.quick.trim(); if (!title) return $('#quickAdd')?.focus();
+    const p = db.projects.get(el.dataset.id), ph = phaseInfo(p).now;
+    const id = uid(), t = { id, projectId: p.id, title, dept: ui.quickDept, phase: ph && ph !== 'done' ? ph : 'pre', priority: 'normal', status: 'todo', owner: '', due: '', notes: '', checklist: [], createdAt: new Date().toISOString() };
+    ui.quick = ''; save('tasks', id, t, 'Task added');
+  },
+  applyTpl: el => applyTplDrawer(el.dataset.id),
+  print: () => window.print(),
+  saveDetails: el => {
+    const p = db.projects.get(el.dataset.id), o = readForm($('#detailsForm'), p);
+    if (!o.name) return toast('Event needs a name', true);
+    const err = checkDates(o.dates); if (err) return toast(err, true);
+    save('projects', o.id, o, 'Details saved');
+  },
+  deleteEvent: async el => {
+    const p = db.projects.get(el.dataset.id);
+    if (prompt(`This deletes “${p.name}” with all its tasks, schedule and contacts. Type DELETE to confirm.`) !== 'DELETE') return;
+    try { await Backend.delProject(p.id); go('#/'); toast('Event deleted'); } catch (e) { failed(e); }
+  },
+  newSched: el => schedDrawer(null, el.dataset.id),
+  sched: el => { const s = db.schedule.get(el.dataset.id); s && schedDrawer(s); },
+  seedSched: el => seedSchedule(db.projects.get(el.dataset.id)),
+  dupSched: () => { const s = readForm($('#drBody'), drawerState.sched); s.id = uid(); closeDrawer(); save('schedule', s.id, s, 'Duplicated'); },
+  newContact: el => contactDrawer(null, el.dataset.id),
+  contact: el => { const c = db.contacts.get(el.dataset.id); c && contactDrawer(c); },
+  newTpl: () => tplDrawer(null),
+  tpl: el => { const t = db.templates.get(el.dataset.id); t && tplDrawer(t); },
+  tplRow: () => { collectTplRows(); const last = drawerState.items.at(-1) || {}; drawerState.items.push({ title: '', dept: last.dept || 'Production', phase: last.phase || 'pre', anchor: last.anchor || 'show', offset: last.offset ?? -14, priority: 'normal' }); renderTplRows(); const r = $('#tplRows tr:last-child input'); r && r.focus(); },
+  tplDel: el => { collectTplRows(); drawerState.items.splice(+el.dataset.i, 1); renderTplRows(); },
+  dupTpl: () => { collectTplRows(); const t = readForm($('#drBody').querySelector('.form'), drawerState.tpl); t.items = drawerState.items; t.id = uid(); t.name = (t.name || 'Template') + ' (copy)'; closeDrawer(); save('templates', t.id, t, 'Template duplicated'); },
+  member: el => memberDrawer(el.dataset.id),
+  clAdd: () => { const i = $('#clNew'), v = i.value.trim(); if (!v) return; drawerState.checklist.push({ t: v, d: false }); i.value = ''; renderChecklist(); i.focus(); },
+  clTick: el => { const c = drawerState.checklist[+el.dataset.i]; c.d = !c.d; renderChecklist(); },
+  clDel: el => { drawerState.checklist.splice(+el.dataset.i, 1); renderChecklist(); },
+  closeDrawer: () => closeDrawer(),
+  drSave: () => drawerState?.onSave?.(),
+  drDelete: () => drawerState?.onDelete?.(),
+  signOut: async () => { try { await sb.auth.signOut(); } finally { leave(''); } },
+  resetDemo: () => { if (confirm('Reset demo data?')) { try { localStorage.removeItem('bc-pm-demo'); } catch {} location.reload(); } },
+};
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-stop]')) return;
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  if (el.tagName === 'A') e.preventDefault();
+  actions[el.dataset.act]?.(el, e);
+});
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.cl != null && drawerState?.checklist) { drawerState.checklist[+el.dataset.cl].t = el.value; return; }
+  const k = el.dataset.chg; if (!k) return;
+  if (k === 'projStatus') { const p = db.projects.get(el.dataset.id); return save('projects', p.id, { ...p, status: el.value }, `Status: ${label(STATUSES, el.value)}`); }
+  if (k === 'hideDone' || k === 'tlClosed') ui[k] = el.checked; else ui[k] = el.value;
+  persistUI(); if (k !== 'quickDept') render();
+});
+document.addEventListener('input', e => {
+  const k = e.target.dataset.inp; if (!k) return;
+  ui[k] = e.target.value;
+  if (k === 'q') $('#evGrid').innerHTML = eventGrid();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && drawerState) return closeDrawer();
+  if (e.key === 'Enter' && e.target.dataset.enter && !e.isComposing) { e.preventDefault(); actions[e.target.dataset.enter](e.target); }
+});
+$('#scrim').addEventListener('click', closeDrawer);
+window.addEventListener('hashchange', () => { closeDrawer(); render(); window.scrollTo(0, 0); });
+
+/* drag & drop on the board */
+let dragId = null;
+document.addEventListener('dragstart', e => { const c = e.target.closest?.('[data-drag]'); if (!c) return; dragId = c.dataset.drag; c.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', dragId); } catch {} });
+document.addEventListener('dragend', e => { e.target.closest?.('[data-drag]')?.classList.remove('dragging'); document.querySelectorAll('.col.over').forEach(c => c.classList.remove('over')); });
+document.addEventListener('dragover', e => { const col = e.target.closest?.('[data-drop]'); if (!col || !dragId) return; e.preventDefault(); document.querySelectorAll('.col.over').forEach(c => c !== col && c.classList.remove('over')); col.classList.add('over'); });
+document.addEventListener('drop', e => {
+  const col = e.target.closest?.('[data-drop]'); if (!col || !dragId) return; e.preventDefault();
+  const t = db.tasks.get(dragId); dragId = null; if (!t || t.status === col.dataset.drop) return render();
+  const o = { ...t, status: col.dataset.drop };
+  if (o.status === 'done') { o.doneAt = new Date().toISOString(); o.doneBy = me; } else { delete o.doneAt; delete o.doneBy; }
+  save('tasks', o.id, o);
+});
+
+/* ---------------- toast ---------------- */
+let toastT;
+function toast(msg, err = false) { const t = $('#toast'); t.textContent = msg; t.className = 'toast on' + (err ? ' err' : ''); clearTimeout(toastT); toastT = setTimeout(() => t.className = 'toast', err ? 4200 : 2200); }
+
+/* =========================================================================
+   Boot
+   ========================================================================= */
+function leave(to) { location.replace(CONFIG.PORTAL_HOME + to); }
+
+async function start() {
+  try {
+    if (DEMO) { me = DEMO_TEAM[0][0]; }
+    else {
+      if (!sb) throw new Error('The portal connection settings are missing (config.js).');
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return leave('?next=projects');
+      me = (session.user.email || '').toLowerCase();
+      myName = BCPortal.displayName(session.user);
+      sb.auth.onAuthStateChange((ev, ses) => { if (ev === 'SIGNED_OUT' || (!ses && ev !== 'INITIAL_SESSION')) leave(''); });
+      const { data: access, error } = await sb.rpc('my_access');
+      if (error) { if (/jwt/i.test(error.message || '')) return leave('?next=projects'); throw error; }
+      if (!(access?.apps || []).includes('projects')) return leave('?noaccess=projects');
+    }
+    [team] = await Promise.all([Backend.team(), Backend.load()]);
+    if (!team.some(m => m.email === me)) team.unshift({ email: me, note: '' });
+    if (!db.templates.size) await Backend.put('templates', 'tpl-standard', { id: 'tpl-standard', ...DEFAULT_TEMPLATE }).catch(console.warn);
+    Backend.subscribe();
+    shell();
+  } catch (e) {
+    console.error(e);
+    $('#app').innerHTML = `<div class="loading"><div style="text-align:center"><b>Couldn’t load Projects</b><br><span class="muted">${esc(e.message || e)}</span><br><br><button class="btn" onclick="location.reload()">Try again</button></div></div>`;
+  }
+}
+
+/* =========================================================================
+   Demo data (only used with ?demo)
+   ========================================================================= */
+const DEMO_TEAM = [
+  ['you@blackcanvasglobal.com', 'You', 'Producer'],
+  ['ops@blackcanvasglobal.com', 'Omar H.', 'Production Manager'],
+  ['creative@blackcanvasglobal.com', 'Lina M.', 'Creative Lead'],
+  ['tech@blackcanvasglobal.com', 'Faisal A.', 'Technical Manager'],
+  ['logistics@blackcanvasglobal.com', 'Sara K.', 'Logistics Coordinator'],
+];
+function seedDemo() {
+  const t = today(), store = Object.fromEntries(COLLS.map(c => [c, {}]));
+  const tpl = { id: 'tpl-standard', ...DEFAULT_TEMPLATE };
+  store.templates[tpl.id] = tpl;
+  const ev = [
+    ['Desert Lights Concert', 'Horizon Entertainment', 'Boulevard Arena', 'Riyadh', 'Concert', 'build', -2, 3, 4, 6, 'BC-2611', 'you@blackcanvasglobal.com'],
+    ['Padel Open Finals', 'Ace Sports Group', 'Kingdom Courts', 'Riyadh', 'Sports', 'preprod', 19, 24, 26, 28, 'BC-2614', 'ops@blackcanvasglobal.com'],
+    ['Northwind Product Launch', 'Northwind Motors', 'Waterfront Pavilion', 'Jeddah', 'Corporate', 'confirmed', 49, 52, 52, 53, 'BC-2620', 'you@blackcanvasglobal.com'],
+    ['Winter Activation Tour', 'Lumen Beverages', 'Multiple malls', 'Riyadh · Jeddah · Dammam', 'Brand activation', 'pitch', 78, 80, 95, 96, '', 'creative@blackcanvasglobal.com'],
+    ['Autumn Night Festival', 'Horizon Entertainment', 'Al Ula Valley Stage', 'AlUla', 'Festival', 'closed', -40, -35, -33, -30, 'BC-2598', 'ops@blackcanvasglobal.com'],
+  ];
+  const owners = DEMO_TEAM.map(x => x[0]);
+  ev.forEach(([name, client, venue, city, type, status, b, s, e, r, code, producer], k) => {
+    const id = 'demo-' + k;
+    const p = { id, name, client, venue, city, type, status, code, producer, budget: [1850000, 920000, 640000, 410000, 2300000][k], attendance: [12000, 4000, 900, 20000, 15000][k], dates: { buildStart: addDays(t, b), showStart: addDays(t, s), showEnd: addDays(t, e), derigEnd: addDays(t, r) }, notes: '' };
+    store.projects[id] = p;
+    if (status === 'pitch') return;
+    tasksFromTemplate(tpl, p).forEach((row, n) => {
+      const d = row.data;
+      d.owner = owners[(n + k) % owners.length];
+      const lag = diff(d.due, t);
+      if (status === 'closed') d.status = 'done';
+      else if (lag > 3) d.status = lag < 22 && n % 4 === 1 ? (n % 3 ? 'doing' : 'blocked') : 'done';
+      else if (lag > -5) d.status = n % 3 === 0 ? 'doing' : (n % 5 === 0 ? 'waiting' : 'todo');
+      if (d.title.startsWith('Crew booked')) d.checklist = [{ t: 'Riggers ×8', d: true }, { t: 'Stagehands ×20', d: true }, { t: 'LX crew ×6', d: lag > 0 }, { t: 'Audio crew ×4', d: false }];
+      if (d.status === 'done') d.doneAt = new Date().toISOString();
+      store.tasks[d.id] = d;
+    });
+  });
+  // schedule + contacts for the live-ish event
+  const p0 = store.projects['demo-0'], a = anchorsOf(p0);
+  const S = (date, start, end, type, title, location, who) => { const id = uid(); store.schedule[id] = { id, projectId: p0.id, date, start, end, type, title, location, who, notes: '' }; };
+  S(a.build, '07:00', '08:00', 'Meeting', 'Site induction & safety briefing', 'Production office', 'All crew');
+  S(a.build, '08:00', '18:00', 'Load-in', 'Trucks in · stage & roof build', 'Loading dock', 'Staging crew');
+  S(addDays(a.build, 1), '08:00', '20:00', 'Rigging', 'Mother grid, PA hang & LED walls', 'Main stage', 'Riggers, video');
+  S(addDays(a.build, 3), '20:00', '01:00', 'Tech / focus', 'Lighting focus & programming', 'FOH', 'LX crew');
+  S(addDays(a.show, -1), '14:00', '18:00', 'Rehearsal', 'Full technical rehearsal', 'Main stage', 'All departments');
+  S(a.show, '10:00', '10:30', 'Meeting', 'Production meeting — show day 1', 'Production office', 'HoDs');
+  S(a.show, '13:00', '16:00', 'Soundcheck', 'Headliner soundcheck', 'Main stage', 'Audio');
+  S(a.show, '18:00', '', 'Doors', 'Doors open', 'Gates A–D', 'Security, ticketing');
+  S(a.show, '20:30', '23:00', 'Show', 'Show', 'Main stage', '');
+  S(a.show, '23:30', '', 'Curfew', 'Curfew · egress', 'Site', 'Security');
+  S(a.derig, '08:00', '18:00', 'Load-out', 'De-rig & load-out', 'Loading dock', 'All crew');
+  const C = (name, role, company, title, phone, email) => { const id = uid(); store.contacts[id] = { id, projectId: p0.id, name, role, company, title, phone, email, notes: '' }; };
+  C('Client producer', 'Client', 'Horizon Entertainment', 'Event producer', '+966 50 000 0001', 'producer@example.com');
+  C('Venue manager', 'Venue', 'Boulevard Arena', 'Operations', '+966 50 000 0002', 'venue@example.com');
+  C('Lighting supplier', 'Supplier', 'Example Lighting Co.', 'Lighting & rigging', '+966 50 000 0003', '');
+  C('Tour manager', 'Artist / talent', 'Headliner management', 'TM', '+44 7700 900000', 'tm@example.com');
+  store.settings.team = { members: Object.fromEntries(DEMO_TEAM.map(([e, n, r]) => [e, { name: n, role: r }])) };
+  lsSet('bc-pm-demo', store);
+  return store;
+}
+
+if (!DEMO) sb = BCPortal.client();
+start();
+</script>
+</body>
+</html>
