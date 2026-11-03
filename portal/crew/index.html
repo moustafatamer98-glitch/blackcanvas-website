@@ -376,6 +376,18 @@ select.status-sel option{color:var(--text);background:var(--panel)}
 .crow.off{opacity:.55}
 .rows-ed{display:flex;flex-direction:column;gap:6px}
 .rows-ed .r3{display:grid;grid-template-columns:1fr 150px 34px;gap:6px}
+.rows-ed .r5{display:grid;grid-template-columns:1fr 130px 130px 34px 34px;gap:6px;align-items:center}
+.rows-ed .r5h{display:grid;grid-template-columns:1fr 130px 130px 74px;gap:6px;font:500 10px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim);padding:0 2px}
+.rows-ed .r5 .rt{display:block;min-width:0;font:400 14px/1.45 var(--font);letter-spacing:normal;text-transform:none;color:var(--text)}
+.rows-ed .r5 .rt span{display:none}
+.rows-ed .r5 .main{font:600 9.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--orange);text-align:center}
+.rates{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.rchip{display:inline-flex;align-items:baseline;gap:6px;font-size:12px;padding:3px 8px;border-radius:5px;background:var(--raise);color:var(--muted);white-space:nowrap}
+.rchip b{color:var(--text);font-weight:700}
+.rchip.main{box-shadow:inset 0 0 0 1px var(--line2)}
+.rk{font:600 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:3px 6px;border-radius:4px;background:var(--raise);color:var(--muted);vertical-align:1px}
+.rk.show{background:var(--orange-soft);color:var(--orange)}
+.pick .rate small{display:block;font-size:10.5px;color:var(--dim);margin-top:2px}
 .rows-ed .r4{display:grid;grid-template-columns:140px 140px 1fr 34px;gap:6px}
 .rows-ed .input{padding:6px 8px}
 .bk{display:grid;grid-template-columns:96px 1fr auto;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:13px;align-items:center;cursor:pointer}
@@ -414,6 +426,8 @@ select.status-sel option{color:var(--text);background:var(--panel)}
   .pl-name .av{display:none}
   .pick{grid-template-columns:20px 1fr auto}.pick .av{display:none}
   .rows-ed .r4{grid-template-columns:1fr 1fr 34px}.rows-ed .r4 .nt{grid-column:1/3}
+  .rows-ed .r5{grid-template-columns:1fr 1fr 34px 34px;margin-bottom:6px}.rows-ed .r5 .rl{grid-column:1/-1}.rows-ed .r5h{display:none}
+  .rows-ed .r5 .rt{position:relative}.rows-ed .r5 .rt span{display:block;position:absolute;right:9px;top:50%;transform:translateY(-50%);font:600 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);pointer-events:none}
   .hide-sm{display:none}
   .totals{grid-template-columns:repeat(2,1fr)}
 }
@@ -660,8 +674,39 @@ const crewName = id => db.crew.get(id)?.name || 'Removed crew member';
 const firstName = id => crewName(id).split(/\s+/)[0];
 const initials = id => crewName(id).split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
 const avatar = (id, lg) => `<span class="av ${lg ? 'lg' : ''}" title="${esc(crewName(id))}">${esc(initials(id))}</span>`;
-const crewRoles = c => [c.role, ...(c.skills || [])].filter(Boolean).map(r => r.toLowerCase());
-const rateOf = a => (a.rate !== '' && a.rate != null) ? Number(a.rate) || 0 : Number(db.crew.get(a.crewId)?.rate) || 0;
+/* Each crew member has one or more roles, each with a day rate and a show rate. The first role
+   is their main role. Older records (role + other roles + one day rate) are read the same way. */
+function rolesOf(c) {
+  if (Array.isArray(c?.roles) && c.roles.length) return c.roles;
+  const out = [];
+  if (c?.role) out.push({ role: c.role, day: c.rate ?? '', show: '' });
+  (c?.skills || []).forEach(r => r && out.push({ role: r, day: '', show: '' }));
+  return out;
+}
+const crewRoles = c => rolesOf(c).map(r => r.role).filter(Boolean).map(r => r.toLowerCase());
+const roleNames = c => rolesOf(c).map(r => r.role).filter(Boolean);
+const amt = v => v === '' || v == null || isNaN(Number(v)) ? null : Number(v);
+const RATE_KINDS = [['auto', 'Automatic — show rate on show days, day rate otherwise'], ['day', 'Day rate'], ['show', 'Show rate']];
+const kindName = k => k === 'show' ? 'show rate' : 'day rate';
+/* Which rate a shift pays: set on the shift, or the show rate on show days and the day rate otherwise. */
+function rateKindOf(s) {
+  if (s?.rateKind === 'day' || s?.rateKind === 'show') return s.rateKind;
+  const a = anchorsOf(getEvent(s?.eventId));
+  return a.show && s.date >= a.show && s.date <= a.showEnd ? 'show' : 'day';
+}
+/* A crew member's rate for a shift: their rate for the shift's role, falling back to the other
+   kind of rate for that role, then to their main role. */
+function crewRateFor(crewId, s) {
+  const c = db.crew.get(crewId), kind = rateKindOf(s), other = kind === 'show' ? 'day' : 'show';
+  const rs = rolesOf(c), want = String(s?.role || '').toLowerCase();
+  const match = rs.find(r => (r.role || '').toLowerCase() === want), main = rs[0];
+  const tries = [[match, kind, ''], [match, other, `no ${kindName(kind)} set, using ${kindName(other)}`],
+    [main, kind, main && match !== main ? `as ${main.role}` : ''], [main, other, main ? `as ${main.role}, ${kindName(other)}` : '']];
+  for (const [r, k, note] of tries) { const v = r && amt(r[k]); if (v != null) return { amount: v, kind: k, role: r.role, note, exact: r === match && k === kind }; }
+  return { amount: 0, kind, role: s?.role || '', note: 'no rate set', exact: false };
+}
+const rateOf = a => { const o = amt(a.rate); if (o != null) return o; const s = db.shifts.get(a.shiftId); return s ? crewRateFor(a.crewId, s).amount : 0; };
+const rateChips = c => rolesOf(c).filter(r => r.role).map((r, i) => `<span class="rchip ${i === 0 ? 'main' : ''}">${esc(r.role)}${amt(r.day) != null ? ` <span>Day <b class="num">${esc(Number(r.day).toLocaleString('en-US'))}</b></span>` : ''}${amt(r.show) != null ? ` <span>Show <b class="num">${esc(Number(r.show).toLocaleString('en-US'))}</b></span>` : ''}</span>`).join('');
 const sortCrew = (a, b) => (a.name || '').localeCompare(b.name || '');
 
 /* =========================================================================
@@ -945,7 +990,7 @@ function shiftRow(s) {
     ? Array.from({ length: open }, () => `<button class="slot empty" data-act="pick" data-id="${esc(s.id)}">+ Assign</button>`).join('')
     : `<button class="slot empty" data-act="pick" data-id="${esc(s.id)}">+ Assign · ${open} open</button>`;
   return `<div class="shift">
-    <div><div class="time num">${esc(timeRange(s))}</div><div class="hrs num">${h}h${h > CONFIG.LONG_SHIFT ? ' <span style="color:var(--amber)">· long</span>' : ''}</div></div>
+    <div><div class="time num">${esc(timeRange(s))}</div><div class="hrs num">${h}h${h > CONFIG.LONG_SHIFT ? ' <span style="color:var(--amber)">· long</span>' : ''}</div><div style="margin-top:6px"><span class="rk ${rateKindOf(s)}" title="${s.rateKind && s.rateKind !== 'auto' ? 'Set on this shift' : 'Automatic: show rate on show days'}">${rateKindOf(s) === 'show' ? 'Show rate' : 'Day rate'}</span></div></div>
     <div style="min-width:0">
       <div class="role" data-act="shift" data-id="${esc(s.id)}">${esc(s.role || 'Crew')}</div>
       <div class="sub"><span class="tag">${esc(s.dept || deptOf(s.role))}</span>${s.location ? `<span class="muted">${esc(s.location)}</span>` : ''}${s.notes ? `<span class="dim">· ${esc(s.notes)}</span>` : ''}</div>
@@ -972,7 +1017,7 @@ function tabPeople(e) {
     return { ...p, live: liveItems, cost: liveItems.reduce((n, b) => n + rateOf(b.a), 0), days: new Set(liveItems.map(b => b.s.date)).size,
       hours: liveItems.reduce((n, b) => n + hoursOf(b.s), 0), conf: liveItems.filter(b => b.a.status === 'confirmed').length,
       off: liveItems.filter(b => b.a.status === 'offered').length, issues: liveItems.flatMap(b => bookingIssues(b.a)) };
-  }).sort((x, y) => (db.crew.get(x.id)?.role || '').localeCompare(db.crew.get(y.id)?.role || '') || crewName(x.id).localeCompare(crewName(y.id)));
+  }).sort((x, y) => (roleNames(db.crew.get(x.id))[0] || '').localeCompare(roleNames(db.crew.get(y.id))[0] || '') || crewName(x.id).localeCompare(crewName(y.id)));
   const total = rows.reduce((n, r) => n + r.cost, 0), shifts = list.filter(b => live(b.a)).length, conf = list.filter(b => b.a.status === 'confirmed').length;
   const byRole = {};
   for (const b of list) if (live(b.a)) { const k = b.s.role || 'Crew'; (byRole[k] ||= { n: 0, cost: 0 }); byRole[k].n++; byRole[k].cost += rateOf(b.a); }
@@ -989,7 +1034,7 @@ function tabPeople(e) {
     <tbody>${rows.map(r => {
       const c = db.crew.get(r.id) || {}, w = worst(r.issues);
       return `<tr class="click" data-act="crew" data-id="${esc(r.id)}">
-        <td><div class="who">${avatar(r.id)}<div><div style="font-weight:700">${esc(crewName(r.id))}${w ? ` <span class="issue ${w}" title="${esc(r.issues.map(i => i.t).join(' · '))}">!</span>` : ''}</div><div class="muted" style="font-size:12px">${esc(c.role || '—')}</div></div></div></td>
+        <td><div class="who">${avatar(r.id)}<div><div style="font-weight:700">${esc(crewName(r.id))}${w ? ` <span class="issue ${w}" title="${esc(r.issues.map(i => i.t).join(' · '))}">!</span>` : ''}</div><div class="muted" style="font-size:12px">${esc([...new Set(r.live.map(b => b.s.role).filter(Boolean))].join(', ') || roleNames(c)[0] || '—')}</div></div></div></td>
         <td class="hide-sm num">${esc(c.phone || '—')}</td>
         <td class="r num">${r.days}</td><td class="r num hide-sm">${Math.round(r.hours)}</td>
         <td>${r.conf ? `<span class="issue ok">${r.conf} confirmed</span> ` : ''}${r.off ? `<span class="issue warn">${r.off} offered</span>` : ''}${!r.live.length ? '<span class="issue bad">Declined</span>' : ''}</td>
@@ -1002,7 +1047,7 @@ function tabPeople(e) {
   <h2 style="margin:28px 0 10px">Cost by role</h2>
   <div class="tbl-wrap" style="max-width:560px"><table class="tbl"><thead><tr><th>Role</th><th class="r">Shifts</th><th class="r">Cost</th></tr></thead>
     <tbody>${Object.entries(byRole).sort((a, b) => b[1].cost - a[1].cost).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="r num">${v.n}</td><td class="r num">${money(v.cost)}</td></tr>`).join('')}</tbody></table></div>
-  <p class="dim" style="font-size:12px;margin-top:12px">Costs use each person’s day rate per shift, or the rate set on the booking.</p>`;
+  <p class="dim" style="font-size:12px;margin-top:12px">Each shift costs the person’s rate for that role: their show rate on shifts paid at show rate (show days, unless the shift says otherwise) and their day rate on the rest. A rate typed on a booking overrides it.</p>`;
 }
 function waText(crewId, items, e) {
   const lines = items.slice().sort((x, y) => x.sp?.[0] - y.sp?.[0] || sortShifts(x.s, y.s)).map(b => `• ${fmt(b.s.date)} · ${timeRange(b.s)} · ${b.s.role || 'Crew'}${b.s.location ? ' · ' + b.s.location : ''}`);
@@ -1053,10 +1098,10 @@ function viewPlanner() {
   const bookedIn = id => (idx().byCrew.get(id) || []).some(b => b.s.date >= start && b.s.date <= end);
   const crew = [...db.crew.values()].filter(c => c.active !== false || bookedIn(c.id))
     .filter(c => !ui.plRole || crewRoles(c).includes(ui.plRole.toLowerCase()))
-    .filter(c => !q || [c.name, c.role, c.city].join(' ').toLowerCase().includes(q))
+    .filter(c => !q || [c.name, c.city, ...roleNames(c)].join(' ').toLowerCase().includes(q))
     .filter(c => !ui.plBooked || bookedIn(c.id))
-    .sort((a, b) => (a.role || '').localeCompare(b.role || '') || sortCrew(a, b));
-  const roles = [...new Set([...db.crew.values()].map(c => c.role).filter(Boolean))].sort();
+    .sort((a, b) => (roleNames(a)[0] || '').localeCompare(roleNames(b)[0] || '') || sortCrew(a, b));
+  const roles = [...new Set([...db.crew.values()].flatMap(roleNames))].sort();
   const seen = new Set();
   const head = `<div class="page-head"><div><div class="eyebrow">Two weeks · ${esc(fmtShort(start))} – ${esc(fmt(end, {day:'numeric', month:'short', year:'numeric'}))}</div><h1>Planner</h1></div>
     <div class="wk"><button class="btn sm" data-act="plMove" data-v="-7" aria-label="Previous week">${ICON.left}</button><button class="btn sm" data-act="plToday">This week</button><button class="btn sm" data-act="plMove" data-v="7" aria-label="Next week">${ICON.right}</button></div></div>
@@ -1080,7 +1125,7 @@ function viewPlanner() {
         return `<div class="pl-b ${off ? 'off' : ''} ${bad ? 'bad' : ''}" style="background:${col};${off ? `color:${col};border-color:${col}` : ''}" data-act="booking" data-id="${esc(b.a.id)}" title="${esc(evName(b.s.eventId))} · ${esc(b.s.role || '')} · ${esc(timeRange(b.s))} · ${esc(label(A_STATUS, b.a.status))}">${esc(e?.code || evName(b.s.eventId))}<small class="num">${esc(timeRange(b.s))}</small></div>`;
       }).join('')}</div>`;
     }).join('');
-    return `<div class="pl-row"><div class="pl-name" data-act="crew" data-id="${esc(c.id)}">${avatar(c.id)}<div><div class="n">${esc(c.name)}</div><div class="r">${esc(c.role || '—')}</div></div></div>${cells}</div>`;
+    return `<div class="pl-row"><div class="pl-name" data-act="crew" data-id="${esc(c.id)}">${avatar(c.id)}<div><div class="n">${esc(c.name)}</div><div class="r">${esc(roleNames(c).join(' · ') || '—')}</div></div></div>${cells}</div>`;
   }).join('');
   return head + `<div class="pl-wrap"><div class="pl"><div class="pl-row pl-h"><div class="pl-name"><span class="eyebrow">Crew</span></div>${dayHead}</div>${rows || '<div class="empty" style="margin:16px">No crew match these filters.</div>'}</div></div>
   <div class="pl-legend">${[...seen].map(id => `<span><i style="background:${evColor(id)}"></i>${esc(evName(id))}</span>`).join('')}<span><i style="border:1px dashed var(--muted)"></i>Offered, not confirmed</span><span><i style="background:repeating-linear-gradient(135deg,#232327 0 3px,#3a3a40 3px 6px)"></i>Unavailable</span><span><i style="box-shadow:0 0 0 2px var(--red)"></i>Clash</span></div>`;
@@ -1092,11 +1137,11 @@ function viewPlanner() {
 function viewCrew() {
   const t = today(), soon = addDays(t, 30), q = ui.crewQ.trim().toLowerCase();
   const all = [...db.crew.values()];
-  const roles = [...new Set(all.flatMap(c => [c.role, ...(c.skills || [])]).filter(Boolean))].sort();
+  const roles = [...new Set(all.flatMap(roleNames))].sort();
   const list = all.filter(c => (ui.showInactive || c.active !== false))
     .filter(c => !ui.crewType || (c.type || 'freelance') === ui.crewType)
     .filter(c => !ui.crewRole || crewRoles(c).includes(ui.crewRole.toLowerCase()))
-    .filter(c => !q || [c.name, c.role, c.city, c.phone, c.email, c.agency, ...(c.skills || [])].join(' ').toLowerCase().includes(q))
+    .filter(c => !q || [c.name, c.city, c.phone, c.email, c.agency, ...roleNames(c)].join(' ').toLowerCase().includes(q))
     .sort((a, b) => (a.active === false) - (b.active === false) || sortCrew(a, b));
   const counts = { '': all.filter(c => ui.showInactive || c.active !== false).length };
   CREW_TYPES.forEach(([k]) => counts[k] = all.filter(c => (ui.showInactive || c.active !== false) && (c.type || 'freelance') === k).length);
@@ -1116,9 +1161,10 @@ function viewCrew() {
     return `<div class="crow ${c.active === false ? 'off' : ''}" data-act="crew" data-id="${esc(c.id)}">
       ${avatar(c.id, true)}
       <div style="min-width:0"><div class="nm">${esc(c.name)}${c.active === false ? ' <span class="dim">(inactive)</span>' : ''}</div>
-        <div class="sub"><span>${esc(c.role || '—')}</span>${(c.skills || []).length ? `<span class="dim">+ ${esc(c.skills.join(', '))}</span>` : ''}<span class="tag">${esc(label(CREW_TYPES, c.type || 'freelance'))}${c.agency ? ' · ' + esc(c.agency) : ''}</span>${c.city ? `<span>${esc(c.city)}</span>` : ''}
-        ${expired.length ? `<span class="issue bad">${esc(expired.map(k => k.name).join(', '))} expired</span>` : ''}${expiring.length ? `<span class="issue warn">${esc(expiring.map(k => k.name).join(', '))} expires soon</span>` : ''}${away ? '<span class="issue info">Unavailable today</span>' : ''}</div></div>
-      <div class="right"><div><div class="num" style="color:var(--text);font-weight:600">${c.rate ? money(c.rate) + '<span class="dim" style="font-weight:400"> /day</span>' : '—'}</div><div class="hide-sm">${next ? `Next: ${esc(getEvent(next.s.eventId)?.code || evName(next.s.eventId))} · ${esc(fmtShort(next.s.date))}` : 'No upcoming bookings'}</div></div></div>
+        <div class="sub">${roleNames(c).length ? '' : '<span>No role yet</span>'}<span class="tag">${esc(label(CREW_TYPES, c.type || 'freelance'))}${c.agency ? ' · ' + esc(c.agency) : ''}</span>${c.city ? `<span>${esc(c.city)}</span>` : ''}
+        ${expired.length ? `<span class="issue bad">${esc(expired.map(k => k.name).join(', '))} expired</span>` : ''}${expiring.length ? `<span class="issue warn">${esc(expiring.map(k => k.name).join(', '))} expires soon</span>` : ''}${away ? '<span class="issue info">Unavailable today</span>' : ''}</div>
+        <div class="rates">${rateChips(c)}</div></div>
+      <div class="right"><div><div class="hide-sm">${next ? `Next: ${esc(getEvent(next.s.eventId)?.code || evName(next.s.eventId))} · ${esc(fmtShort(next.s.date))}` : 'No upcoming bookings'}</div></div></div>
     </div>`;
   }).join('')}</div>` : all.length ? '<div class="empty"><b>No one matches</b>Try another filter or search.</div>'
     : `<div class="empty"><b>No crew yet</b>Add your staff and freelancers with their roles, day rates and certificates — or paste a list from a spreadsheet.<br><br><button class="btn primary" data-act="newCrew">${ICON.plus} Add crew</button> <button class="btn" data-act="importCrew">Import list</button></div>`}`;
@@ -1165,7 +1211,7 @@ function closeDrawer() { const d = $('#drawer'); d.classList.remove('on'); $('#s
 function shiftDrawer(shift, eventId) {
   const isNew = !shift, e = getEvent(shift?.eventId || eventId);
   const a = anchorsOf(e);
-  const s = shift ? structuredClone(shift) : { id: uid(), eventId, date: a.build || a.show || today(), start: '08:00', end: '18:00', role: '', dept: '', need: 1, location: '', notes: '' };
+  const s = shift ? structuredClone(shift) : { id: uid(), eventId, date: a.build || a.show || today(), start: '08:00', end: '18:00', role: '', dept: '', need: 1, rateKind: 'auto', location: '', notes: '' };
   const n = shiftAssigns(s.id).length;
   const fields = [
     { k: 'role', label: 'Role', list: 'dlRoles', placeholder: 'e.g. Rigger', span: true },
@@ -1174,6 +1220,7 @@ function shiftDrawer(shift, eventId) {
     { k: 'date', label: isNew ? 'Date (first day)' : 'Date', type: 'date' },
     ...(isNew ? [{ k: 'until', label: 'Repeat every day until', type: 'date', hint: 'Optional — one shift per day, e.g. across build days.' }] : []),
     { k: 'start', label: 'Call time', type: 'time' }, { k: 'end', label: 'Finish', type: 'time', hint: 'Earlier than the call time means it runs past midnight.' },
+    { k: 'rateKind', label: 'Crew are paid', type: 'select', options: RATE_KINDS, span: true },
     { k: 'location', label: 'Call location', placeholder: 'e.g. Loading dock, Gate B', span: true },
     { k: 'notes', label: 'Notes', type: 'textarea', span: true, placeholder: 'PPE, uniform, parking, who to report to…' },
   ];
@@ -1218,18 +1265,18 @@ function pickDrawer(shiftId) {
     const need = Number(s.need) || 0, have = as.filter(live).length;
     const q = ui.pickQ.trim().toLowerCase();
     const cands = [...db.crew.values()].filter(c => c.active !== false || booked.has(c.id))
-      .filter(c => !q || [c.name, c.role, c.city, ...(c.skills || [])].join(' ').toLowerCase().includes(q))
+      .filter(c => !q || [c.name, c.city, ...roleNames(c)].join(' ').toLowerCase().includes(q))
       .map(c => { const match = crewRoles(c).includes(role), iss = booked.has(c.id) ? [] : issuesFor(c.id, s); return { c, match, iss, w: worst(iss), b: booked.get(c.id), days: new Set((idx().byCrew.get(c.id) || []).filter(x => x.s.eventId === s.eventId).map(x => x.s.date)).size }; })
       .filter(x => x.b || ui.pickAll || x.match || sel.has(x.c.id))
       .sort((x, y) => (!!y.b - !!x.b) || (y.match - x.match) || ((x.w === 'bad') - (y.w === 'bad')) || (x.iss.length - y.iss.length) || (y.days - x.days) || sortCrew(x.c, y.c));
     const row = x => `<div class="pick ${x.b ? 'dis' : sel.has(x.c.id) ? 'sel' : ''}" data-act="${x.b ? 'booking' : 'pickToggle'}" data-id="${esc(x.b ? x.b.id : x.c.id)}">
       <span class="box"></span>${avatar(x.c.id, true)}
       <div style="min-width:0"><div class="nm">${esc(x.c.name)}${x.b ? ` <span class="issue ${x.b.status === 'confirmed' ? 'ok' : x.b.status === 'declined' ? 'bad' : 'warn'}">${esc(label(A_STATUS, x.b.status))}</span>` : ''}</div>
-        <div class="rl">${esc([x.c.role, ...(x.c.skills || [])].filter(Boolean).join(' · ') || '—')}${x.c.city ? ' · ' + esc(x.c.city) : ''}${x.days ? ` · <span style="color:var(--text)">${plural(x.days, 'day')} on this event</span>` : ''}</div>
+        <div class="rl">${esc(roleNames(x.c).join(' · ') || '—')}${x.c.city ? ' · ' + esc(x.c.city) : ''}${x.days ? ` · <span style="color:var(--text)">${plural(x.days, 'day')} on this event</span>` : ''}</div>
         ${x.iss.length ? `<div class="issues">${issueTags(x.iss)}</div>` : !x.b ? '<div class="issues"><span class="issue ok">Free</span></div>' : ''}</div>
-      <div class="rate num">${x.c.rate ? money(x.c.rate) : ''}</div></div>`;
+      <div class="rate num">${(() => { const r = crewRateFor(x.c.id, s); return r.amount ? `${money(r.amount)}<small>${esc(kindName(r.kind))}${r.exact ? '' : ' · ' + esc(r.note)}</small>` : '<small>No rate set</small>'; })()}</div></div>`;
     const bookedRows = cands.filter(x => x.b), matchRows = cands.filter(x => !x.b && x.match), otherRows = cands.filter(x => !x.b && !x.match);
-    return `<div class="pick-info"><span><b>${esc(s.role || 'Crew')}</b> · ${esc(fmt(s.date))} · <span class="num">${esc(timeRange(s))}</span>${s.location ? ' · ' + esc(s.location) : ''}</span>${fillHTML(have + sel.size, need)}</div>
+    return `<div class="pick-info"><span><b>${esc(s.role || 'Crew')}</b> · ${esc(fmt(s.date))} · <span class="num">${esc(timeRange(s))}</span>${s.location ? ' · ' + esc(s.location) : ''} · <span class="rk ${rateKindOf(s)}">${rateKindOf(s) === 'show' ? 'Show rate' : 'Day rate'}</span></span>${fillHTML(have + sel.size, need)}</div>
       ${!db.crew.size ? `<div class="empty"><b>No crew yet</b>Add people on the Crew page first.<br><br><a class="btn primary" href="#/crew" data-act="closeDrawer">${ICON.users} Go to Crew</a></div>` : ''}
       ${bookedRows.length ? `<div class="pick-sect">On this shift</div>${bookedRows.map(row).join('')}` : ''}
       ${matchRows.length ? `<div class="pick-sect">Matching role · ${esc(s.role || 'Crew')}</div>${matchRows.map(row).join('')}` : ''}
@@ -1266,9 +1313,11 @@ function bookingDrawer(aId) {
   const s = db.shifts.get(a.shiftId), c = db.crew.get(a.crewId) || {}, e = getEvent(a.eventId);
   if (!s) return;
   const iss = live(a) ? issuesFor(a.crewId, s, a.id) : [];
+  const cr = crewRateFor(a.crewId, s);
   const fields = [
     { k: 'status', label: 'Status', type: 'select', options: A_STATUS },
-    { k: 'rate', label: `Day rate for this shift (${CONFIG.CURRENCY})`, type: 'number', min: 0, placeholder: c.rate ? `${c.rate} (their usual)` : 'Their usual rate' },
+    { k: 'rate', label: `Rate for this shift (${CONFIG.CURRENCY})`, type: 'number', min: 0, placeholder: cr.amount ? `${cr.amount} — their ${kindName(cr.kind)}` : 'No rate set',
+      hint: cr.amount ? `Leave blank to pay their ${esc(cr.role)} ${kindName(cr.kind)}${cr.exact ? '' : ` (${esc(cr.note)})`}.` : 'Add their rates on their profile, or set one here.' },
     { k: 'note', label: 'Note', type: 'textarea', span: true, placeholder: 'e.g. Driving the van, bring harness…' },
   ];
   const msg = waText(a.crewId, [{ s }], e || { name: '' });
@@ -1298,28 +1347,35 @@ function crewDrawer(id) {
   if (id && !c0) return;
   const c = c0 ? structuredClone(c0) : { id: uid(), name: '', role: '', skills: [], type: 'freelance', phone: '', email: '', city: '', rate: '', certs: [], away: [], notes: '', active: true };
   c.certs ||= []; c.away ||= [];
+  c.roles = structuredClone(rolesOf(c)); if (!c.roles.length) c.roles.push({ role: '', day: '', show: '' });
   const t = today(), books = idx().byCrew.get(c.id) || [], upcoming = books.filter(b => b.s.date >= t), past = books.filter(b => b.s.date < t);
   const fields = [
     { k: 'name', label: 'Full name', span: true },
-    { k: 'role', label: 'Main role', list: 'dlRoles', placeholder: 'e.g. Rigger' },
-    { k: 'skillsText', label: 'Other roles', list: 'dlRoles', placeholder: 'Comma separated, e.g. Stagehand, Driver' },
     { k: 'type', label: 'Type', type: 'select', options: CREW_TYPES },
     { k: 'agency', label: 'Agency / company', placeholder: 'If through an agency' },
     { k: 'phone', label: 'Mobile', type: 'tel', placeholder: '+966 5x xxx xxxx' },
     { k: 'email', label: 'Email', type: 'email' },
     { k: 'city', label: 'Based in', placeholder: 'Riyadh' },
-    { k: 'rate', label: `Day rate (${CONFIG.CURRENCY})`, type: 'number', min: 0 },
     { k: 'activeSel', label: 'Status', type: 'select', options: [['1', 'Active'], ['0', 'Inactive — hide from picking']] },
     { k: 'notes', label: 'Notes', type: 'textarea', span: true, placeholder: 'Languages, sizes for uniform, past feedback…' },
   ];
   const paintRows = () => {
+    $('#roleRows').innerHTML = `<div class="r5h"><span>Role</span><span>Day rate (${CONFIG.CURRENCY})</span><span>Show rate (${CONFIG.CURRENCY})</span><span></span></div>` + c.roles.map((r, i) => `<div class="r5">
+      <input class="input rl" list="dlRoles" placeholder="${i ? 'Another role' : 'Main role, e.g. Rigger'}" value="${esc(r.role)}" data-roler="${i}" data-f="role" aria-label="Role">
+      <label class="rt"><span>Day</span><input class="input num" type="number" min="0" placeholder="Day rate" value="${esc(r.day ?? '')}" data-roler="${i}" data-f="day" aria-label="Day rate"></label>
+      <label class="rt"><span>Show</span><input class="input num" type="number" min="0" placeholder="Show rate" value="${esc(r.show ?? '')}" data-roler="${i}" data-f="show" aria-label="Show rate"></label>
+      ${i ? `<button class="btn sm ghost" data-act="roleMain" data-i="${i}" title="Make this their main role" aria-label="Make main role">↑</button>` : '<span class="main" title="Main role">Main</span>'}
+      <button class="btn sm ghost" data-act="rowDel" data-list="roles" data-i="${i}" aria-label="Remove role">${ICON.x}</button></div>`).join('');
     $('#certRows').innerHTML = c.certs.map((k, i) => `<div class="r3"><input class="input" list="dlCerts" placeholder="Certificate" value="${esc(k.name)}" data-cert="${i}" data-f="name"><input class="input" type="date" value="${esc(k.expires || '')}" data-cert="${i}" data-f="expires" title="Expires"><button class="btn sm ghost" data-act="rowDel" data-list="certs" data-i="${i}" aria-label="Remove">${ICON.x}</button></div>`).join('') || '<span class="dim" style="font-size:12px">None added.</span>';
     $('#awayRows').innerHTML = c.away.map((w, i) => `<div class="r4"><input class="input" type="date" value="${esc(w.from || '')}" data-away="${i}" data-f="from" title="From"><input class="input" type="date" value="${esc(w.to || '')}" data-away="${i}" data-f="to" title="To"><input class="input nt" placeholder="Reason (optional)" value="${esc(w.note || '')}" data-away="${i}" data-f="note"><button class="btn sm ghost" data-act="rowDel" data-list="away" data-i="${i}" aria-label="Remove">${ICON.x}</button></div>`).join('') || '<span class="dim" style="font-size:12px">Always available.</span>';
   };
   const bk = b => `<div class="bk" data-act="booking" data-id="${esc(b.a.id)}"><span class="num">${esc(fmt(b.s.date))}</span><span style="min-width:0"><b>${esc(evName(b.s.eventId))}</b> <span class="muted">· ${esc(b.s.role || '')} · <span class="num">${esc(timeRange(b.s))}</span></span></span><span class="issue ${b.a.status === 'confirmed' ? 'ok' : 'warn'}">${esc(label(A_STATUS, b.a.status))}</span></div>`;
   openDrawer({
     title: isNew ? 'Add crew' : c.name, wide: true,
-    body: `<div class="form">${formHTML(fields, { ...c, skillsText: (c.skills || []).join(', '), activeSel: c.active === false ? '0' : '1' })}
+    body: `<div class="form">${formHTML(fields.slice(0, 1), c)}
+      <div class="f span"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><label>Roles &amp; rates</label><button class="btn sm" data-act="rowAdd" data-list="roles">${ICON.plus} Add role</button></div><div class="rows-ed" id="roleRows"></div>
+        <div class="dim" style="font-size:12px;margin-top:6px">The day rate is paid on build, rehearsal and de-rig shifts, the show rate on show days. Leave a rate blank if they don’t have one; the other rate is used instead.</div></div>
+      ${formHTML(fields.slice(1), { ...c, activeSel: c.active === false ? '0' : '1' })}
       <div class="sect"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="eyebrow">Certificates</span><button class="btn sm" data-act="rowAdd" data-list="certs">${ICON.plus} Add</button></div><div class="rows-ed" id="certRows"></div></div>
       <div class="sect"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="eyebrow">Unavailable dates</span><button class="btn sm" data-act="rowAdd" data-list="away">${ICON.plus} Add</button></div><div class="rows-ed" id="awayRows"></div></div>
       ${isNew ? '' : `<div class="sect"><div class="eyebrow" style="margin-bottom:6px">Bookings · ${upcoming.length} upcoming · ${past.length} past</div>${upcoming.slice(0, 12).map(bk).join('') || '<span class="dim" style="font-size:12px">No upcoming bookings.</span>'}${upcoming.length > 12 ? `<div class="dim" style="font-size:12px;margin-top:6px">+ ${upcoming.length - 12} more</div>` : ''}</div>`}
@@ -1329,7 +1385,16 @@ function crewDrawer(id) {
     onSave: async () => {
       const o = readForm($('#drBody').querySelector('.form'), c);
       if (!o.name) return toast('Add their name', true);
-      o.skills = String(o.skillsText || '').split(',').map(x => x.trim()).filter(Boolean); delete o.skillsText;
+      const seen = new Set(), roles = [];
+      for (const r of c.roles) {
+        const role = String(r.role || '').trim(), day = amt(r.day), show = amt(r.show);
+        if (!role) { if (day != null || show != null) return toast('Give each rate a role', true); continue; }
+        if (seen.has(role.toLowerCase())) return toast(`${role} is listed twice`, true);
+        if ((day != null && day < 0) || (show != null && show < 0)) return toast('Rates can’t be negative', true);
+        seen.add(role.toLowerCase()); roles.push({ role, day: day ?? '', show: show ?? '' });
+      }
+      // roles is the source of truth; role, skills and rate stay filled for anything that reads them
+      o.roles = roles; o.role = roles[0]?.role || ''; o.skills = roles.slice(1).map(r => r.role); o.rate = roles[0]?.day ?? '';
       o.active = o.activeSel !== '0'; delete o.activeSel;
       o.certs = c.certs.filter(k => k.name); o.away = c.away.filter(w => w.from).map(w => ({ ...w, to: w.to && w.to >= w.from ? w.to : w.from }));
       o.createdAt ||= new Date().toISOString();
@@ -1348,7 +1413,7 @@ function crewDrawer(id) {
 }
 
 /* ---- import crew from a pasted list ---- */
-const IMPORT_COLS = [['name', ['name', 'full name']], ['role', ['role', 'position', 'job']], ['phone', ['phone', 'mobile', 'number', 'whatsapp']], ['email', ['email', 'e-mail']], ['rate', ['rate', 'day rate', 'daily rate']], ['type', ['type']], ['city', ['city', 'based']]];
+const IMPORT_COLS = [['name', ['name', 'full name']], ['role', ['role', 'position', 'job']], ['phone', ['phone', 'mobile', 'number', 'whatsapp']], ['email', ['email', 'e-mail']], ['day', ['rate', 'day rate', 'daily rate', 'day']], ['show', ['show rate', 'show']], ['type', ['type']], ['city', ['city', 'based']]];
 function parseCrewList(text) {
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   if (!lines.length) return [];
@@ -1365,8 +1430,8 @@ function parseCrewList(text) {
 function importDrawer() {
   openDrawer({
     title: 'Import crew', wide: true,
-    body: `<p class="muted" style="margin-top:0">Copy rows from Excel or Google Sheets and paste them here. Use these columns, in this order or with a header row: <b style="color:var(--text)">Name, Role, Phone, Email, Day rate, Type, City</b>. Only the name is required.</p>
-      <textarea class="input" id="impText" style="min-height:220px;font-family:var(--mono);font-size:12px" placeholder="Name, Role, Phone, Email, Day rate, Type, City&#10;Ahmed Saleh, Rigger, 0551234567, , 900, freelance, Riyadh"></textarea>
+    body: `<p class="muted" style="margin-top:0">Copy rows from Excel or Google Sheets and paste them here. Use these columns, in this order or with a header row: <b style="color:var(--text)">Name, Role, Phone, Email, Day rate, Show rate, Type, City</b>. Only the name is required. The rates are for their main role; to list more roles, separate them with <b style="color:var(--text)">|</b> (e.g. Rigger | Stagehand) and add their rates on each profile afterwards.</p>
+      <textarea class="input" id="impText" style="min-height:220px;font-family:var(--mono);font-size:12px" placeholder="Name, Role, Phone, Email, Day rate, Show rate, Type, City&#10;Ahmed Saleh, Rigger | Stagehand, 0551234567, , 900, 1200, freelance, Riyadh"></textarea>
       <div id="impPrev" class="dim" style="margin-top:10px;font-size:13px"></div>`,
     saveLabel: 'Import',
     onSave: async () => {
@@ -1378,7 +1443,9 @@ function importDrawer() {
       for (const o of list) {
         if (known.has(o.name.toLowerCase()) || (o.phone && known.has(waNumber(o.phone)))) { skipped++; continue; }
         const id = uid(), type = (CREW_TYPES.find(([k, l]) => [k, l.toLowerCase()].includes(String(o.type || '').toLowerCase())) || ['freelance'])[0];
-        rows.push({ coll: 'crew', id, data: { id, name: o.name, role: o.role || '', skills: [], type, phone: o.phone || '', email: o.email || '', city: o.city || '', rate: Number(String(o.rate || '').replace(/[^\d.]/g, '')) || '', certs: [], away: [], notes: '', active: true, createdAt: now } });
+        const money0 = v => Number(String(v || '').replace(/[^\d.]/g, '')) || '';
+        const roles = String(o.role || '').split(/\s*[|;]\s*/).map(r => r.trim()).filter(Boolean).map((role, i) => ({ role, day: i ? '' : money0(o.day), show: i ? '' : money0(o.show) }));
+        rows.push({ coll: 'crew', id, data: { id, name: o.name, roles, role: roles[0]?.role || '', skills: roles.slice(1).map(r => r.role), type, phone: o.phone || '', email: o.email || '', city: o.city || '', rate: roles[0]?.day ?? '', certs: [], away: [], notes: '', active: true, createdAt: now } });
         known.add(o.name.toLowerCase());
       }
       if (!rows.length) return toast('Everyone in the list is already on the roster', true);
@@ -1451,10 +1518,10 @@ async function seedPlan(eid) {
 function exportCsv(eid) {
   const e = getEvent(eid);
   const cell = v => /[",\n]/.test(String(v ?? '')) ? `"${String(v).replace(/"/g, '""')}"` : String(v ?? '');
-  const rows = [['Date', 'Call', 'Finish', 'Hours', 'Role', 'Location', 'Name', 'Phone', 'Type', 'Status', `Rate (${CONFIG.CURRENCY})`]];
+  const rows = [['Date', 'Call', 'Finish', 'Hours', 'Role', 'Location', 'Name', 'Phone', 'Type', 'Status', 'Rate used', `Rate (${CONFIG.CURRENCY})`]];
   for (const b of eventBookings(eid).sort((x, y) => sortShifts(x.s, y.s))) {
     const c = db.crew.get(b.a.crewId) || {};
-    rows.push([b.s.date, b.s.start, b.s.end, hoursOf(b.s), b.s.role, b.s.location, crewName(b.a.crewId), c.phone, label(CREW_TYPES, c.type || 'freelance'), label(A_STATUS, b.a.status), live(b.a) ? rateOf(b.a) : 0]);
+    rows.push([b.s.date, b.s.start, b.s.end, hoursOf(b.s), b.s.role, b.s.location, crewName(b.a.crewId), c.phone, label(CREW_TYPES, c.type || 'freelance'), label(A_STATUS, b.a.status), amt(b.a.rate) != null ? 'Set on booking' : (() => { const r = crewRateFor(b.a.crewId, b.s); return r.amount ? `${r.role} ${kindName(r.kind)}` : 'No rate set'; })(), live(b.a) ? rateOf(b.a) : 0]);
   }
   const blob = new Blob(['﻿' + rows.map(r => r.map(cell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob), link = document.createElement('a');
@@ -1481,7 +1548,8 @@ const actions = {
   newCrew: () => crewDrawer(null),
   importCrew: () => importDrawer(),
   crewType: el => { ui.crewType = el.dataset.v; render(); },
-  rowAdd: el => { const c = drawerState?.crew; if (!c) return; c[el.dataset.list].push(el.dataset.list === 'certs' ? { name: '', expires: '' } : { from: today(), to: today(), note: '' }); drawerState.paintRows(); },
+  rowAdd: el => { const c = drawerState?.crew; if (!c) return; const L = el.dataset.list; c[L].push(L === 'certs' ? { name: '', expires: '' } : L === 'roles' ? { role: '', day: '', show: '' } : { from: today(), to: today(), note: '' }); drawerState.paintRows(); if (L === 'roles') $('#roleRows .r5:last-child input')?.focus(); },
+  roleMain: el => { const c = drawerState?.crew; if (!c) return; const [r] = c.roles.splice(+el.dataset.i, 1); c.roles.unshift(r); drawerState.paintRows(); },
   rowDel: el => { const c = drawerState?.crew; if (!c) return; c[el.dataset.list].splice(+el.dataset.i, 1); drawerState.paintRows(); },
   callDay: el => { ui.callDay[el.dataset.id] = el.dataset.v; render(); },
   plMove: el => { ui.plStart = addDays(ui.plStart || weekStart(today()), +el.dataset.v); render(); },
@@ -1514,6 +1582,7 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.dataset.roler != null && drawerState?.crew) { drawerState.crew.roles[+el.dataset.roler][el.dataset.f] = el.value; return; }
   if (el.dataset.cert != null && drawerState?.crew) { drawerState.crew.certs[+el.dataset.cert][el.dataset.f] = el.value; return; }
   if (el.dataset.away != null && drawerState?.crew) { drawerState.crew.away[+el.dataset.away][el.dataset.f] = el.value; return; }
   if (el.dataset.pick === 'status') { ui.newStatus = el.value; persistUI(); return; }
@@ -1607,7 +1676,9 @@ function seedDemo() {
   ];
   const ids = CREW.map(([name, role, skills, type, rate, city], i) => {
     const id = 'c' + i;
-    store.crew[id] = { id, name, role, skills, type, rate: rate || '', city, phone: `+966 5${(i % 9) + 1} ${String(100 + i * 7).padStart(3, '0')} ${String(2000 + i * 131).slice(-4)}`, email: '', certs: [], away: [], notes: '', active: true, agency: type === 'agency' ? 'Gulf Crew Services' : '' };
+    const r50 = v => Math.round(v / 50) * 50;
+    const roles = rate ? [{ role, day: rate, show: r50(rate * 1.35) }, ...skills.map(k => ({ role: k, day: r50(rate * 0.85), show: r50(rate * 1.1) }))] : [{ role, day: '', show: '' }, ...skills.map(k => ({ role: k, day: '', show: '' }))];
+    store.crew[id] = { id, name, roles, role, skills, type, rate: rate || '', city, phone: `+966 5${(i % 9) + 1} ${String(100 + i * 7).padStart(3, '0')} ${String(2000 + i * 131).slice(-4)}`, email: '', certs: [], away: [], notes: '', active: true, agency: type === 'agency' ? 'Gulf Crew Services' : '' };
     return id;
   });
   store.crew.c2.certs = [{ name: 'Rope access (IRATA)', expires: addDays(t, 200) }, { name: 'First aid', expires: addDays(t, 18) }];
