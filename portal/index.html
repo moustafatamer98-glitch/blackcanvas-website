@@ -112,7 +112,7 @@ input[type=checkbox]{width:18px;height:18px;padding:0;margin:0;accent-color:var(
 input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
 .add-foot{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;justify-content:space-between}
 .acc-list{margin-top:28px;border-top:1.5px solid var(--fg)}
-.acc-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(5,100px) 190px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.acc-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(6,86px) 190px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
 .acc-row.head{padding:10px 0}
 .acc-row.head span{font:500 10px/1.25 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .acc-row .c{display:flex;justify-content:center}
@@ -210,6 +210,12 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
         <p>Book crew onto shifts and roles for each event, with clash checks, a two-week planner and call sheets.</p>
         <div class="foot"><span class="chip" style="color:var(--good);border-color:currentColor">Live</span><span class="go">Open →</span></div>
       </a>
+      <a class="tile" href="staff/" id="tStaff" data-app="staff" hidden>
+        <span class="ic"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="6" y="13" width="44" height="34"/><circle cx="19" cy="27" r="5"/><path d="M11 40c1-5 4-7 8-7s7 2 8 7"/><path d="M32 24h12M32 31h12M32 38h8"/><rect x="24" y="5" width="8" height="8" fill="#F04E23" stroke="none"/></svg></span>
+        <div><h2>Staff assignment</h2></div>
+        <p>Your staff database, a budgeted staff list for every project, and a check that no one is on two projects at once.</p>
+        <div class="foot"><span class="chip" style="color:var(--good);border-color:currentColor">Live</span><span class="go">Open →</span></div>
+      </a>
       <a class="tile" href="projects/" id="tProjects" data-app="projects" hidden>
         <span class="ic"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="5" y="7" width="13" height="42"/><rect x="22" y="7" width="13" height="30"/><rect x="39" y="7" width="13" height="20"/><path d="M9 15h5M9 22h5M26 15h5M43 15h5"/><rect x="24" y="41" width="9" height="9" fill="#F04E23" stroke="none"/></svg></span>
         <div><h2>Project management</h2></div>
@@ -248,6 +254,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
         <span class="fl">Apps</span>
         <label class="ck" for="aBilling"><input type="checkbox" id="aBilling" value="billing">Billing</label>
         <label class="ck" for="aCrew"><input type="checkbox" id="aCrew" value="crew">Crew assignment</label>
+        <label class="ck" for="aStaff"><input type="checkbox" id="aStaff" value="staff">Staff assignment</label>
         <label class="ck" for="aProjects"><input type="checkbox" id="aProjects" value="projects">Project management</label>
         <label class="ck" for="aBills"><input type="checkbox" id="aBills" value="bills">Bills</label>
         <label class="ck" for="aAdmin"><input type="checkbox" id="aAdmin">Admin</label>
@@ -277,7 +284,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
   var VIEWS = ["vLoading", "vSetup", "vSignIn", "vForgot", "vSetPw", "vApps", "vAccess"];
   function show(id) { VIEWS.forEach(function (v) { $("#" + v).hidden = v !== id; }); var f = $("#" + id + " input"); if (f && id !== "vApps" && id !== "vAccess") f.focus(); }
   var esc = function (t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
-  var APPS = [["billing", "Billing"], ["crew", "Crew assignment"], ["projects", "Project management"], ["bills", "Bills"]];
+  var APPS = [["billing", "Billing"], ["crew", "Crew assignment"], ["staff", "Staff assignment"], ["projects", "Project management"], ["bills", "Bills"]];
   function msg(el, text, kind) { el.textContent = text; el.className = "msg " + (kind || "err"); el.hidden = !text; }
   function busy(btn, on, label) { btn.disabled = on; if (label) btn.textContent = label; }
 
@@ -287,7 +294,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
   var hash = new URLSearchParams(location.hash.replace(/^#/, ""));
   var linkType = hash.get("type");               // "invite" or "recovery" from email links
   var linkError = hash.get("error_description");
-  var nextApp = { billing: "billing", crew: "crew", projects: "projects", bills: "bills" }[params.get("next")] || "";
+  var nextApp = { billing: "billing", crew: "crew", projects: "projects", bills: "bills", staff: "staff" }[params.get("next")] || "";
   var next = nextApp ? nextApp + "/" : "";
   var noAccess = params.get("noaccess");
 
@@ -330,7 +337,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
       var on = t.dataset.app === "admin" ? access.is_admin : access.apps.indexOf(t.dataset.app) >= 0;
       t.hidden = !on; if (on) any = true;
     });
-    var label = { billing: "Billing", crew: "Crew assignment", projects: "Project management", bills: "Bills" }[noAccess];
+    var label = { billing: "Billing", crew: "Crew assignment", projects: "Project management", bills: "Bills", staff: "Staff assignment" }[noAccess];
     if (access.apps.indexOf("bills") >= 0) paintBillsChip();
     if (!any) msg($("#appsNote"), "Your account doesn't have any apps yet. Ask a portal admin to give you access.", "err");
     else if (label) msg($("#appsNote"), "Your account doesn't have access to " + label + ". Ask a portal admin if you need it.", "err");
@@ -519,7 +526,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
   $("#fAdd").addEventListener("submit", function (e) {
     e.preventDefault();
     var email = $("#aEmail").value.trim().toLowerCase(), note = $("#aNote").value.trim();
-    var apps = ["aBilling", "aCrew", "aProjects", "aBills"].filter(function (id) { return $("#" + id).checked; }).map(function (id) { return $("#" + id).value; });
+    var apps = ["aBilling", "aCrew", "aStaff", "aProjects", "aBills"].filter(function (id) { return $("#" + id).checked; }).map(function (id) { return $("#" + id).value; });
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg($("#aMsg"), "Enter a valid email address."); return; }
     if (!apps.length && !$("#aAdmin").checked) { msg($("#aMsg"), "Tick at least one app."); return; }
     if (team.some(function (p) { return p.email === email; })) { msg($("#aMsg"), "That email is already on the list below. Change their apps there."); return; }

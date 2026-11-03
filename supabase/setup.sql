@@ -4,10 +4,10 @@
 -- After the first run, add yourself as the first admin (see the end of this file).
 
 -- 1. Who may use which app. One row per person, managed from the portal's
---    Team access screen by admins. Apps: billing, crew, projects, bills.
+--    Team access screen by admins. Apps: billing, crew, projects, bills, staff.
 create table if not exists public.portal_access (
   email      text        primary key check (email = lower(email)),
-  apps       text[]      not null default '{}' check (apps <@ array['billing', 'crew', 'projects', 'bills']::text[]),
+  apps       text[]      not null default '{}' check (apps <@ array['billing', 'crew', 'projects', 'bills', 'staff']::text[]),
   is_admin   boolean     not null default false,
   note       text,
   updated_at timestamptz not null default now(),
@@ -508,7 +508,137 @@ begin
   end if;
 end $$;
 
+-- 12. Staff assignment app (portal/staff/): the staff database, staff-only projects,
+--     positions (the budgeted staff plan for each project) and who is assigned to each
+--     position for which dates. Stored like the other apps as one row per item. Only people
+--     with the "staff" app can read or change them. The database refuses any booking that
+--     would put the same person on two projects (or two positions) on the same day.
+
+-- Allow "staff" as an app on the access list.
+do $$
+declare c text;
+begin
+  for c in select conname from pg_constraint
+           where conrelid = 'public.portal_access'::regclass and contype = 'c' and pg_get_constraintdef(oid) ilike '%apps%'
+  loop execute format('alter table public.portal_access drop constraint %I', c); end loop;
+  alter table public.portal_access add constraint portal_access_apps_check
+    check (apps <@ array['billing', 'crew', 'projects', 'bills', 'staff']::text[]);
+end $$;
+
+create table if not exists public.staff_records (
+  coll       text        not null check (coll = any (array['staff','projects','positions','assign','budgets','settings'])),
+  id         text        not null,
+  data       jsonb       not null default '{}'::jsonb,
+  updated_at timestamptz not null default now(),
+  updated_by uuid        default auth.uid(),
+  primary key (coll, id)
+);
+create index if not exists staff_records_project_idx on public.staff_records ((data->>'projectId'));
+create index if not exists staff_records_person_idx  on public.staff_records ((data->>'staffId')) where coll = 'assign';
+alter table public.staff_records enable row level security;
+revoke all on public.staff_records from anon;
+grant select, insert, update, delete on public.staff_records to authenticated;
+
+drop policy if exists "staff can read"   on public.staff_records;
+drop policy if exists "staff can add"    on public.staff_records;
+drop policy if exists "staff can change" on public.staff_records;
+drop policy if exists "staff can delete" on public.staff_records;
+create policy "staff can read"   on public.staff_records for select to authenticated using (public.has_app('staff'));
+create policy "staff can add"    on public.staff_records for insert to authenticated with check (public.has_app('staff'));
+create policy "staff can change" on public.staff_records for update to authenticated using (public.has_app('staff')) with check (public.has_app('staff'));
+create policy "staff can delete" on public.staff_records for delete to authenticated using (public.has_app('staff'));
+
+drop trigger if exists staff_records_touch on public.staff_records;
+create trigger staff_records_touch before insert or update on public.staff_records
+  for each row execute function public.touch_record();
+
+-- The overlap rule, enforced by the database so it holds whatever the page does: a booking
+-- (on hold or confirmed) is refused if the same person already has another booking on any
+-- of the same days. Released bookings don't count.
+create or replace function public.staff_guard()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare
+  sid  text := nullif(new.data->>'staffId', '');
+  st   text := coalesce(nullif(new.data->>'status', ''), 'hold');
+  f    date;
+  t    date;
+  c    jsonb;
+  who  text;
+  what text;
+begin
+  if new.coll <> 'assign' then return new; end if;
+  if sid is null then raise exception 'Pick a staff member for this booking.' using errcode = 'P0001'; end if;
+  if st not in ('hold', 'confirmed', 'released') then
+    raise exception 'Unknown booking status "%".', st using errcode = 'P0001';
+  end if;
+  begin
+    f := (new.data->>'from')::date;
+    t := (new.data->>'to')::date;
+  exception when others then
+    raise exception 'Set a valid start and end date.' using errcode = 'P0001';
+  end;
+  if f is null or t is null then raise exception 'Set a start and end date.' using errcode = 'P0001'; end if;
+  if t < f then raise exception 'The end date is before the start date.' using errcode = 'P0001'; end if;
+  if st = 'released' then return new; end if;
+
+  -- One check at a time per person, so two bookings saved at the same moment can't both pass.
+  perform pg_advisory_xact_lock(hashtext('bc-staff:' || sid));
+
+  select r.data into c from public.staff_records r
+  where r.coll = 'assign' and r.id <> new.id and r.data->>'staffId' = sid
+    and coalesce(nullif(r.data->>'status', ''), 'hold') <> 'released'
+    and (r.data->>'from')::date <= t and (r.data->>'to')::date >= f
+  order by (r.data->>'from')::date
+  limit 1;
+
+  if c is not null then
+    select nullif(s.data->>'name', '') into who from public.staff_records s where s.coll = 'staff' and s.id = sid;
+    what := coalesce(
+      (select nullif(p.data->>'name', '') from public.staff_records p where p.coll = 'projects' and p.id = c->>'projectId'),
+      (select nullif(p.data->>'name', '') from public.pm_records    p where p.coll = 'projects' and p.id = c->>'projectId'),
+      'another project');
+    raise exception '%', format('%s is already on %s from %s to %s%s. Someone can’t be on two projects at the same time.',
+      coalesce(who, 'This person'), what,
+      to_char((c->>'from')::date, 'FMDD Mon YYYY'), to_char((c->>'to')::date, 'FMDD Mon YYYY'),
+      case when coalesce(nullif(c->>'status', ''), 'hold') = 'hold' then ' (on hold)' else '' end)
+      using errcode = 'P0001';
+  end if;
+  return new;
+end;
+$$;
+revoke execute on function public.staff_guard() from public, anon, authenticated;
+drop trigger if exists staff_records_guard on public.staff_records;
+create trigger staff_records_guard before insert or update on public.staff_records
+  for each row execute function public.staff_guard();
+
+-- Events from the Projects app, so staff can be planned on them without Projects access.
+-- Only the basics (name, client, venue, city, code, status, type, dates) and only for
+-- people with the "staff" app.
+create or replace function public.staff_events()
+returns table (id text, data jsonb)
+language sql stable security definer set search_path = public
+as $$
+  select r.id, jsonb_build_object(
+    'id', r.id, 'name', r.data->'name', 'client', r.data->'client', 'venue', r.data->'venue',
+    'city', r.data->'city', 'code', r.data->'code', 'status', r.data->'status',
+    'type', r.data->'type', 'dates', r.data->'dates')
+  from public.pm_records r
+  where public.has_app('staff') and r.coll = 'projects';
+$$;
+revoke all on function public.staff_events() from public, anon;
+grant execute on function public.staff_events() to authenticated;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'staff_records'
+  ) then
+    alter publication supabase_realtime add table public.staff_records;
+  end if;
+end $$;
+
 -- First admin (run once, with your own email):
 -- insert into public.portal_access (email, apps, is_admin)
--- values ('you@blackcanvasglobal.com', array['billing','crew','projects','bills'], true)
+-- values ('you@blackcanvasglobal.com', array['billing','crew','projects','bills','staff'], true)
 -- on conflict (email) do update set apps = excluded.apps, is_admin = true;
