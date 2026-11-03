@@ -396,7 +396,7 @@ select.status-sel option{color:var(--text);background:var(--panel)}
 /* planner */
 .pl-wrap{border:1px solid var(--line);border-radius:var(--radius);overflow:auto;background:var(--panel);max-height:calc(100vh - 240px)}
 .pl{min-width:max-content}
-.pl-row{display:grid;grid-template-columns:210px repeat(14,minmax(86px,1fr))}
+.pl-row{display:grid;grid-template-columns:210px repeat(var(--n,14),minmax(var(--cw,86px),1fr))}
 .pl-h{position:sticky;top:0;z-index:4;background:var(--panel);border-bottom:1px solid var(--line2)}
 .pl-name{position:sticky;left:0;z-index:2;background:var(--panel);border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 10px;display:flex;gap:9px;align-items:center;cursor:pointer;min-width:0}
 .pl-h .pl-name{z-index:5;border-bottom:0}
@@ -416,13 +416,38 @@ select.status-sel option{color:var(--text);background:var(--panel)}
 .pl-away{font-size:10px;color:var(--muted);background:repeating-linear-gradient(135deg,#232327 0 5px,#2d2d32 5px 10px);border-radius:4px;padding:3px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pl-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:12px}
 .pl-legend i{display:inline-block;width:12px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
-.wk{display:flex;align-items:center;gap:6px}
+.wk{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.wk input[type=date].input{width:auto;padding:5px 8px;font-size:12px}
+.pl-filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.pl-filters select.input{width:auto;max-width:220px}
+.pl-filters select.input.set{border-color:var(--orange);color:var(--text);background-color:var(--orange-soft)}
+.pl-sum{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:14px;font-size:12px;color:var(--muted)}
+.pl-sum .chip{padding:4px 10px}
+.pl-sum .chip b{color:inherit;font-weight:800;margin-left:4px}
+.pl-legend .ev{cursor:pointer;border-radius:4px;padding:2px 6px;margin:-2px -6px}
+.pl-legend .ev:hover{background:var(--panel2);color:var(--text)}
+.pl-legend .ev.on{color:var(--text);background:var(--panel2)}
+.pl-day.inev{box-shadow:inset 0 -2px 0 var(--orange)}
+.pl.compact .pl-cell{padding:3px 2px;gap:2px;min-height:40px}
+.pl.compact .pl-b{padding:0;height:12px;font-size:0;border-radius:3px}
+.pl.compact .pl-b small{display:none}
+.pl-ftoggle{display:none}
+.pl.compact .pl-b.bad{box-shadow:0 0 0 1.5px var(--red)}
+.pl.compact .pl-away{font-size:0;height:12px;padding:0}
+.pl.compact .pl-day{padding:6px 0;font-size:9px;letter-spacing:0}
+.pl.compact .pl-day b{font-size:13px}
+.pl-name .cnt{margin-left:auto;font-size:10.5px;color:var(--dim);flex:none;padding-left:6px}
 
 @media (max-width:1100px){.totals{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:820px){
   .shift{grid-template-columns:1fr;gap:6px}
   .shift .end{flex-direction:row;align-items:center;justify-content:space-between}
-  .pl-row{grid-template-columns:128px repeat(14,78px)}
+  .pl-row{grid-template-columns:128px repeat(var(--n,14),var(--cwm,78px))}
+  .pl-filters .input,.pl-filters select.input{flex:1 1 calc(50% - 8px);max-width:none!important;width:auto}
+  .pl-filters:not(.open){display:none}
+  .pl-ftoggle{display:inline-flex;margin-bottom:10px}
+  .pl-sum{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.pl-sum .chip{flex:none}
+  .pl-sum{width:100%}
   .pl-name .av{display:none}
   .pick{grid-template-columns:20px 1fr auto}.pick .av{display:none}
   .rows-ed .r4{grid-template-columns:1fr 1fr 34px}.rows-ed .r4 .nt{grid-column:1/3}
@@ -784,9 +809,11 @@ function fillHTML(n, need) {
 /* =========================================================================
    UI state & routing
    ========================================================================= */
-const ui = Object.assign({ filter: 'upcoming', q: '', crewQ: '', crewRole: '', crewType: '', showInactive: false, plStart: '', plRole: '', plQ: '', plBooked: false, callDay: {}, pickQ: '', pickAll: false, newStatus: 'offered', hideFull: false },
+const ui = Object.assign({ filter: 'upcoming', q: '', crewQ: '', crewRole: '', crewType: '', showInactive: false, plStart: '', plRole: '', plQ: '', plEvent: '', plDept: '', plType: '', plCity: '', plStatus: '', plShow: '', plDays: 14, callDay: {}, pickQ: '', pickAll: false, newStatus: 'offered', hideFull: false },
   lsGet('bc-crew-ui', {}));
-const persistUI = () => lsSet('bc-crew-ui', { filter: ui.filter, showInactive: ui.showInactive, plRole: ui.plRole, plBooked: ui.plBooked, newStatus: ui.newStatus, hideFull: ui.hideFull });
+if (ui.plBooked && !ui.plShow) ui.plShow = 'booked';   // older saved setting
+const PL_FILTERS = ['plEvent', 'plDept', 'plRole', 'plType', 'plCity', 'plStatus', 'plShow'];
+const persistUI = () => lsSet('bc-crew-ui', { filter: ui.filter, showInactive: ui.showInactive, newStatus: ui.newStatus, hideFull: ui.hideFull, plDays: ui.plDays, ...Object.fromEntries(PL_FILTERS.map(k => [k, ui[k]])) });
 function route() {
   const h = location.hash.startsWith('#/') ? location.hash.slice(2) : '';
   const [view = '', id = '', tab = ''] = h.split('/');
@@ -1090,31 +1117,79 @@ function tabCall(e) {
 /* =========================================================================
    View: Planner (who is where over two weeks)
    ========================================================================= */
+/* Move the planner to an event's dates if they're outside the period on screen (always, with force). */
+function plJumpToEvent(force) {
+  const e = getEvent(ui.plEvent); if (!e) return;
+  const a = anchorsOf(e); if (!a.build) return;
+  const n = [7, 14, 28].includes(+ui.plDays) ? +ui.plDays : 14;
+  const st = ui.plStart || weekStart(today()), en = addDays(st, n - 1);
+  if (force || a.build > en || a.derig < st) ui.plStart = weekStart(a.build);
+}
 const weekStart = s => { const d = parse(s); d.setDate(d.getDate() - d.getDay()); return iso(d); }; // weeks start on Sunday
+const PL_SHOW = [['all', 'Everyone'], ['booked', 'Booked in this period'], ['free', 'Free all period'], ['clash', 'With clashes'], ['away', 'On leave / unavailable']];
+const PL_STATUS = [['', 'Any status'], ['confirmed', 'Confirmed only'], ['offered', 'Offered, not confirmed']];
+const plActive = () => PL_FILTERS.filter(k => ui[k] && !(k === 'plShow' && ui[k] === 'all')).length + (ui.plQ.trim() ? 1 : 0);
 function viewPlanner() {
-  const t = today();
-  const start = ui.plStart || weekStart(t), days = Array.from({ length: 14 }, (_, i) => addDays(start, i)), end = days[13];
+  const t = today(), n = [7, 14, 28].includes(+ui.plDays) ? +ui.plDays : 14;
+  const start = ui.plStart || weekStart(t), days = Array.from({ length: n }, (_, i) => addDays(start, i)), end = days[n - 1];
   const q = ui.plQ.trim().toLowerCase();
-  const bookedIn = id => (idx().byCrew.get(id) || []).some(b => b.s.date >= start && b.s.date <= end);
-  const crew = [...db.crew.values()].filter(c => c.active !== false || bookedIn(c.id))
+  const ev = ui.plEvent ? getEvent(ui.plEvent) : null, evA = ev ? anchorsOf(ev) : null;
+  const allCrew = [...db.crew.values()];
+  // the bookings drawn for a person: in this period, and matching the event and status filters
+  const inRange = id => (idx().byCrew.get(id) || []).filter(b => b.s.date >= start && b.s.date <= end);
+  const shown = id => inRange(id).filter(b => (!ui.plEvent || b.s.eventId === ui.plEvent) && (!ui.plStatus || b.a.status === ui.plStatus));
+  const awayIn = c => (c.away || []).some(w => w.from && w.from <= end && (w.to || w.from) >= start);
+  const crewDepts = c => new Set(roleNames(c).map(deptOf));
+  const base = allCrew.filter(c => c.active !== false || inRange(c.id).length)
     .filter(c => !ui.plRole || crewRoles(c).includes(ui.plRole.toLowerCase()))
-    .filter(c => !q || [c.name, c.city, ...roleNames(c)].join(' ').toLowerCase().includes(q))
-    .filter(c => !ui.plBooked || bookedIn(c.id))
+    .filter(c => !ui.plDept || crewDepts(c).has(ui.plDept))
+    .filter(c => !ui.plType || (c.type || 'freelance') === ui.plType)
+    .filter(c => !ui.plCity || (c.city || '') === ui.plCity)
+    .filter(c => !q || [c.name, c.city, c.phone, ...roleNames(c)].join(' ').toLowerCase().includes(q));
+  const test = {
+    all: () => true,
+    booked: c => shown(c.id).length > 0,
+    free: c => !inRange(c.id).length && !awayIn(c),
+    clash: c => shown(c.id).some(b => worst(bookingIssues(b.a)) === 'bad'),
+    away: c => awayIn(c),
+  };
+  // an event or status filter lists only the people it applies to, unless you ask for free people
+  const show = test[ui.plShow] ? ui.plShow : (ui.plEvent || ui.plStatus) ? 'booked' : 'all';
+  const crew = base.filter(test[show])
     .sort((a, b) => (roleNames(a)[0] || '').localeCompare(roleNames(b)[0] || '') || sortCrew(a, b));
-  const roles = [...new Set([...db.crew.values()].flatMap(roleNames))].sort();
-  const seen = new Set();
-  const head = `<div class="page-head"><div><div class="eyebrow">Two weeks · ${esc(fmtShort(start))} – ${esc(fmt(end, {day:'numeric', month:'short', year:'numeric'}))}</div><h1>Planner</h1></div>
-    <div class="wk"><button class="btn sm" data-act="plMove" data-v="-7" aria-label="Previous week">${ICON.left}</button><button class="btn sm" data-act="plToday">This week</button><button class="btn sm" data-act="plMove" data-v="7" aria-label="Next week">${ICON.right}</button></div></div>
-  <div class="toolbar">
-    <input class="input" id="plSearch" style="max-width:220px" placeholder="Search crew…" value="${esc(ui.plQ)}" data-inp="plQ">
-    <select class="input" style="width:auto" data-chg="plRole"><option value="">All roles</option>${roles.map(r => `<option ${ui.plRole === r ? 'selected' : ''}>${esc(r)}</option>`).join('')}</select>
-    <label class="check"><input type="checkbox" data-chg="plBooked" ${ui.plBooked ? 'checked' : ''}> Only people with bookings</label>
-    <div class="grow"></div><span class="muted">${plural(crew.length, 'person', 'people')}</span>
+  const counts = Object.fromEntries(Object.entries(test).map(([k, f]) => [k, base.filter(f).length]));
+
+  const roles = [...new Set(allCrew.flatMap(roleNames))].sort();
+  const depts = DEPTS.filter(d => allCrew.some(c => crewDepts(c).has(d)));
+  const cities = [...new Set(allCrew.map(c => c.city).filter(Boolean))].sort();
+  const evList = allEvents().filter(e => anchorsOf(e).build).sort((a, b) => anchorsOf(a).build.localeCompare(anchorsOf(b).build));
+  const opt = (k, list, first) => `<select class="input ${ui[k] ? 'set' : ''}" data-chg="${k}" aria-label="${esc(first)}"><option value="">${esc(first)}</option>${list.map(([v, l]) => `<option value="${esc(v)}" ${ui[k] === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
+  const nAct = plActive(), seen = new Set();
+  const head = `<div class="page-head"><div><div class="eyebrow">${n === 7 ? 'One week' : n === 14 ? 'Two weeks' : 'Four weeks'} · ${esc(fmtShort(start))} – ${esc(fmt(end, {day:'numeric', month:'short', year:'numeric'}))}</div><h1>Planner</h1></div>
+    <div class="wk">
+      <div class="seg">${[[7, '1 wk'], [14, '2 wks'], [28, '4 wks']].map(([v, l]) => `<button class="${n === v ? 'on' : ''}" data-act="plDays" data-v="${v}">${l}</button>`).join('')}</div>
+      <button class="btn sm" data-act="plMove" data-v="-7" aria-label="Previous week">${ICON.left}</button><button class="btn sm" data-act="plToday">This week</button><button class="btn sm" data-act="plMove" data-v="7" aria-label="Next week">${ICON.right}</button>
+      <input class="input" type="date" data-chg="plJump" value="${esc(start)}" title="Jump to a date" aria-label="Jump to a date">
+    </div></div>
+  <button class="btn sm pl-ftoggle" data-act="plFilters">Filters${nAct ? ` · ${nAct}` : ''} ${ui.plFiltersOpen ? '▴' : '▾'}</button>
+  <div class="pl-filters ${ui.plFiltersOpen ? 'open' : ''}">
+    <input class="input" id="plSearch" style="max-width:200px" placeholder="Search crew…" value="${esc(ui.plQ)}" data-inp="plQ">
+    ${opt('plEvent', evList.map(e => [e.id, `${e.code ? e.code + ' · ' : ''}${e.name}`]), 'All events')}
+    ${opt('plDept', depts.map(d => [d, d]), 'All departments')}
+    ${opt('plRole', roles.map(r => [r, r]), 'All roles')}
+    ${opt('plType', CREW_TYPES, 'All crew types')}
+    ${cities.length > 1 ? opt('plCity', cities.map(c => [c, c]), 'All cities') : ''}
+    ${opt('plStatus', PL_STATUS.slice(1), PL_STATUS[0][1])}
+    ${nAct ? `<button class="btn sm ghost" data-act="plClear">${ICON.x} Clear ${nAct > 1 ? plural(nAct, 'filter') : 'filter'}</button>` : ''}
+  </div>
+  <div class="pl-sum">
+    ${PL_SHOW.map(([k, l]) => `<button class="chip ${show === k ? 'on' : ''}" data-act="plShow" data-v="${k}">${esc(l)}<b class="num">${counts[k]}</b></button>`).join('')}
+    ${ev ? `<span style="margin-left:6px">Showing <b style="color:var(--text)">${esc(ev.name)}</b> · ${esc(fmtRange(evA.build, evA.derig))}${evA.build > end || evA.derig < start ? ` · <a href="#" data-act="plToEvent">jump to its dates</a>` : ''}</span>` : ''}
   </div>`;
   if (!db.crew.size) return head + `<div class="empty"><b>No crew yet</b>Add your crew on the Crew page to see who’s booked where.<br><br><a class="btn primary" href="#/crew">${ICON.users} Go to Crew</a></div>`;
-  const dayHead = days.map(d => { const D = parse(d), we = D.getDay() === 5 || D.getDay() === 6; return `<div class="pl-day ${we ? 'we' : ''} ${d === t ? 'today' : ''}">${esc(D.toLocaleDateString('en-GB', {weekday:'short'}))}<b class="num">${D.getDate()}</b></div>`; }).join('');
+  const dayHead = days.map(d => { const D = parse(d), we = D.getDay() === 5 || D.getDay() === 6, inEv = evA && d >= evA.build && d <= evA.derig; return `<div class="pl-day ${we ? 'we' : ''} ${d === t ? 'today' : ''} ${inEv ? 'inev' : ''}">${esc(D.toLocaleDateString('en-GB', {weekday: n === 28 ? 'narrow' : 'short'}))}<b class="num">${D.getDate()}</b></div>`; }).join('');
   const rows = crew.map(c => {
-    const books = (idx().byCrew.get(c.id) || []).filter(b => b.s.date >= start && b.s.date <= end);
+    const books = shown(c.id);
     const cells = days.map(d => {
       const D = parse(d), we = D.getDay() === 5 || D.getDay() === 6;
       const away = (c.away || []).find(w => w.from && d >= w.from && d <= (w.to || w.from));
@@ -1122,13 +1197,16 @@ function viewPlanner() {
       return `<div class="pl-cell ${we ? 'we' : ''}">${away ? `<div class="pl-away" title="${esc(away.note || 'Unavailable')}">${esc(away.note || 'Away')}</div>` : ''}${bs.map(b => {
         const e = getEvent(b.s.eventId), col = evColor(b.s.eventId), off = b.a.status !== 'confirmed', bad = worst(bookingIssues(b.a)) === 'bad';
         seen.add(b.s.eventId);
-        return `<div class="pl-b ${off ? 'off' : ''} ${bad ? 'bad' : ''}" style="background:${col};${off ? `color:${col};border-color:${col}` : ''}" data-act="booking" data-id="${esc(b.a.id)}" title="${esc(evName(b.s.eventId))} · ${esc(b.s.role || '')} · ${esc(timeRange(b.s))} · ${esc(label(A_STATUS, b.a.status))}">${esc(e?.code || evName(b.s.eventId))}<small class="num">${esc(timeRange(b.s))}</small></div>`;
+        return `<div class="pl-b ${off ? 'off' : ''} ${bad ? 'bad' : ''}" style="background:${col};${off ? `color:${col};border-color:${col}` : ''}" data-act="booking" data-id="${esc(b.a.id)}" title="${esc(evName(b.s.eventId))} · ${esc(b.s.role || '')} · ${esc(timeRange(b.s))} · ${esc(label(A_STATUS, b.a.status))}">${esc(e?.code || evName(b.s.eventId))}<small class="num">${esc(n === 28 ? (b.s.start || '') : timeRange(b.s))}</small></div>`;
       }).join('')}</div>`;
     }).join('');
-    return `<div class="pl-row"><div class="pl-name" data-act="crew" data-id="${esc(c.id)}">${avatar(c.id)}<div><div class="n">${esc(c.name)}</div><div class="r">${esc(roleNames(c).join(' · ') || '—')}</div></div></div>${cells}</div>`;
+    const nd = new Set(books.map(b => b.s.date)).size;
+    return `<div class="pl-row"><div class="pl-name" data-act="crew" data-id="${esc(c.id)}">${avatar(c.id)}<div><div class="n">${esc(c.name)}</div><div class="r">${esc(roleNames(c).join(' · ') || '—')}</div></div>${nd ? `<span class="cnt num" title="Days booked in this period">${nd}d</span>` : ''}</div>${cells}</div>`;
   }).join('');
-  return head + `<div class="pl-wrap"><div class="pl"><div class="pl-row pl-h"><div class="pl-name"><span class="eyebrow">Crew</span></div>${dayHead}</div>${rows || '<div class="empty" style="margin:16px">No crew match these filters.</div>'}</div></div>
-  <div class="pl-legend">${[...seen].map(id => `<span><i style="background:${evColor(id)}"></i>${esc(evName(id))}</span>`).join('')}<span><i style="border:1px dashed var(--muted)"></i>Offered, not confirmed</span><span><i style="background:repeating-linear-gradient(135deg,#232327 0 3px,#3a3a40 3px 6px)"></i>Unavailable</span><span><i style="box-shadow:0 0 0 2px var(--red)"></i>Clash</span></div>`;
+  const empty = `<div class="empty" style="margin:16px;position:sticky;left:16px;width:min(640px, calc(100vw - 72px))"><b>No one matches</b>${show === 'free' ? 'Everyone who matches is booked or away in this period.' : ev && !(idx().byEvent.get(ev.id) || []).some(x => shiftAssigns(x.id).length) ? `No one is booked on ${esc(ev.name)} yet. <a href="#/event/${esc(ev.id)}/shifts">Add crew to its shifts</a>.` : ev && (evA.build > end || evA.derig < start) ? 'This event is outside the dates on screen. <a href="#" data-act="plToEvent">Jump to its dates</a>.' : nAct ? 'Try removing a filter.' : 'Nothing in this period.'}${nAct ? `<br><br><button class="btn sm" data-act="plClear">${ICON.x} Clear filters</button>` : ''}</div>`;
+  const legendEvents = [...new Set([...seen, ...(ui.plEvent ? [ui.plEvent] : [])])];
+  return head + `<div class="pl-wrap" style="--n:${n};--cw:${n === 28 ? '32px' : '86px'};--cwm:${n === 28 ? '30px' : '78px'}"><div class="pl ${n === 28 ? 'compact' : ''}"><div class="pl-row pl-h"><div class="pl-name"><span class="eyebrow">${plural(crew.length, 'person', 'people')}</span></div>${dayHead}</div>${rows || empty}</div></div>
+  <div class="pl-legend">${legendEvents.map(id => `<span class="ev ${ui.plEvent === id ? 'on' : ''}" data-act="plEvent" data-id="${esc(id)}" title="${ui.plEvent === id ? 'Show all events' : 'Show only this event'}"><i style="background:${evColor(id)}"></i>${esc(evName(id))}</span>`).join('')}<span><i style="border:1px dashed var(--muted)"></i>Offered, not confirmed</span><span><i style="background:repeating-linear-gradient(135deg,#232327 0 3px,#3a3a40 3px 6px)"></i>Unavailable</span><span><i style="box-shadow:0 0 0 2px var(--red)"></i>Clash</span></div>`;
 }
 
 /* =========================================================================
@@ -1554,6 +1632,12 @@ const actions = {
   callDay: el => { ui.callDay[el.dataset.id] = el.dataset.v; render(); },
   plMove: el => { ui.plStart = addDays(ui.plStart || weekStart(today()), +el.dataset.v); render(); },
   plToday: () => { ui.plStart = ''; render(); },
+  plDays: el => { ui.plDays = +el.dataset.v; persistUI(); render(); },
+  plFilters: () => { ui.plFiltersOpen = !ui.plFiltersOpen; render(); },
+  plShow: el => { ui.plShow = el.dataset.v; persistUI(); render(); },
+  plEvent: el => { ui.plEvent = ui.plEvent === el.dataset.id ? '' : el.dataset.id; if (ui.plEvent) plJumpToEvent(); persistUI(); render(); },
+  plToEvent: () => { plJumpToEvent(true); render(); },
+  plClear: () => { PL_FILTERS.forEach(k => ui[k] = ''); ui.plQ = ''; persistUI(); render(); },
   csv: el => exportCsv(el.dataset.id),
   confirmAll: async el => {
     const list = eventBookings(el.dataset.id).filter(b => b.a.status === 'offered');
@@ -1588,7 +1672,10 @@ document.addEventListener('change', e => {
   if (el.dataset.pick === 'status') { ui.newStatus = el.value; persistUI(); return; }
   if (el.dataset.pick === 'all') { ui.pickAll = el.checked; drawerState?.pick?.paint(); return; }
   const k = el.dataset.chg; if (!k) return;
+  if (k === 'plJump') { if (el.value) ui.plStart = weekStart(el.value); return render(); }
   ui[k] = el.type === 'checkbox' ? el.checked : el.value;
+  if (k === 'plEvent' && ui.plEvent) plJumpToEvent();
+  if ((k === 'plEvent' || k === 'plStatus') && ui.plShow === 'all') ui.plShow = '';
   persistUI(); render();
 });
 document.addEventListener('input', e => {
