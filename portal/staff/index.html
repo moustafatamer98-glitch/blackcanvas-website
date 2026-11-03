@@ -402,7 +402,7 @@ select.status-sel option{color:var(--text);background:var(--panel)}
 <script src="../vendor/supabase-2.117.3.js"></script>
 <script src="../brand.js?v=20261101b"></script>
 <script src="../config.js?v=20261101b"></script>
-<script src="../portal.js?v=20261101b"></script>
+<script src="../portal.js?v=20261103b"></script>
 <script>
 /* =========================================================================
    Black Canvas · Staff
@@ -608,7 +608,7 @@ async function failed(e) {
   console.error(e);
   if (!DEMO && /jwt/i.test(e?.message || '')) { toast('Your sign-in has expired. Taking you to sign in…', true); return setTimeout(() => leave('?next=staff'), 1600); }
   if (e?.code === 'P0001') await confirmDialog({ title: 'Can’t save that', body: `<p>${esc(e.message)}</p>`, ok: 'OK', cancel: false });
-  else toast('Couldn’t save — ' + (e?.message || 'check your connection'), true);
+  else toast(BCPortal.saveError(e) || 'Couldn’t save — ' + (e?.message || 'check your connection'), true);
   try { await Backend.load(); render(); } catch {}
 }
 
@@ -1632,6 +1632,7 @@ async function start() {
       const { data: access, error } = await sb.rpc('my_access');
       if (error) { if (/jwt/i.test(error.message || '')) return leave('?next=staff'); throw error; }
       if (!(access?.apps || []).includes('staff')) return leave('?noaccess=staff');
+      BCPortal.accessBanner(access);
     }
     await Backend.load();
     Backend.subscribe();

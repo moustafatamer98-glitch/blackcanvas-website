@@ -435,7 +435,7 @@ select.status-sel option{color:var(--text);background:var(--panel)}
 <script src="../vendor/supabase-2.117.3.js"></script>
 <script src="../brand.js?v=20261101b"></script>
 <script src="../config.js?v=20261101b"></script>
-<script src="../portal.js?v=20261101b"></script>
+<script src="../portal.js?v=20261103b"></script>
 <script>
 /* =========================================================================
    Black Canvas · Crew
@@ -626,7 +626,7 @@ async function save(coll, id, data, msg) {
 async function failed(e) {
   console.error(e);
   if (!DEMO && /jwt/i.test(e?.message || '')) { toast('Your sign-in has expired. Taking you to sign in…', true); return setTimeout(() => leave('?next=crew'), 1600); }
-  toast('Couldn’t save — ' + (e.message || 'check your connection'), true);
+  toast(BCPortal.saveError(e) || 'Couldn’t save — ' + (e.message || 'check your connection'), true);
   try { await Backend.load(); render(); } catch {}
 }
 
@@ -1575,6 +1575,7 @@ async function start() {
       const { data: access, error } = await sb.rpc('my_access');
       if (error) { if (/jwt/i.test(error.message || '')) return leave('?next=crew'); throw error; }
       if (!(access?.apps || []).includes('crew')) return leave('?noaccess=crew');
+      BCPortal.accessBanner(access);
     }
     await Backend.load();
     Backend.subscribe();

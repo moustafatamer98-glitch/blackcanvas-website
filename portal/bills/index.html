@@ -219,7 +219,7 @@ input[type=date].input{color-scheme:dark}
 <script src="../vendor/supabase-2.117.3.js"></script>
 <script src="../brand.js?v=20261101b"></script>
 <script src="../config.js?v=20261101b"></script>
-<script src="../portal.js?v=20261101b"></script>
+<script src="../portal.js?v=20261103b"></script>
 <script>
 /* =========================================================================
    Black Canvas · Bills
@@ -1186,6 +1186,7 @@ async function start() {
       const { data: access, error } = await sb.rpc('my_access');
       if (error) { if (/jwt/i.test(error.message || '')) return leave('?next=bills'); throw error; }
       if (!(access?.apps || []).includes('bills')) return leave('?noaccess=bills');
+      BCPortal.accessBanner(access);
       isAdmin = !!access.is_admin;
     }
     await Backend.load();

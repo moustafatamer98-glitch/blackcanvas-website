@@ -705,6 +705,253 @@ $$;
 revoke all on function public.portal_people_search(text) from public, anon;
 grant execute on function public.portal_people_search(text) to authenticated;
 
+-- 14. Permanent, temporary and project access. Each person on the access list is one of:
+--     - permanent: until an admin removes them (the default, and the only kind that can be admin);
+--     - temp: until expires_at;
+--     - project: tied to one event from the Projects app (project_id), ending the day after
+--       that event's de-rig (or last show day) in Riyadh time. With project_only they see and
+--       change only that event in Projects, Crew and Staff, and can't use Billing or Bills.
+--     When access has ended the person can still sign in but sees no apps, and the database
+--     gives them nothing.
+alter table public.portal_access add column if not exists access_kind  text        not null default 'permanent';
+alter table public.portal_access add column if not exists expires_at   timestamptz;
+alter table public.portal_access add column if not exists project_id   text;
+alter table public.portal_access add column if not exists project_only boolean     not null default false;
+
+do $$
+declare c text;
+begin
+  for c in select conname from pg_constraint
+           where conrelid = 'public.portal_access'::regclass and conname like 'portal_access_kind%'
+  loop execute format('alter table public.portal_access drop constraint %I', c); end loop;
+  alter table public.portal_access add constraint portal_access_kind_check check (
+    case access_kind
+      when 'permanent' then expires_at is null and project_id is null and not project_only
+      when 'temp'      then expires_at is not null and project_id is null and not project_only
+      when 'project'   then project_id is not null and expires_at is null
+      else false
+    end);
+  alter table public.portal_access add constraint portal_access_kind_admin_check
+    check (not is_admin or access_kind = 'permanent');
+  alter table public.portal_access add constraint portal_access_kind_scope_check
+    check (not project_only or apps <@ array['projects', 'crew', 'staff']::text[]);
+end $$;
+
+-- When a project's access ends: the start of the day after its de-rig ends (or its last
+-- show day, or show day 1), in Riyadh time. Null if the event has no dates yet.
+create or replace function public.project_access_ends(p_project text)
+returns timestamptz language sql stable security definer set search_path = public as $$
+  select ((coalesce(nullif(r.data #>> '{dates,derigEnd}', ''), nullif(r.data #>> '{dates,showEnd}', ''),
+                    nullif(r.data #>> '{dates,showStart}', ''))::date + 1)::timestamp at time zone 'Asia/Riyadh')
+  from public.pm_records r where r.coll = 'projects' and r.id = p_project;
+$$;
+
+create or replace function public.access_ends(a public.portal_access)
+returns timestamptz language sql stable security definer set search_path = public as $$
+  select case a.access_kind
+    when 'temp'    then a.expires_at
+    when 'project' then public.project_access_ends(a.project_id)
+    else null end;
+$$;
+
+-- The signed-in person's access row, only while it's in force.
+create or replace function public.my_active_access()
+returns setof public.portal_access language sql stable security definer set search_path = public as $$
+  select a.* from public.portal_access a
+  where a.email = lower(auth.jwt() ->> 'email')
+    and (public.access_ends(a) is null or now() < public.access_ends(a));
+$$;
+
+create or replace function public.has_app(p_app text)
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (
+    select 1 from public.my_active_access() a
+    where p_app = any (a.apps) and (not a.project_only or p_app in ('projects', 'crew', 'staff'))
+  );
+$$;
+
+create or replace function public.is_portal_admin()
+returns boolean language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.my_active_access() a where a.is_admin);
+$$;
+
+-- The one event a project-only person is limited to (null for everyone else).
+create or replace function public.my_project_scope()
+returns text language sql stable security definer set search_path = public as $$
+  select a.project_id from public.my_active_access() a where a.project_only;
+$$;
+
+-- What the portal pages need to know about the signed-in person.
+create or replace function public.my_access()
+returns json language sql stable security definer set search_path = public as $$
+  with mine as (select a.*, public.access_ends(a) as ends from public.portal_access a where a.email = lower(auth.jwt() ->> 'email')),
+       live as (select * from mine where ends is null or now() < ends)
+  select json_build_object(
+    'apps', coalesce((select case when l.project_only then array(select x from unnest(l.apps) x where x in ('projects', 'crew', 'staff')) else l.apps end from live l), '{}'::text[]),
+    'is_admin', coalesce((select l.is_admin from live l), false),
+    'kind', (select m.access_kind from mine m),
+    'ends_at', (select m.ends from mine m),
+    'expired', exists (select 1 from mine) and not exists (select 1 from live),
+    'project_only', coalesce((select m.project_only from mine m), false),
+    'project', (select json_build_object('id', r.id, 'name', r.data->>'name', 'code', r.data->>'code')
+                from mine m join public.pm_records r on r.coll = 'projects' and r.id = m.project_id)
+  );
+$$;
+
+-- Events admins can tie access to, with when that access would end.
+create or replace function public.portal_projects()
+returns table (id text, name text, code text, client text, status text, show_start text, ends_at timestamptz)
+language sql stable security definer set search_path = public as $$
+  select r.id, r.data->>'name', r.data->>'code', r.data->>'client', r.data->>'status',
+         nullif(r.data #>> '{dates,showStart}', ''), public.project_access_ends(r.id)
+  from public.pm_records r
+  where public.is_portal_admin() and r.coll = 'projects'
+  order by nullif(r.data #>> '{dates,showStart}', '') nulls last, r.data->>'name';
+$$;
+
+-- Each person's access, with its end date, for the Team access list (admins only).
+create or replace function public.portal_access_list()
+returns table (email text, apps text[], is_admin boolean, note text, access_kind text, expires_at timestamptz,
+               project_id text, project_only boolean, project_name text, ends_at timestamptz)
+language sql stable security definer set search_path = public as $$
+  select a.email, a.apps, a.is_admin, a.note, a.access_kind, a.expires_at, a.project_id, a.project_only,
+         (select r.data->>'name' from public.pm_records r where r.coll = 'projects' and r.id = a.project_id),
+         public.access_ends(a)
+  from public.portal_access a
+  where public.is_portal_admin()
+  order by a.email;
+$$;
+
+revoke all on function public.project_access_ends(text)              from public, anon, authenticated;
+revoke all on function public.access_ends(public.portal_access)       from public, anon, authenticated;
+revoke all on function public.my_active_access()                      from public, anon, authenticated;
+revoke all on function public.my_project_scope()                      from public, anon;
+revoke all on function public.portal_projects()                       from public, anon;
+revoke all on function public.portal_access_list()                    from public, anon;
+grant execute on function public.my_project_scope()   to authenticated;
+grant execute on function public.portal_projects()    to authenticated;
+grant execute on function public.portal_access_list() to authenticated;
+
+-- People who can be given tasks: only those whose access is still in force.
+create or replace function public.pm_team()
+returns table (email text, note text)
+language sql stable security definer set search_path = public
+as $$
+  select a.email, a.note from public.portal_access a
+  where public.has_app('projects') and 'projects' = any (a.apps)
+    and (public.access_ends(a) is null or now() < public.access_ends(a))
+  order by a.email;
+$$;
+
+-- Which rows a project-only person may see (read) and change (write). p_scope is null for
+-- everyone else, who keeps the whole app.
+create or replace function public.pm_row_ok(p_scope text, p_coll text, p_id text, p_data jsonb, p_write boolean)
+returns boolean language sql immutable as $$
+  select p_scope is null
+      or (not p_write and p_coll = 'projects' and p_id = p_scope)
+      or (p_coll in ('tasks', 'schedule', 'contacts') and p_data->>'projectId' = p_scope)
+      or (not p_write and p_coll in ('templates', 'settings'));
+$$;
+create or replace function public.crew_row_ok(p_scope text, p_coll text, p_id text, p_data jsonb, p_write boolean)
+returns boolean language sql immutable as $$
+  select p_scope is null
+      or (p_coll in ('shifts', 'assign') and p_data->>'eventId' = p_scope)
+      or (not p_write and p_coll in ('crew', 'settings'));
+$$;
+create or replace function public.staff_row_ok(p_scope text, p_coll text, p_id text, p_data jsonb, p_write boolean)
+returns boolean language sql immutable as $$
+  select p_scope is null
+      or (p_coll in ('positions', 'assign', 'budgets') and p_data->>'projectId' = p_scope)
+      or (not p_write and p_coll in ('staff', 'settings'));
+$$;
+
+drop policy if exists "projects can read"   on public.pm_records;
+drop policy if exists "projects can add"    on public.pm_records;
+drop policy if exists "projects can change" on public.pm_records;
+drop policy if exists "projects can delete" on public.pm_records;
+create policy "projects can read" on public.pm_records for select to authenticated
+  using ((select public.has_app('projects')) and public.pm_row_ok((select public.my_project_scope()), coll, id, data, false));
+create policy "projects can add" on public.pm_records for insert to authenticated
+  with check ((select public.has_app('projects')) and public.pm_row_ok((select public.my_project_scope()), coll, id, data, true));
+create policy "projects can change" on public.pm_records for update to authenticated
+  using ((select public.has_app('projects')) and public.pm_row_ok((select public.my_project_scope()), coll, id, data, true))
+  with check ((select public.has_app('projects')) and public.pm_row_ok((select public.my_project_scope()), coll, id, data, true));
+create policy "projects can delete" on public.pm_records for delete to authenticated
+  using ((select public.has_app('projects')) and ((select public.my_project_scope()) is null
+         or (coll in ('tasks', 'schedule', 'contacts') and data->>'projectId' = (select public.my_project_scope()))));
+
+drop policy if exists "crew can read"   on public.crew_records;
+drop policy if exists "crew can add"    on public.crew_records;
+drop policy if exists "crew can change" on public.crew_records;
+drop policy if exists "crew can delete" on public.crew_records;
+create policy "crew can read" on public.crew_records for select to authenticated
+  using ((select public.has_app('crew')) and public.crew_row_ok((select public.my_project_scope()), coll, id, data, false));
+create policy "crew can add" on public.crew_records for insert to authenticated
+  with check ((select public.has_app('crew')) and public.crew_row_ok((select public.my_project_scope()), coll, id, data, true));
+create policy "crew can change" on public.crew_records for update to authenticated
+  using ((select public.has_app('crew')) and public.crew_row_ok((select public.my_project_scope()), coll, id, data, true))
+  with check ((select public.has_app('crew')) and public.crew_row_ok((select public.my_project_scope()), coll, id, data, true));
+create policy "crew can delete" on public.crew_records for delete to authenticated
+  using ((select public.has_app('crew')) and public.crew_row_ok((select public.my_project_scope()), coll, id, data, true));
+
+drop policy if exists "staff can read"   on public.staff_records;
+drop policy if exists "staff can add"    on public.staff_records;
+drop policy if exists "staff can change" on public.staff_records;
+drop policy if exists "staff can delete" on public.staff_records;
+create policy "staff can read" on public.staff_records for select to authenticated
+  using ((select public.has_app('staff')) and public.staff_row_ok((select public.my_project_scope()), coll, id, data, false));
+create policy "staff can add" on public.staff_records for insert to authenticated
+  with check ((select public.has_app('staff')) and public.staff_row_ok((select public.my_project_scope()), coll, id, data, true));
+create policy "staff can change" on public.staff_records for update to authenticated
+  using ((select public.has_app('staff')) and public.staff_row_ok((select public.my_project_scope()), coll, id, data, true))
+  with check ((select public.has_app('staff')) and public.staff_row_ok((select public.my_project_scope()), coll, id, data, true));
+create policy "staff can delete" on public.staff_records for delete to authenticated
+  using ((select public.has_app('staff')) and public.staff_row_ok((select public.my_project_scope()), coll, id, data, true));
+
+-- Events from the Projects app for Crew and Staff: a project-only person gets just theirs.
+create or replace function public.crew_events()
+returns table (id text, data jsonb)
+language sql stable security definer set search_path = public
+as $$
+  select r.id, jsonb_build_object(
+    'id', r.id, 'name', r.data->'name', 'client', r.data->'client', 'venue', r.data->'venue',
+    'city', r.data->'city', 'code', r.data->'code', 'status', r.data->'status',
+    'type', r.data->'type', 'dates', r.data->'dates')
+  from public.pm_records r
+  where public.has_app('crew') and r.coll = 'projects'
+    and (public.my_project_scope() is null or r.id = public.my_project_scope());
+$$;
+create or replace function public.staff_events()
+returns table (id text, data jsonb)
+language sql stable security definer set search_path = public
+as $$
+  select r.id, jsonb_build_object(
+    'id', r.id, 'name', r.data->'name', 'client', r.data->'client', 'venue', r.data->'venue',
+    'city', r.data->'city', 'code', r.data->'code', 'status', r.data->'status',
+    'type', r.data->'type', 'dates', r.data->'dates')
+  from public.pm_records r
+  where public.has_app('staff') and r.coll = 'projects'
+    and (public.my_project_scope() is null or r.id = public.my_project_scope());
+$$;
+
+-- Someone whose access is tied to an event can't move that event's dates (which would
+-- move the end of their own access). Admins and everyone else can.
+create or replace function public.pm_dates_guard()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if new.coll = 'projects' and (new.data->'dates') is distinct from (old.data->'dates')
+     and exists (select 1 from public.portal_access a
+                 where a.email = lower(auth.jwt() ->> 'email') and a.access_kind = 'project' and a.project_id = new.id) then
+    raise exception 'Your access is tied to this event, so you can''t change its dates. Ask a portal admin.' using errcode = 'P0001';
+  end if;
+  return new;
+end;
+$$;
+revoke execute on function public.pm_dates_guard() from public, anon, authenticated;
+drop trigger if exists pm_records_dates_guard on public.pm_records;
+create trigger pm_records_dates_guard before update on public.pm_records
+  for each row execute function public.pm_dates_guard();
+
 -- First admin (run once, with your own email):
 -- insert into public.portal_access (email, apps, is_admin)
 -- values ('you@blackcanvasglobal.com', array['billing','crew','projects','bills','staff'], true)

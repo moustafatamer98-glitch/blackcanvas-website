@@ -310,7 +310,7 @@ fieldset{border:0;margin:0;padding:0;min-width:0}
 <script src="../vendor/supabase-2.117.3.js"></script>
 <script src="../brand.js?v=20261101b"></script>
 <script src="../config.js?v=20261101b"></script>
-<script src="../portal.js?v=20261101b"></script>
+<script src="../portal.js?v=20261103b"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
@@ -472,6 +472,7 @@ async function initStore() {
     const { data: allowed, error } = await sb.rpc("has_app", { p_app: "billing" });
     if (!error && allowed === false) { location.replace("../?noaccess=billing"); return; }
   } catch (e) { /* the access rules on the data still apply */ }
+  sb.rpc("my_access").then(r => { if (!r.error) BCPortal.accessBanner(r.data); });
   S.mode = "db"; render();
   let loading = true; const pending = [];
   sb.channel("records-billing")

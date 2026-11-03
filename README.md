@@ -73,6 +73,13 @@ Only enabled member accounts with a mailbox are copied (no guests or disabled ac
 
 Admins open **Team access** from the apps screen, enter the person's email, tick their apps and click **Add person**. With "Email them an invite now" ticked, the invite goes out straight away; otherwise use **Send invite** on their row later. They follow the link, enter their name and a password, and see only the apps you ticked. Untick or tick apps at any time; changes apply immediately. **Remove** takes all their access away.
 
+**Permanent, temporary or for a project.** When adding someone (or with **Change** on their row) choose their access:
+- **Permanent**: until you remove them. Only permanent people can be admins.
+- **Temporary**: for a set time (today only, 3 days, 1 week, 2 weeks, 1 month, 3 months, or until a date you pick). Access stops at midnight after the last day, Riyadh time.
+- **For a project**: tied to one event from Project management, ending at midnight after the event's de-rig (or last show day). If the event's dates change, the end moves with them; the person themselves can't change that event's dates. Choose **Everything in their apps** to give the apps you tick for the project's duration, or **Only this project** so they see and change only that event in Projects, Crew and Staff (they can view the crew and staff lists to book people, but not edit them, and Billing, Bills and Admin aren't available).
+
+Each row shows what kind of access the person has and when it ends; ended access shows in red and can be extended with **Change**. People with limited access see a notice on the apps screen and a bar at the top of each app; once it has ended they can still sign in but see no apps. All of this is enforced by the database (`my_access()`, `has_app()` and the access rules in section 14 of `supabase/setup.sql`), not only hidden on screen.
+
 **Finding people as you type.** In the Email or Name box, type part of a name (or email) and pick the person from the list: their work email and name (with job title) fill in for you. Suggestions come from the company's Microsoft 365 directory, the Staff app's database and the Crew roster (people in Staff or Crew need an email saved to appear). People already on the access list are marked "On the team". Only portal admins can search, through `portal_people_search()` in the database; nobody can read the copied directory directly.
 
 Invites are sent by the `portal-invite` Edge Function (`supabase/functions/portal-invite/`), which only works for admins.

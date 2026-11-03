@@ -106,6 +106,29 @@ button.tile:hover .go{transform:translateX(4px)}
 .panel h2{margin:0}
 .add-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:12px}
 @media (max-width:620px){.add-grid{grid-template-columns:minmax(0,1fr)}}
+select{width:100%;height:46px;background:var(--surface-2);border:1px solid var(--line);border-radius:4px;padding:0 12px;font:inherit;font-size:15px;color:inherit}
+select:focus{border-color:var(--line-strong);outline:2px solid color-mix(in srgb,var(--ember-text) 55%,transparent);outline-offset:0}
+.kind{display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line-strong);border-radius:4px;overflow:hidden;max-width:100%}
+.seg label{position:relative;display:flex}
+.seg input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.seg span{display:block;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;color:var(--muted);border-right:1px solid var(--line);white-space:nowrap}
+.seg label:last-child span{border-right:0}
+.seg span:hover{color:var(--fg)}
+.seg input:checked + span{background:var(--fg);color:var(--bg)}
+.seg input:focus-visible + span{outline:2px solid var(--ember-text);outline-offset:-3px}
+.kind-opts{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:end;width:100%;max-width:640px;margin-top:4px}
+.kind-opts .wide{grid-column:1 / -1}
+.kind-opts .seg.wide{justify-self:start}
+@media (max-width:620px){.kind-opts{grid-template-columns:minmax(0,1fr)} .seg span{padding:10px 12px}}
+.kind-note{margin:0;color:var(--muted);font-size:13px;grid-column:1 / -1}
+.ck:has(input:disabled){opacity:.5;cursor:not-allowed}
+.foot-btns{display:flex;gap:10px;margin-left:auto}
+.msg.info{color:var(--muted)}
+.status{display:block;font-size:12.5px;line-height:1.35;margin-top:4px;color:var(--ember-text)}
+.status.ended{color:var(--bad)}
+.acc-row.ended .who-cell b,.acc-row.ended .c{opacity:.55}
+.acc-row.editing{box-shadow:inset 3px 0 0 var(--ember)}
 .find{position:relative}
 .sugg{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:20;list-style:none;margin:0;padding:6px;background:var(--surface);border:1px solid var(--line-strong);border-radius:6px;box-shadow:0 18px 40px rgba(0,0,0,.35);max-height:min(360px,60vh);overflow-y:auto}
 .sugg li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 14px;align-items:center;padding:10px 12px;border-radius:4px;cursor:pointer}
@@ -129,7 +152,7 @@ input[type=checkbox]{width:18px;height:18px;padding:0;margin:0;accent-color:var(
 input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
 .add-foot{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;justify-content:space-between}
 .acc-list{margin-top:28px;border-top:1.5px solid var(--fg)}
-.acc-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(6,86px) 190px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.acc-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(6,86px) 270px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
 .acc-row.head{padding:10px 0}
 .acc-row.head span{font:500 10px/1.25 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .acc-row .c{display:flex;justify-content:center}
@@ -262,7 +285,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
     </div>
 
     <form class="panel" id="fAdd" novalidate>
-      <h2 class="label">Add a person</h2>
+      <h2 class="label" id="aHead">Add a person</h2>
       <div class="find">
         <div class="add-grid">
           <label class="fld" for="aEmail"><span class="fl">Email</span><input id="aEmail" type="email" autocomplete="off" spellcheck="false" placeholder="Type a name or email" required role="combobox" aria-autocomplete="list" aria-controls="aSugg" aria-expanded="false"></label>
@@ -271,6 +294,28 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
         <ul class="sugg" id="aSugg" role="listbox" aria-label="Matching people" hidden></ul>
       </div>
       <p class="find-note" id="dirNote">Start typing a name and pick the person to fill in their email and name.</p>
+      <div class="kind">
+        <span class="fl" id="kindLbl">Access</span>
+        <div class="seg" role="radiogroup" aria-labelledby="kindLbl">
+          <label><input type="radio" name="aKind" value="permanent" checked><span>Permanent</span></label>
+          <label><input type="radio" name="aKind" value="temp"><span>Temporary</span></label>
+          <label><input type="radio" name="aKind" value="project"><span>For a project</span></label>
+        </div>
+        <div class="kind-opts" id="kTemp" hidden>
+          <label class="fld" for="aFor"><span class="fl">For</span>
+            <select id="aFor"><option value="1">Today only</option><option value="3">3 days</option><option value="7" selected>1 week</option><option value="14">2 weeks</option><option value="30">1 month</option><option value="90">3 months</option><option value="date">Until a date…</option></select></label>
+          <label class="fld" for="aUntil" id="aUntilWrap" hidden><span class="fl">Last day</span><input type="date" id="aUntil"></label>
+          <p class="kind-note" id="kTempNote"></p>
+        </div>
+        <div class="kind-opts" id="kProject" hidden>
+          <label class="fld wide" for="aProject"><span class="fl">Project</span><select id="aProject"><option value="">Loading events…</option></select></label>
+          <div class="seg wide" role="radiogroup" aria-label="What they can see">
+            <label><input type="radio" name="aScope" value="all" checked><span>Everything in their apps</span></label>
+            <label><input type="radio" name="aScope" value="only"><span>Only this project</span></label>
+          </div>
+          <p class="kind-note" id="kProjNote"></p>
+        </div>
+      </div>
       <div class="checks" role="group" aria-label="Apps">
         <span class="fl">Apps</span>
         <label class="ck" for="aBilling"><input type="checkbox" id="aBilling" value="billing">Billing</label>
@@ -281,8 +326,8 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
         <label class="ck" for="aAdmin"><input type="checkbox" id="aAdmin">Admin</label>
       </div>
       <div class="add-foot">
-        <label class="ck" for="aInvite"><input type="checkbox" id="aInvite" checked>Email them an invite now</label>
-        <button class="btn ember" type="submit" id="aBtn">Add person</button>
+        <label class="ck" for="aInvite" id="aInviteWrap"><input type="checkbox" id="aInvite" checked>Email them an invite now</label>
+        <div class="foot-btns"><button class="btn" type="button" id="aCancel" hidden>Cancel</button><button class="btn ember" type="submit" id="aBtn">Add person</button></div>
       </div>
       <p class="msg" id="aMsg" role="status" hidden></p>
     </form>
@@ -297,7 +342,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
 <script src="vendor/supabase-2.117.3.js"></script>
 <script src="brand.js?v=20261101b"></script>
 <script src="config.js?v=20261101b"></script>
-<script src="portal.js?v=20261101b"></script>
+<script src="portal.js?v=20261103b"></script>
 <script>
 "use strict";
 (function () {
@@ -360,8 +405,11 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
     });
     var label = { billing: "Billing", crew: "Crew assignment", projects: "Project management", bills: "Bills", staff: "Staff assignment" }[noAccess];
     if (access.apps.indexOf("bills") >= 0) paintBillsChip();
-    if (!any) msg($("#appsNote"), "Your account doesn't have any apps yet. Ask a portal admin to give you access.", "err");
+    if (access.expired) msg($("#appsNote"), "Your access " + (access.project ? "for " + access.project.name + " " : "") + "ended after " + lastDay(access.ends_at) + ". Ask a portal admin if you need it again.", "err");
+    else if (!any) msg($("#appsNote"), "Your account doesn't have any apps yet. Ask a portal admin to give you access.", "err");
     else if (label) msg($("#appsNote"), "Your account doesn't have access to " + label + ". Ask a portal admin if you need it.", "err");
+    else if (access.project_only && access.project) msg($("#appsNote"), "You have access to " + access.project.name + " only" + (access.ends_at ? ", until the end of " + lastDay(access.ends_at) : "") + ".", "info");
+    else if (access.ends_at) msg($("#appsNote"), "Your access is " + (access.kind === "project" && access.project ? "for " + access.project.name + " and lasts" : "temporary and lasts") + " until the end of " + lastDay(access.ends_at) + ".", "info");
     else msg($("#appsNote"), "");
   }
 
@@ -468,7 +516,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
   }
   function closeAccess() { history.replaceState(null, "", location.pathname + location.search); show("vApps"); }
   function loadTeam() {
-    sb.from("portal_access").select("email,apps,is_admin,note").order("email").then(function (r) {
+    sb.rpc("portal_access_list").then(function (r) {
       if (r.error) { $("#accList").innerHTML = '<p class="msg err" style="margin-top:16px">Couldn\'t load the team. Reload the page to try again.</p>'; return; }
       team = r.data || []; paintTeam();
     });
@@ -482,11 +530,12 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
       var cell = function (key, label, checked, disabled) {
         return '<label class="c" for="ac-' + i + "-" + key + '"><input type="checkbox" id="ac-' + i + "-" + key + '" data-i="' + i + '" data-k="' + key + '"' + (checked ? " checked" : "") + (disabled ? " disabled" : "") + ' aria-label="' + esc(label + " for " + p.email) + '"><span class="ml">&nbsp;' + label + "</span></label>";
       };
-      var name = p.note || p.email.split("@")[0];
-      return '<div class="acc-row" data-row="' + i + '"><div class="who-cell"><b>' + esc(name) + (mine ? '<span class="you">You</span>' : "") + "</b><small>" + esc(p.email) + "</small></div>" +
-        APPS.map(function (a) { return cell(a[0], a[1], p.apps.indexOf(a[0]) >= 0, false); }).join("") +
-        cell("admin", "Admin", p.is_admin, mine) +
-        '<div class="acts">' + (mine ? "" : '<button class="btn sm" type="button" data-act="invite" data-i="' + i + '">Send invite</button><button class="btn sm danger" type="button" data-act="remove" data-i="' + i + '">Remove</button>') + "</div>" +
+      var name = p.note || p.email.split("@")[0], st = statusOf(p), only = p.project_only;
+      return '<div class="acc-row' + (st.ended ? " ended" : "") + (editing === p.email ? " editing" : "") + '" data-row="' + i + '"><div class="who-cell"><b>' + esc(name) + (mine ? '<span class="you">You</span>' : "") + "</b><small>" + esc(p.email) + "</small>" +
+        (st.text ? '<span class="status' + (st.ended ? " ended" : "") + '">' + esc(st.text) + "</span>" : "") + "</div>" +
+        APPS.map(function (a) { return cell(a[0], a[1], p.apps.indexOf(a[0]) >= 0, only && SCOPED_APPS.indexOf(a[0]) < 0); }).join("") +
+        cell("admin", "Admin", p.is_admin, mine || p.access_kind !== "permanent") +
+        '<div class="acts">' + (mine ? "" : '<button class="btn sm" type="button" data-act="edit" data-i="' + i + '">Change</button><button class="btn sm" type="button" data-act="invite" data-i="' + i + '">Send invite</button><button class="btn sm danger" type="button" data-act="remove" data-i="' + i + '">Remove</button>') + "</div>" +
         '<p class="row-msg" id="rm-' + i + '" hidden></p></div>';
     }).join("");
   }
@@ -511,6 +560,117 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
       return { ok: ok, text: text };
     });
   }
+  /* ---------- Access kinds: permanent, temporary, for a project ---------- */
+  var SCOPED_APPS = ["projects", "crew", "staff"], editing = null, projects = null;
+  var dayFmt = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Riyadh", weekday: "short", day: "numeric", month: "short" });
+  var dayFmtY = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Riyadh", weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  function riyadhToday() { return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Riyadh" }).format(new Date()); }
+  function addDays(ymd, n) { var d = new Date(ymd + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+  function fmtDay(d) { return (d.getFullYear() === new Date().getFullYear() ? dayFmt : dayFmtY).format(d); }
+  // Access ends at the start of a day in Riyadh; the last day it works is the one before.
+  function lastDay(endsAt) { return fmtDay(new Date(Date.parse(endsAt) - 1000)); }
+  function ymdDay(ymd) { return fmtDay(new Date(ymd + "T12:00:00+03:00")); }
+  function statusOf(p) {
+    var ended = p.ends_at && Date.parse(p.ends_at) <= Date.now();
+    if (p.access_kind === "temp") return { ended: ended, text: ended ? "Temporary · ended after " + lastDay(p.ends_at) : "Temporary · until " + lastDay(p.ends_at) };
+    if (p.access_kind === "project") {
+      var what = (p.project_name || "A deleted event") + (p.project_only ? " only" : "");
+      if (!p.ends_at) return { ended: false, text: what + " · no end date yet" };
+      return { ended: ended, text: what + (ended ? " · ended after " : " · until ") + lastDay(p.ends_at) };
+    }
+    return { ended: false, text: "" };
+  }
+  function kind() { var c = document.querySelector('input[name="aKind"]:checked'); return c ? c.value : "permanent"; }
+  function scopeOnly() { var c = document.querySelector('input[name="aScope"]:checked'); return !!c && c.value === "only"; }
+  function tempLastDay() {
+    var v = $("#aFor").value;
+    if (v === "date") return $("#aUntil").value || "";
+    return addDays(riyadhToday(), Math.max(0, (+v || 1) - 1));
+  }
+  function readKind() {
+    var k = kind();
+    if (k === "temp") {
+      var last = tempLastDay();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(last)) return { error: "Choose the last day they should have access." };
+      if (last < riyadhToday()) return { error: "The last day can't be in the past." };
+      return { row: { access_kind: "temp", expires_at: addDays(last, 1) + "T00:00:00+03:00", project_id: null, project_only: false } };
+    }
+    if (k === "project") {
+      var id = $("#aProject").value;
+      if (!id) return { error: "Choose the project." };
+      return { row: { access_kind: "project", project_id: id, project_only: scopeOnly(), expires_at: null } };
+    }
+    return { row: { access_kind: "permanent", expires_at: null, project_id: null, project_only: false } };
+  }
+  function paintKind() {
+    var k = kind(), only = k === "project" && scopeOnly();
+    $("#kTemp").hidden = k !== "temp"; $("#kProject").hidden = k !== "project";
+    $("#aUntilWrap").hidden = $("#aFor").value !== "date";
+    if (k === "temp") {
+      var last = tempLastDay();
+      $("#kTempNote").textContent = /^\d{4}-\d{2}-\d{2}$/.test(last) ? "Access ends at midnight after " + ymdDay(last) + " (Riyadh time). Change it or extend it here any time." : "Choose their last day.";
+    }
+    if (k === "project") { loadProjects(); paintProjectNote(); }
+    ["aBilling", "aBills"].forEach(function (id) { var c = $("#" + id); c.disabled = only; if (only) c.checked = false; });
+    var a = $("#aAdmin"); a.disabled = k !== "permanent"; if (a.disabled) a.checked = false;
+    a.parentNode.title = a.disabled ? "Only permanent people can be admins." : "";
+  }
+  function paintProjectNote() {
+    var n = $("#kProjNote"), id = $("#aProject").value, p = (projects || []).filter(function (x) { return x.id === id; })[0];
+    if (!projects) { n.textContent = ""; return; }
+    if (!projects.length) { n.textContent = "There are no events in Project management yet. Add the event there first."; return; }
+    if (!p) { n.textContent = scopeOnly() ? "They'll see only this event in Projects, Crew and Staff. Billing, Bills and Admin aren't available." : "They'll see everything in the apps you tick, until the event is over."; return; }
+    var end = p.ends_at ? "Access ends after " + lastDay(p.ends_at) + ", when the event's de-rig finishes, and moves if its dates change." : "This event has no dates yet, so access won't end until its dates are set.";
+    n.textContent = (scopeOnly() ? "They'll see only " + p.name + " in Projects, Crew and Staff. Billing, Bills and Admin aren't available. " : "They'll see everything in the apps you tick. ") + end;
+  }
+  function loadProjects(force) {
+    if (projects && !force) return;
+    sb.rpc("portal_projects").then(function (r) {
+      projects = (r.data || []).map(function (p) { return Object.assign(p, { over: p.ends_at && Date.parse(p.ends_at) <= Date.now() }); });
+      var sel = $("#aProject"), keep = sel.dataset.want || sel.value;
+      var opt = function (p) {
+        var bits = [p.code, p.show_start ? ymdDay(p.show_start) : "no dates"].filter(Boolean).join(" · ");
+        return '<option value="' + esc(p.id) + '"' + (p.over ? " disabled" : "") + ">" + esc(p.name || "Untitled event") + " — " + esc(bits) + "</option>";
+      };
+      var live = projects.filter(function (p) { return !p.over; }), over = projects.filter(function (p) { return p.over; });
+      sel.innerHTML = '<option value="">' + (projects.length ? "Choose an event…" : "No events yet") + "</option>" + live.map(opt).join("") +
+        (over.length ? '<optgroup label="Already over">' + over.map(opt).join("") + "</optgroup>" : "");
+      if (keep) sel.value = keep; delete sel.dataset.want;
+      paintProjectNote();
+    });
+  }
+  function setKind(k) { var r = document.querySelector('input[name="aKind"][value="' + k + '"]'); if (r) r.checked = true; }
+  function setScope(only) { var r = document.querySelector('input[name="aScope"][value="' + (only ? "only" : "all") + '"]'); if (r) r.checked = true; }
+  function startEdit(p) {
+    editing = p.email; paintTeam();
+    $("#aHead").textContent = "Change access for " + (p.note || p.email);
+    $("#aEmail").value = p.email; $("#aEmail").readOnly = true; $("#aNote").value = p.note || "";
+    ["aBilling", "aCrew", "aStaff", "aProjects", "aBills"].forEach(function (id) { $("#" + id).checked = p.apps.indexOf($("#" + id).value) >= 0; });
+    $("#aAdmin").checked = !!p.is_admin;
+    setKind(p.access_kind || "permanent");
+    if (p.access_kind === "temp" && p.ends_at) {
+      $("#aFor").value = "date";
+      $("#aUntil").value = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Riyadh" }).format(new Date(Date.parse(p.ends_at) - 1000));
+    }
+    if (p.access_kind === "project") { $("#aProject").dataset.want = p.project_id; $("#aProject").value = p.project_id; setScope(p.project_only); }
+    $("#aInviteWrap").hidden = true; $("#aCancel").hidden = false; $("#aBtn").textContent = "Save changes";
+    msg($("#aMsg"), ""); paintKind();
+    $("#fAdd").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function endEdit() { editing = null; resetForm(); paintTeam(); }
+  function resetForm() {
+    $("#fAdd").reset(); $("#aInvite").checked = true; $("#aEmail").readOnly = false;
+    $("#aHead").textContent = "Add a person"; $("#aInviteWrap").hidden = false; $("#aCancel").hidden = true; $("#aBtn").textContent = "Add person";
+    $("#aProject").value = ""; paintKind();
+  }
+  document.querySelectorAll('input[name="aKind"],input[name="aScope"]').forEach(function (r) { r.addEventListener("change", paintKind); });
+  $("#aFor").addEventListener("change", function () { if ($("#aFor").value === "date" && !$("#aUntil").value) $("#aUntil").value = addDays(riyadhToday(), 7); paintKind(); if ($("#aFor").value === "date") $("#aUntil").focus(); });
+  $("#aUntil").addEventListener("input", paintKind);
+  $("#aProject").addEventListener("change", paintProjectNote);
+  $("#aCancel").addEventListener("click", function () { endEdit(); msg($("#aMsg"), ""); });
+  $("#aUntil").min = riyadhToday();
+  paintKind();
+
   /* ---------- Find a person: suggestions from Microsoft 365, Staff and Crew ---------- */
   var SRC = { m365: "Microsoft 365", staff: "Staff", crew: "Crew" };
   var sugg = $("#aSugg"), found = [], pick = -1, findSeq = 0, findTimer = 0, findFrom = null, dirSynced = false;
@@ -552,6 +712,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
     if (findFrom) { if (pick >= 0) findFrom.setAttribute("aria-activedescendant", "sg-" + pick); else findFrom.removeAttribute("aria-activedescendant"); }
   }
   function findPeople(input) {
+    if (editing) { closeSugg(); return; }
     var q = input.value.trim(); findFrom = input;
     clearTimeout(findTimer);
     if (q.length < 2) { findSeq++; closeSugg(); return; }
@@ -599,7 +760,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
     sb.from("portal_access").update(patch).eq("email", p.email).select().then(function (r) {
       t.disabled = (k === "admin" && p.email === myEmail());
       if (r.error || !r.data || !r.data.length) { t.checked = !t.checked; rowMsg(i, r.error ? dbFriendly(r.error) : "Couldn't save. Reload the page and try again.", "err"); return; }
-      team[i] = r.data[0]; rowMsg(i, "Saved.");
+      team[i] = Object.assign({}, team[i], r.data[0]); rowMsg(i, "Saved.");
       if (p.email === myEmail()) { access = { apps: team[i].apps, is_admin: team[i].is_admin }; paintTiles(); }
       setTimeout(function () { var el = $("#rm-" + i); if (el && el.textContent === "Saved.") el.hidden = true; }, 1800);
     });
@@ -608,6 +769,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
     var b = e.target.closest("button[data-act]"); if (!b) return;
     var i = +b.dataset.i, p = team[i];
     if (b.dataset.act === "invite") { b.disabled = true; invite(p.email, i).then(function () { b.disabled = false; }); return; }
+    if (b.dataset.act === "edit") { startEdit(p); return; }
     if (b.dataset.act === "remove") {
       if (!b.classList.contains("confirm")) {
         b.classList.add("confirm"); b.textContent = "Confirm remove"; clearTimeout(confirmTimer);
@@ -624,18 +786,31 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
   $("#fAdd").addEventListener("submit", function (e) {
     e.preventDefault(); closeSugg();
     var email = $("#aEmail").value.trim().toLowerCase(), note = $("#aNote").value.trim();
-    var apps = ["aBilling", "aCrew", "aStaff", "aProjects", "aBills"].filter(function (id) { return $("#" + id).checked; }).map(function (id) { return $("#" + id).value; });
+    var apps = ["aBilling", "aCrew", "aStaff", "aProjects", "aBills"].filter(function (id) { return $("#" + id).checked && !$("#" + id).disabled; }).map(function (id) { return $("#" + id).value; });
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg($("#aMsg"), "Enter a valid email address."); return; }
-    if (!apps.length && !$("#aAdmin").checked) { msg($("#aMsg"), "Tick at least one app."); return; }
-    if (team.some(function (p) { return p.email === email; })) { msg($("#aMsg"), "That email is already on the list below. Change their apps there."); return; }
+    var k = readKind(); if (k.error) { msg($("#aMsg"), k.error); return; }
+    var admin = $("#aAdmin").checked && !$("#aAdmin").disabled;
+    if (!apps.length && !admin) { msg($("#aMsg"), "Tick at least one app."); return; }
+    var row = Object.assign({ apps: apps, is_admin: admin, note: note || null }, k.row);
+    if (editing) {
+      busy($("#aBtn"), true, "Saving…"); msg($("#aMsg"), "");
+      sb.from("portal_access").update(row).eq("email", editing).select().then(function (r) {
+        busy($("#aBtn"), false, "Save changes");
+        if (r.error || !r.data || !r.data.length) { msg($("#aMsg"), r.error ? dbFriendly(r.error) : "Couldn't save. Reload the page and try again."); return; }
+        var who = editing; endEdit(); loadTeam();
+        msg($("#aMsg"), "Access for " + who + " saved.", "ok");
+      });
+      return;
+    }
+    if (team.some(function (p) { return p.email === email; })) { msg($("#aMsg"), "That email is already on the list below. Use Change on their row."); return; }
     busy($("#aBtn"), true, "Adding…"); msg($("#aMsg"), "");
-    sb.from("portal_access").insert({ email: email, apps: apps, is_admin: $("#aAdmin").checked, note: note || null }).select().then(function (r) {
+    sb.from("portal_access").insert(Object.assign({ email: email }, row)).select().then(function (r) {
       if (r.error) { busy($("#aBtn"), false, "Add person"); msg($("#aMsg"), dbFriendly(r.error)); return; }
-      team.push(r.data[0]); team.sort(function (a, b) { return a.email.localeCompare(b.email); }); paintTeam();
+      loadTeam();
       var done = function (extra) {
         busy($("#aBtn"), false, "Add person");
         msg($("#aMsg"), email + " added." + (extra ? " " + extra.text : " Send them an invite from the list when you're ready."), extra && !extra.ok ? "err" : "ok");
-        $("#fAdd").reset(); $("#aInvite").checked = true;
+        resetForm();
       };
       if ($("#aInvite").checked) invite(email, null).then(done); else done(null);
     });

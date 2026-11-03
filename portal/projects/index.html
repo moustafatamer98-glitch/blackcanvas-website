@@ -313,7 +313,7 @@ select.status-sel option{color:var(--text);background:var(--panel)}
 <script src="../vendor/supabase-2.117.3.js"></script>
 <script src="../brand.js?v=20261101b"></script>
 <script src="../config.js?v=20261101b"></script>
-<script src="../portal.js?v=20261101b"></script>
+<script src="../portal.js?v=20261103b"></script>
 <script>
 /* =========================================================================
    Black Canvas · Projects
@@ -505,7 +505,7 @@ async function save(coll, id, data, msg) {
 async function failed(e) {
   console.error(e);
   if (!DEMO && /jwt/i.test(e?.message || '')) { toast('Your sign-in has expired. Taking you to sign in…', true); return setTimeout(() => leave('?next=projects'), 1600); }
-  toast('Couldn’t save — ' + (e.message || 'check your connection'), true);
+  toast(BCPortal.saveError(e) || 'Couldn’t save — ' + (e.message || 'check your connection'), true);
   try { await Backend.load(); render(); } catch {}
 }
 
@@ -1368,6 +1368,7 @@ async function start() {
       const { data: access, error } = await sb.rpc('my_access');
       if (error) { if (/jwt/i.test(error.message || '')) return leave('?next=projects'); throw error; }
       if (!(access?.apps || []).includes('projects')) return leave('?noaccess=projects');
+      BCPortal.accessBanner(access);
     }
     [team] = await Promise.all([Backend.team(), Backend.load()]);
     if (!team.some(m => m.email === me)) team.unshift({ email: me, note: '' });
