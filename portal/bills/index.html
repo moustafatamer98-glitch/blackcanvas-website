@@ -1,0 +1,1242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="../../card/apple-touch-icon.png">
+<title>Black Canvas Bills</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,400..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* same palette as the portal, Billing, Projects and Crew */
+  --bg:#0B0B0C; --panel:#141416; --panel2:#1D1D21; --raise:#24242A; --line:#2B2B30; --line2:#45454B;
+  --text:#F4F3EF; --muted:#9C9EA3; --dim:#66686D;
+  --orange:#F04E23; --orange-soft:rgba(240,78,35,.14);
+  --red:#FF7086; --amber:#E6B450; --blue:#7FA2FF; --violet:#B39BFF; --green:#5BC994;
+  --radius:6px; --side:220px;
+  --font:'Archivo',Arial,sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.hidden,[hidden]{display:none!important}
+
+/* ---------- logo & shell ---------- */
+.logo-svg{display:block;width:150px;color:var(--text)}
+.logo-svg svg{display:block;width:100%;height:auto}
+.logo-sub{font-size:10px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase;margin-top:6px;font-weight:600}
+.shell{display:grid;grid-template-columns:var(--side) 1fr;min-height:100vh}
+.side{position:sticky;top:0;height:100vh;border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:22px;background:var(--bg)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{position:relative;display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;text-decoration:none;color:var(--muted);font-weight:500}
+.nav a:hover{background:var(--panel2);color:var(--text)}
+.nav a.on{background:var(--panel2);color:var(--text)}
+.nav a.on svg{color:var(--orange)}
+.nav svg{width:17px;height:17px;flex:none}
+.nav .count{margin-left:auto;font-size:11px;background:var(--red);color:#0B0B0C;border-radius:20px;padding:0 6px;font-weight:800}
+.nav .count.amber{background:var(--amber)}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--muted)}
+.side-foot a{text-decoration:none}
+.side-foot a:hover{color:var(--text)}
+.me{display:flex;align-items:center;gap:8px}
+main{min-width:0;padding:28px 34px 80px;max-width:1280px}
+.demo-bar{background:var(--orange-soft);color:var(--orange);border:1px solid rgba(240,78,35,.35);padding:7px 12px;border-radius:8px;font-size:12px;margin-bottom:18px;font-weight:600}
+
+/* ---------- type ---------- */
+h1{font-size:40px;font-weight:900;font-stretch:62.5%;text-transform:uppercase;letter-spacing:.005em;margin:0;line-height:1}
+h2{font-size:15px;font-weight:700;margin:0;text-transform:uppercase;letter-spacing:.06em;font-stretch:90%}
+.eyebrow{font:500 11px/1.3 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)} .dim{color:var(--dim)}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.page-head .acts{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ---------- controls ---------- */
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);background:var(--panel2);padding:8px 13px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap;text-decoration:none}
+.btn:hover{border-color:#5a5a60;background:var(--raise)}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#0a0a0a}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.good{background:var(--green);border-color:var(--green);color:#0a0a0a}
+.btn.good:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--text);background:var(--panel2)}
+.btn.danger{color:var(--red);border-color:rgba(255,112,134,.4);background:transparent}
+.btn.sm{padding:5px 9px;font-size:12px}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.btn svg{width:15px;height:15px}
+.input,select.input,textarea.input{width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;outline:none}
+.input:focus{border-color:var(--orange)}
+.input[readonly]{color:var(--muted)}
+textarea.input{resize:vertical;min-height:70px}
+select.input{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 15px) 52%,calc(100% - 10px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:28px}
+input[type=date].input{color-scheme:dark}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line2);background:transparent;border-radius:30px;padding:5px 12px;font-size:12px;cursor:pointer;color:var(--muted);font-weight:600}
+.chip.on{background:var(--text);color:#0a0a0a;border-color:var(--text)}
+.chip .n{opacity:.65;margin-left:4px}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.toolbar .grow{flex:1;min-width:180px}
+.toolbar select.input{width:auto;min-width:170px}
+.check{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;cursor:pointer;user-select:none}
+.check input{width:16px;height:16px;accent-color:var(--orange);margin:0}
+
+/* ---------- pills & tags ---------- */
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:20px;border:1px solid currentColor;white-space:nowrap;line-height:1.3}
+.pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.st-pending{color:var(--amber)} .st-approved{color:var(--blue)} .st-partial{color:var(--violet)}
+.st-due{color:var(--orange)} .st-overdue{color:var(--red);background:rgba(255,112,134,.1)} .st-paid{color:var(--green)}
+.st-rejected{color:var(--red);opacity:.75} .st-void{color:var(--dim)}
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:5px;background:var(--raise);color:var(--muted);white-space:nowrap;font-weight:500;max-width:220px;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+.tag.ev{color:var(--text)}
+.tag.rec{background:transparent;border:1px solid var(--line2)}
+
+/* ---------- KPIs ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:26px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:6px}
+.kpi:hover{border-color:var(--line2)}
+.kpi .v{font-size:30px;font-weight:800;font-stretch:80%;line-height:1}
+.kpi .s{font-size:12px;color:var(--muted)}
+.kpi.alert{border-color:rgba(255,112,134,.45)} .kpi.alert .v{color:var(--red)}
+.kpi.warn .v{color:var(--amber)}
+.kpi.zero .v{color:var(--dim)}
+
+/* ---------- lists ---------- */
+.sect{margin-bottom:28px}
+.sect-h{display:flex;align-items:baseline;gap:10px;padding:0 2px 8px;border-bottom:1px solid var(--line2);margin-bottom:2px}
+.sect-h .n{color:var(--dim);font-size:12px}
+.sect-h .sum{margin-left:auto;font-size:12px;color:var(--muted)}
+.brow{display:grid;grid-template-columns:118px minmax(0,1fr) 150px 150px;gap:14px;align-items:center;padding:11px 8px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:6px}
+.brow:hover{background:var(--panel)}
+.brow .when b{display:block;font-weight:700;font-size:13px}
+.brow .when small{display:block;font-size:11.5px;color:var(--muted)}
+.brow .when small.late{color:var(--red);font-weight:700}
+.brow .when small.soon{color:var(--amber);font-weight:600}
+.brow .who{min-width:0}
+.brow .who b{display:block;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brow .who .sub{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:3px;font-size:12px;color:var(--muted)}
+.brow .who .sub span.d{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:320px}
+.brow .amt{text-align:right;font-weight:800;font-size:15px;font-stretch:90%}
+.brow .amt small{display:block;font-size:11px;font-weight:500;color:var(--muted);font-stretch:100%}
+.brow .end{display:flex;justify-content:flex-end;gap:6px;align-items:center;flex-wrap:wrap}
+.brow.done .who b,.brow.done .amt{color:var(--muted)}
+.empty{border:1px dashed var(--line2);border-radius:var(--radius);padding:36px 20px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--text);font-size:15px;margin-bottom:4px}
+.allclear{border:1px solid var(--line);border-left:3px solid var(--green);background:var(--panel);border-radius:var(--radius);padding:18px 20px;margin-bottom:24px}
+.allclear b{font-size:18px;font-weight:800;font-stretch:84%;text-transform:uppercase;display:block}
+.banner{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:1px solid rgba(255,112,134,.45);border-left:3px solid var(--red);background:rgba(255,112,134,.06);border-radius:var(--radius);padding:12px 16px;margin-bottom:22px}
+.banner b{color:var(--red)}
+.foot-note{font-size:12px;color:var(--muted);margin-top:10px}
+
+/* supplier rows */
+.vrow{display:grid;grid-template-columns:minmax(0,1fr) 160px 170px 150px;gap:14px;align-items:center;padding:11px 8px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:6px}
+.vrow:hover{background:var(--panel)}
+.vrow b{font-weight:700}
+.vrow .r{text-align:right}
+.vrow small{display:block;color:var(--muted);font-size:12px}
+
+/* ---------- drawer ---------- */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;opacity:0;pointer-events:none;transition:opacity .15s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(600px,100vw);background:var(--panel);border-left:1px solid var(--line2);z-index:51;transform:translateX(100%);transition:transform .2s ease;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.dr-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 22px;border-bottom:1px solid var(--line)}
+.dr-h h2{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dr-b{padding:18px 22px 26px;overflow-y:auto;flex:1}
+.dr-f{display:flex;gap:8px;padding:12px 22px;border-top:1px solid var(--line);align-items:center;flex-wrap:wrap}
+.dr-f .sp{flex:1}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form .f{display:flex;flex-direction:column;gap:5px;min-width:0}
+.form .f.span{grid-column:1/-1}
+.form label,.lbl{font:500 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.form .hint{font-size:11.5px;color:var(--dim)}
+.form label.check{font:400 13px/1.4 var(--font);text-transform:none;letter-spacing:0;color:var(--muted);align-items:flex-start}
+.form label.check input{margin-top:2px;flex:none}
+.block{border-top:1px solid var(--line);margin-top:20px;padding-top:16px}
+.block-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.state{display:grid;grid-template-columns:1fr auto;gap:6px 14px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:16px}
+.state .big{font-size:26px;font-weight:900;font-stretch:72%;line-height:1;text-align:right}
+.state .big small{display:block;font:500 10px/1.3 var(--mono);letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-top:4px}
+.state .info{font-size:12.5px;color:var(--muted)}
+.state .info b{color:var(--text);font-weight:600}
+.line{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:8px 2px;border-bottom:1px solid var(--line);font-size:13px}
+.line small{display:block;color:var(--muted);font-size:12px}
+.line .r{text-align:right;font-weight:700}
+.iconbtn{width:28px;height:28px;border-radius:6px;border:1px solid var(--line2);background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer;padding:0}
+.iconbtn:hover{color:var(--red);border-color:var(--red)}
+.iconbtn svg{width:14px;height:14px}
+.hist{display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+.hist div{display:grid;grid-template-columns:110px 1fr;gap:10px;color:var(--muted)}
+.hist div b{color:var(--text);font-weight:600}
+.drop{border:1px dashed var(--line2);border-radius:8px;padding:12px;text-align:center;color:var(--muted);font-size:12.5px;cursor:pointer}
+.drop:hover,.drop.over{border-color:var(--orange);color:var(--text)}
+.drop input{display:none}
+.mini{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ---------- modal ---------- */
+.modal{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.65)}
+.modal-box{width:min(460px,100%);background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 60px rgba(0,0,0,.5);max-height:92vh;overflow:auto}
+.modal-box h2{font-size:16px}
+.modal-box p{margin:0;color:var(--muted)}
+.modal-box .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:4px}
+.btn.danger-solid{background:var(--red);border-color:var(--red);color:#0B0B0C}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#0a0a0a;padding:10px 16px;border-radius:8px;font-weight:600;z-index:80;opacity:0;transition:.2s;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.toast.err{background:var(--red);color:#0B0B0C}
+.loading{min-height:100vh;display:grid;place-items:center;color:var(--muted)}
+
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.brow{grid-template-columns:100px minmax(0,1fr) 130px}.brow .end{grid-column:2/-1;justify-content:flex-start}.vrow{grid-template-columns:minmax(0,1fr) 150px 140px}.vrow .hide-md{display:none}}
+@media (max-width:820px){
+  .shell{grid-template-columns:1fr}
+  .side{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;padding:6px 8px;border-right:0;border-top:1px solid var(--line);z-index:40;gap:0}
+  .side .brand,.side-foot{display:none}
+  .nav{flex-direction:row;justify-content:space-around;width:100%}
+  .nav a{flex-direction:column;gap:3px;font-size:10px;padding:6px 8px}
+  .nav .count{position:absolute;top:0;right:4px;margin:0}
+  main{padding:18px 16px 90px}
+  h1{font-size:30px}
+  .form{grid-template-columns:1fr}
+  .brow{grid-template-columns:minmax(0,1fr) auto;gap:6px 12px}
+  .brow .when{grid-column:1/-1;display:flex;gap:8px;align-items:baseline}
+  .brow .when b,.brow .when small{display:inline}
+  .brow .end{grid-column:1/-1}
+  .vrow{grid-template-columns:minmax(0,1fr) auto}.vrow .hide-sm{display:none}
+  .toolbar select.input{min-width:0;flex:1}
+}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading">Loading…</div></div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true"></aside>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../vendor/supabase-2.117.3.js"></script>
+<script src="../brand.js?v=20261101b"></script>
+<script src="../config.js?v=20261101b"></script>
+<script src="../portal.js?v=20261101b"></script>
+<script>
+/* =========================================================================
+   Black Canvas · Bills
+   Bills the company pays (suppliers, freelancers, rent, subscriptions) with an
+   approve-then-pay flow, receipts, repeating bills and due-date alerts, plus
+   chasing unpaid client invoices from the Billing app.
+   Data lives in Supabase (table bills_records, files in the private "bill-files"
+   bucket). The database enforces the approval rules: only portal admins approve or
+   reject, and a bill must be approved before it can be paid.
+   Open with ?demo to try it with sample data stored only in this browser.
+   ========================================================================= */
+const CONFIG = { TABLE: 'bills_records', BUCKET: 'bill-files', PORTAL_HOME: '../', BILLING: '../billing/' };
+const DEMO = new URLSearchParams(location.search).has('demo');
+
+const CATEGORIES = ['Equipment hire','Production supplier','Venue','Freelancers & crew','Travel & accommodation','Catering & hospitality','Transport & logistics','Rent & office','Utilities & telecom','Software & subscriptions','Government & licences','Marketing','Insurance','Other'];
+const CURRENCIES = ['SAR','USD','EUR','GBP','AED','EGP','KWD','QAR','BHD','OMR','JOD'];
+const METHODS = ['Bank transfer','Card','Cash','Cheque','SADAD','Other'];
+const REPEATS = [['','Doesn’t repeat'],['monthly','Every month'],['quarterly','Every 3 months'],['yearly','Every year']];
+const ST_LABEL = { pending:'Awaiting approval', approved:'Approved', partial:'Part-paid', due:'Due soon', overdue:'Overdue', paid:'Paid', rejected:'Rejected', void:'Void' };
+
+/* ---------------- helpers ---------------- */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { if (!s || !/^\d{4}-\d{2}-\d{2}/.test(s)) return null; const [y,m,d] = s.slice(0,10).split('-').map(Number); return new Date(y, m-1, d); };
+const today = () => iso(new Date());
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const addMonths = (s, n) => { const d = parse(s), day = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + n); const last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate(); d.setDate(Math.min(day, last)); return iso(d); };
+const diff = (a, b) => Math.round((parse(b) - parse(a)) / 864e5);
+const fmt = (s, o = {day:'numeric', month:'short', year:'numeric'}) => parse(s) ? parse(s).toLocaleDateString('en-GB', o) : '';
+const fmtShort = s => fmt(s, {day:'numeric', month:'short'});
+const fmtStamp = s => s ? new Date(s).toLocaleString('en-GB', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'}) : '';
+const plural = (n, w, ws) => `${n} ${n === 1 ? w : (ws || w + 's')}`;
+const round2 = n => Math.round((Number(n) || 0) * 100) / 100;
+const num = v => { const n = Number(String(v ?? '').replace(/[, ]/g, '')); return Number.isFinite(n) ? n : 0; };
+const money = (n, cur = 'SAR') => `${cur} ${round2(n).toLocaleString('en-US', { minimumFractionDigits: Number.isInteger(round2(n)) ? 0 : 2, maximumFractionDigits: 2 })}`;
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const nameOf = email => { const l = String(email || '').split('@')[0]; return l ? l.split(/[._-]+/).filter(Boolean).map(w => w[0].toUpperCase() + w.slice(1)).join(' ') : 'Someone'; };
+const opts = (list, sel) => list.map(o => { const [v, l] = Array.isArray(o) ? o : [o, o]; return `<option value="${esc(v)}"${v === sel ? ' selected' : ''}>${esc(l)}</option>`; }).join('');
+/* Money per currency: { SAR: 1200, USD: 50 } shown as "SAR 1,200 + USD 50". */
+function sums(list, fn) { const m = {}; for (const x of list) { const [c, v] = fn(x); m[c] = round2((m[c] || 0) + v); } return m; }
+function fmtSums(m, empty = '—') {
+  const keys = Object.keys(m).filter(k => m[k]).sort((a, b) => (a === 'SAR' ? -1 : b === 'SAR' ? 1 : a.localeCompare(b)));
+  return keys.length ? keys.map(k => money(m[k], k)).join(' + ') : empty;
+}
+const waNumber = ph => { let d = String(ph || '').replace(/[^\d]/g, '').replace(/^00/, ''); if (/^05\d{8}$/.test(d)) d = '966' + d.slice(1); return d; };
+
+const ICON = {
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>',
+  bill:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 2h14v20l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg>',
+  inbox:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v11M7 9l5 5 5-5"/><path d="M3 15v5h18v-5"/></svg>',
+  shop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l2-5h14l2 5M3 9h18v11H3zM9 20v-6h6v6"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>',
+  x:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>',
+  dl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>',
+  clip:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11l-8.5 8.5a5 5 0 01-7-7L14 4a3.5 3.5 0 015 5l-8.5 8.5a2 2 0 01-3-3L15 7"/></svg>',
+  cog:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>',
+};
+
+/* =========================================================================
+   Data layer: same interface for Supabase and demo mode
+   ========================================================================= */
+const COLLS = ['bills','vendors','chase','settings'];
+const db = Object.fromEntries(COLLS.map(c => [c, new Map()]));
+const events = new Map();     // from Projects (read-only)
+const recv = new Map();       // unpaid client invoices from Billing (read-only)
+let sb = null, me = '', myName = '', isAdmin = false;
+const demoFiles = new Map();  // demo only: path -> object URL for this session
+
+const Backend = {
+  async load() {
+    COLLS.forEach(c => db[c].clear());
+    if (DEMO) {
+      const store = lsGet('bc-bills-demo', null) || seedDemo();
+      for (const c of COLLS) for (const [id, data] of Object.entries(store[c] || {})) db[c].set(id, data);
+      events.clear(); for (const [id, d] of Object.entries(store.events || {})) events.set(id, d);
+      recv.clear(); for (const [id, d] of Object.entries(store.recv || {})) recv.set(id, d);
+      return;
+    }
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await sb.from(CONFIG.TABLE).select('coll,id,data').range(from, from + 999);
+      if (error) throw error;
+      data.forEach(r => db[r.coll]?.set(r.id, r.data));
+      if (data.length < 1000) break;
+    }
+    await this.loadLinked();
+  },
+  async loadLinked() {
+    if (DEMO) return;
+    const [e, r] = await Promise.all([sb.rpc('bills_events'), sb.rpc('bills_receivables')]);
+    if (!e.error) { events.clear(); (e.data || []).forEach(x => events.set(x.id, { ...x.data, id: x.id })); }
+    if (!r.error) { recv.clear(); (r.data || []).forEach(x => recv.set(x.id, { ...x.data, id: x.id })); }
+  },
+  saveDemo() {
+    const store = { events: Object.fromEntries(events), recv: Object.fromEntries(recv) };
+    for (const c of COLLS) store[c] = Object.fromEntries(db[c]);
+    lsSet('bc-bills-demo', store);
+  },
+  /* Saves one item and returns it as the database stored it (the database stamps who approved or paid). */
+  async put(coll, id, data) {
+    if (DEMO) {
+      const was = db[coll].get(id);
+      if (coll === 'bills' && data.status !== was?.status) {
+        const at = new Date().toISOString();
+        if (data.status === 'approved') Object.assign(data, { approvedBy: me, approvedAt: at });
+        if (data.status === 'rejected') Object.assign(data, { rejectedBy: me, rejectedAt: at });
+        if (data.status === 'paid') Object.assign(data, { paidBy: me, paidAt: at });
+      }
+      db[coll].set(id, data); this.saveDemo(); return data;
+    }
+    const { data: rows, error } = await sb.from(CONFIG.TABLE).upsert({ coll, id, data }).select('data');
+    if (error) throw error;
+    const saved = rows?.[0]?.data || data;
+    db[coll].set(id, saved);
+    return saved;
+  },
+  async del(coll, id) {
+    if (DEMO) { db[coll].delete(id); return this.saveDemo(); }
+    const { data, error } = await sb.from(CONFIG.TABLE).delete().eq('coll', coll).eq('id', id).select('id');
+    if (error) throw error;
+    if (!data?.length) throw new Error('Only an approver can delete an approved or paid bill. Void it instead.');
+    db[coll].delete(id);
+  },
+  async upload(billId, file) {
+    const safe = file.name.replace(/[^\w.\- ]+/g, '_').slice(-80);
+    const path = `${billId}/${uid().slice(0, 8)}-${safe}`;
+    if (DEMO) { demoFiles.set(path, URL.createObjectURL(file)); return path; }
+    const { error } = await sb.storage.from(CONFIG.BUCKET).upload(path, file, { contentType: file.type || 'application/octet-stream', upsert: false });
+    if (error) throw error;
+    return path;
+  },
+  async fileUrl(path) {
+    if (DEMO) { const u = demoFiles.get(path); if (!u) throw new Error('Files aren’t kept in demo mode after a reload.'); return u; }
+    const { data, error } = await sb.storage.from(CONFIG.BUCKET).createSignedUrl(path, 300);
+    if (error) throw error;
+    return data.signedUrl;
+  },
+  async removeFile(path) {
+    if (DEMO) { demoFiles.delete(path); return; }
+    const { error } = await sb.storage.from(CONFIG.BUCKET).remove([path]);
+    if (error) throw error;
+  },
+  subscribe() {
+    if (DEMO) return;
+    sb.channel('bills-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: CONFIG.TABLE }, p => {
+        if (p.eventType === 'DELETE') { const o = p.old || {}; o.coll && db[o.coll]?.delete(o.id); }
+        else { const n = p.new; n?.coll && db[n.coll]?.set(n.id, n.data); }
+        scheduleRender();
+      })
+      .subscribe();
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) this.loadLinked().then(scheduleRender); });
+    setInterval(() => { if (!document.hidden) this.loadLinked().then(scheduleRender); }, 5 * 60e3);
+  },
+};
+
+async function failed(e) {
+  console.error(e);
+  const m = e?.message || '';
+  if (!DEMO && /jwt/i.test(m)) { toast('Your sign-in has expired. Taking you to sign in…', true); return setTimeout(() => leave('?next=bills'), 1600); }
+  toast(/fetch|network/i.test(m) ? 'Couldn’t save — check your connection' : m || 'Couldn’t save', true);
+  try { await Backend.load(); render(); } catch {}
+}
+
+/* =========================================================================
+   Bills: derived state
+   ========================================================================= */
+const settings = () => ({ remindDays: 7, prefix: 'BILL', ...(db.settings.get('main') || {}) });
+const remindDays = () => Math.max(1, Math.min(60, num(settings().remindDays) || 7));
+const vendorName = b => db.vendors.get(b.vendorId)?.name || b.vendorName || 'Supplier';
+const paidSum = b => round2((b.payments || []).reduce((a, p) => a + num(p.amount), 0));
+const owed = b => round2(num(b.amount) - paidSum(b));
+const curOf = b => b.currency || 'SAR';
+const isOpen = b => (b.status === 'pending' || b.status === 'approved') && owed(b) > 0;
+/* The status to show: pending, approved, partial, due, overdue, paid, rejected, void. */
+function stateOf(b) {
+  const s = b.status || 'pending';
+  if (s !== 'approved') return s;
+  if (owed(b) <= 0) return 'paid';
+  if (b.dueDate && b.dueDate < today()) return 'overdue';
+  if (b.dueDate && diff(today(), b.dueDate) <= remindDays()) return 'due';
+  return paidSum(b) > 0 ? 'partial' : 'approved';
+}
+/* Where an open bill sits: approval, overdue, soon, later. */
+function bucketOf(b) {
+  if (!isOpen(b)) return '';
+  if (b.status === 'pending') return 'approval';
+  if (b.dueDate && b.dueDate < today()) return 'overdue';
+  if (b.dueDate && diff(today(), b.dueDate) <= remindDays()) return 'soon';
+  return 'later';
+}
+const pill = st => `<span class="pill st-${st}">${esc(ST_LABEL[st] || st)}</span>`;
+function whenHTML(date, open) {
+  if (!date) return '<b>No due date</b>';
+  const n = diff(today(), date);
+  let s = '';
+  if (open) s = n < 0 ? `<small class="late">${plural(-n, 'day')} late</small>` : n === 0 ? '<small class="soon">Due today</small>' : n <= remindDays() ? `<small class="soon">In ${plural(n, 'day')}</small>` : `<small>In ${plural(n, 'day')}</small>`;
+  return `<b>${esc(fmt(date))}</b>${s}`;
+}
+const bills = () => [...db.bills.values()];
+const sortDue = (a, b) => (a.dueDate || '9999').localeCompare(b.dueDate || '9999') || vendorName(a).localeCompare(vendorName(b));
+
+function nextNumber() {
+  const yr = today().slice(0, 4), base = `${(settings().prefix || 'BILL').trim()}-${yr}-`;
+  let max = 0;
+  for (const b of db.bills.values()) if ((b.number || '').startsWith(base)) max = Math.max(max, parseInt(b.number.slice(base.length), 10) || 0);
+  return base + String(max + 1).padStart(3, '0');
+}
+const hist = (b, act, note) => { b.history = [...(b.history || []), { at: new Date().toISOString(), by: me, act, ...(note ? { note } : {}) }]; };
+
+/* ---------------- client invoices to chase ---------------- */
+const recvList = () => [...recv.values()].filter(r => num(r.due) > 0);
+const chaseOf = id => db.chase.get(id) || { id, log: [], nextFollowUp: '' };
+function recvState(r) {
+  const c = chaseOf(r.id), t = today();
+  if (r.dueDate && r.dueDate < t) return 'overdue';
+  if (c.nextFollowUp && c.nextFollowUp <= t) return 'followup';
+  if (r.dueDate && diff(t, r.dueDate) <= remindDays()) return 'soon';
+  return 'later';
+}
+const toChase = () => recvList().filter(r => { const s = recvState(r); return s === 'overdue' || s === 'followup'; });
+
+/* ---------------- alerts ---------------- */
+function alerts() {
+  const open = bills().filter(isOpen);
+  return {
+    overdue: open.filter(b => bucketOf(b) === 'overdue'),
+    soon: open.filter(b => bucketOf(b) === 'soon'),
+    approval: open.filter(b => bucketOf(b) === 'approval'),
+    chase: toChase(),
+  };
+}
+
+/* =========================================================================
+   UI state & routing
+   ========================================================================= */
+const ui = Object.assign({ filter: 'open', q: '', cat: '', vq: '' }, lsGet('bc-bills-ui', {}));
+const persistUI = () => lsSet('bc-bills-ui', { filter: ui.filter, cat: ui.cat });
+function route() { const h = location.hash.startsWith('#/') ? location.hash.slice(2).split('?')[0] : ''; const [view = '', id = ''] = h.split('/'); return { view: view || 'today', id }; }
+let renderQueued = false;
+function scheduleRender() { if (!renderQueued) { renderQueued = true; setTimeout(() => { renderQueued = false; render(); }, 120); } }
+
+function render() {
+  const main = $('#main'); if (!main) return;
+  const act = document.activeElement, focusId = act && act.id && main.contains(act) ? act.id : null;
+  const sel = focusId && 'selectionStart' in act ? [act.selectionStart, act.selectionEnd] : null;
+  const r = route();
+  const views = { today: viewToday, bills: viewBills, owed: viewOwed, suppliers: viewSuppliers };
+  main.innerHTML = (DEMO ? '<div class="demo-bar">Demo mode — sample data, saved only in this browser. Remove ?demo from the address to use the live portal data.</div>' : '') + (views[r.view] || viewToday)(r);
+  document.querySelectorAll('.nav a').forEach(a => a.classList.toggle('on', a.dataset.v === r.view));
+  const A = alerts();
+  const urgent = A.overdue.length + (isAdmin ? A.approval.length : 0);
+  setCount('#cToday', urgent || A.soon.length, urgent ? '' : 'amber', `${A.overdue.length} overdue, ${A.soon.length} due soon${isAdmin ? `, ${A.approval.length} to approve` : ''}`);
+  setCount('#cOwed', A.chase.length, '', `${A.chase.length} client invoices to chase`);
+  document.title = (urgent ? `(${urgent}) ` : '') + 'Black Canvas Bills';
+  if (focusId) { const el = document.getElementById(focusId); if (el) { el.focus(); if (sel) try { el.setSelectionRange(...sel); } catch {} } }
+  if (drawerState?.refresh) drawerState.refresh();
+}
+function setCount(sel, n, cls, title) { const c = $(sel); if (!c) return; c.textContent = n; c.className = 'count ' + (cls || '') + (n ? '' : ' hidden'); c.title = title; }
+
+function shell() {
+  $('#app').innerHTML = `
+  <div class="shell">
+    <aside class="side">
+      <div class="brand">
+        <a class="logo-svg" href="${esc(CONFIG.PORTAL_HOME)}" aria-label="Black Canvas — all apps">${BCPortal.logoSvg('line')}</a>
+        <div class="logo-sub">Bills</div>
+      </div>
+      <nav class="nav">
+        <a href="#/" data-v="today">${ICON.home}<span>Today</span><span class="count hidden" id="cToday"></span></a>
+        <a href="#/bills" data-v="bills">${ICON.bill}<span>Bills</span></a>
+        <a href="#/owed" data-v="owed">${ICON.inbox}<span>Owed to us</span><span class="count hidden" id="cOwed"></span></a>
+        <a href="#/suppliers" data-v="suppliers">${ICON.shop}<span>Suppliers</span></a>
+      </nav>
+      <div class="side-foot">
+        <div class="me"><span class="tag" style="border:1px solid var(--orange);color:var(--orange);background:transparent">${isAdmin ? 'Approver' : 'Team'}</span><span>${esc(myName || me)}</span></div>
+        <a href="#" data-act="settings">Settings</a>
+        <a href="${esc(CONFIG.PORTAL_HOME)}">← All apps</a>
+        ${DEMO ? '<a href="#" data-act="resetDemo">Reset demo data</a>' : '<a href="#" data-act="signOut">Sign out</a>'}
+      </div>
+    </aside>
+    <main id="main"></main>
+  </div>`;
+  render();
+}
+
+/* =========================================================================
+   Rows
+   ========================================================================= */
+function billRow(b, { actions = false } = {}) {
+  const st = stateOf(b), open = isOpen(b), ev = events.get(b.eventId);
+  const sub = [
+    b.description ? `<span class="d">${esc(b.description)}</span>` : '',
+    b.invoiceRef ? `<span class="tag">#${esc(b.invoiceRef)}</span>` : '',
+    b.category ? `<span class="tag">${esc(b.category)}</span>` : '',
+    ev ? `<span class="tag ev">${esc(ev.name || 'Event')}</span>` : (b.eventName ? `<span class="tag ev">${esc(b.eventName)}</span>` : ''),
+    b.recurrence ? `<span class="tag rec">↻ ${esc(REPEATS.find(r => r[0] === b.recurrence)?.[1] || '')}</span>` : '',
+    (b.files || []).length ? `<span class="tag" title="Attached files">${ICON.clip.replace('<svg', '<svg width="11" height="11" style="vertical-align:-1px"')} ${b.files.length}</span>` : '',
+  ].join('');
+  const paidPart = paidSum(b) > 0 && open ? `<small>of ${esc(money(b.amount, curOf(b)))}</small>` : '';
+  let btns = '';
+  if (actions && isAdmin && b.status === 'pending') btns = `<button class="btn sm good" data-act="approve" data-id="${esc(b.id)}" data-stop>Approve</button><button class="btn sm" data-act="reject" data-id="${esc(b.id)}" data-stop>Reject</button>`;
+  else if (actions && b.status === 'approved' && owed(b) > 0) btns = `<button class="btn sm" data-act="pay" data-id="${esc(b.id)}" data-stop>Record payment</button>`;
+  return `<div class="brow ${open ? '' : 'done'}" data-act="openBill" data-id="${esc(b.id)}" role="link" tabindex="0">
+    <div class="when">${whenHTML(b.dueDate, open)}</div>
+    <div class="who"><b>${esc(vendorName(b))}</b><div class="sub">${sub || '<span class="dim">No description</span>'}</div></div>
+    <div class="amt num">${esc(money(open ? owed(b) : num(b.amount), curOf(b)))}${paidPart}</div>
+    <div class="end">${btns}${pill(st)}</div>
+  </div>`;
+}
+function recvRow(r) {
+  const c = chaseOf(r.id), st = recvState(r), last = (c.log || []).slice(-1)[0];
+  const sub = [
+    r.number ? `<span class="tag">${esc(r.number)}</span>` : '',
+    r.project ? `<span class="d">${esc(r.project)}</span>` : '',
+    last ? `<span>Last chased ${esc(fmtShort(last.at.slice(0, 10)))}</span>` : '<span class="dim">Not chased yet</span>',
+    c.nextFollowUp ? `<span class="${c.nextFollowUp <= today() ? 'tag' : ''}" style="${c.nextFollowUp <= today() ? 'color:var(--amber)' : ''}">Follow up ${esc(fmtShort(c.nextFollowUp))}</span>` : '',
+  ].join('');
+  const p = { overdue: '<span class="pill st-overdue">Overdue</span>', followup: '<span class="pill st-due">Follow up</span>', soon: '<span class="pill st-pending">Due soon</span>', later: '<span class="pill st-approved">Not due</span>' }[st];
+  return `<div class="brow" data-act="openRecv" data-id="${esc(r.id)}" role="link" tabindex="0">
+    <div class="when">${whenHTML(r.dueDate, true)}</div>
+    <div class="who"><b>${esc(r.company || 'Client')}</b><div class="sub">${sub}</div></div>
+    <div class="amt num">${esc(money(r.due, r.currency))}${num(r.paid) > 0 ? `<small>of ${esc(money(r.total, r.currency))}</small>` : ''}</div>
+    <div class="end">${p}</div>
+  </div>`;
+}
+function section(title, list, rowFn, sumFn, note = '') {
+  if (!list.length) return '';
+  return `<section class="sect"><div class="sect-h"><h2>${esc(title)}</h2><span class="n">${list.length}</span>${sumFn ? `<span class="sum num">${esc(fmtSums(sums(list, sumFn)))}</span>` : ''}</div>${note}${list.map(rowFn).join('')}</section>`;
+}
+
+/* =========================================================================
+   View: Today
+   ========================================================================= */
+function viewToday() {
+  const A = alerts(), t = today(), d = remindDays();
+  const kpi = (label, list, fn, cls, go, s) => `<button class="kpi ${list.length ? cls : 'zero'}" data-act="go" data-href="${go}"><span class="eyebrow">${esc(label)}</span><span class="v num">${list.length}</span><span class="s num">${list.length ? esc(fmtSums(sums(list, fn))) : esc(s)}</span></button>`;
+  const owedFn = b => [curOf(b), owed(b)];
+  const allClear = !A.overdue.length && !A.soon.length && !A.approval.length && !A.chase.length;
+  const week = bills().filter(b => isOpen(b) && b.status === 'approved' && b.dueDate && b.dueDate >= t && diff(t, b.dueDate) <= 30).sort(sortDue);
+  return `
+    <div class="page-head">
+      <div><div class="eyebrow">${esc(new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }))}</div><h1 style="margin-top:8px">Today</h1></div>
+      <div class="acts"><button class="btn ghost" data-act="settings">${ICON.cog} Settings</button><button class="btn primary" data-act="newBill">${ICON.plus} New bill</button></div>
+    </div>
+    <div class="kpis">
+      ${kpi('Overdue to pay', A.overdue, owedFn, 'alert', '#/bills?f=overdue', 'Nothing late')}
+      ${kpi(`Due in ${d} days`, A.soon, owedFn, 'warn', '#/bills?f=open', 'Nothing due')}
+      ${kpi('Awaiting approval', A.approval, owedFn, 'warn', '#/bills?f=approval', 'All approved')}
+      ${kpi('Clients to chase', A.chase, r => [r.currency, num(r.due)], 'alert', '#/owed', 'No one late')}
+    </div>
+    ${allClear ? `<div class="allclear"><b>All clear</b><span class="muted">Nothing overdue, nothing due in the next ${plural(d, 'day')}, nothing waiting for approval and no client invoices to chase.</span></div>` : ''}
+    ${section(isAdmin ? 'Waiting for your approval' : 'Waiting for approval', A.approval.sort(sortDue), b => billRow(b, { actions: true }), owedFn,
+      isAdmin ? '' : '<p class="foot-note" style="margin:6px 2px 4px">A portal admin approves these before they can be paid.</p>')}
+    ${section('Overdue — pay now', A.overdue.sort(sortDue), b => billRow(b, { actions: true }), owedFn)}
+    ${section(`Due in the next ${plural(d, 'day')}`, A.soon.sort(sortDue), b => billRow(b, { actions: true }), owedFn)}
+    ${section('Client invoices to chase', A.chase.sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || '')), recvRow, r => [r.currency, num(r.due)])}
+    ${section('Coming up in 30 days', week.filter(b => bucketOf(b) === 'later'), b => billRow(b), owedFn)}
+    ${!bills().length ? `<div class="empty"><b>No bills yet</b>Add supplier invoices, freelancer payments, rent and subscriptions — they'll appear here when they're due.<br><br><button class="btn primary" data-act="newBill">${ICON.plus} Add the first bill</button></div>` : ''}`;
+}
+
+/* =========================================================================
+   View: Bills
+   ========================================================================= */
+const FILTERS = [['open','To pay'],['approval','Awaiting approval'],['overdue','Overdue'],['paid','Paid'],['closed','Rejected & void'],['all','All']];
+function filtered() {
+  const q = ui.q.trim().toLowerCase();
+  return bills().filter(b => {
+    if (ui.cat && b.category !== ui.cat) return false;
+    const bk = bucketOf(b), st = b.status || 'pending';
+    if (ui.filter === 'open' && !isOpen(b)) return false;
+    if (ui.filter === 'approval' && bk !== 'approval') return false;
+    if (ui.filter === 'overdue' && bk !== 'overdue') return false;
+    if (ui.filter === 'paid' && !(st === 'paid' || (st === 'approved' && owed(b) <= 0))) return false;
+    if (ui.filter === 'closed' && !(st === 'rejected' || st === 'void')) return false;
+    if (q) {
+      const hay = [vendorName(b), b.number, b.invoiceRef, b.description, b.category, events.get(b.eventId)?.name, b.notes].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+function viewBills() {
+  const qf = new URLSearchParams(location.hash.split('?')[1] || '').get('f');
+  if (qf && FILTERS.some(f => f[0] === qf)) { ui.filter = qf; persistUI(); history.replaceState(null, '', '#/bills'); }
+  const list = filtered(), counts = {};
+  for (const [k] of FILTERS) { const keep = ui.filter; ui.filter = k; counts[k] = filtered().length; ui.filter = keep; }
+  const owedFn = b => [curOf(b), owed(b)], amtFn = b => [curOf(b), num(b.amount)];
+  let body;
+  if (!list.length) body = `<div class="empty"><b>${bills().length ? 'Nothing here' : 'No bills yet'}</b>${bills().length ? 'Try another filter or search.' : 'Add your first supplier invoice or regular payment.'}</div>`;
+  else if (ui.filter === 'open') {
+    const t = today(), g = { approval: [], overdue: [], soon: [], month: [], later: [], none: [] };
+    for (const b of list.sort(sortDue)) {
+      const bk = bucketOf(b);
+      if (bk === 'approval') g.approval.push(b); else if (bk === 'overdue') g.overdue.push(b); else if (bk === 'soon') g.soon.push(b);
+      else if (!b.dueDate) g.none.push(b); else if (diff(t, b.dueDate) <= 31) g.month.push(b); else g.later.push(b);
+    }
+    body = section('Overdue', g.overdue, b => billRow(b, { actions: true }), owedFn)
+      + section(`Due in the next ${plural(remindDays(), 'day')}`, g.soon, b => billRow(b, { actions: true }), owedFn)
+      + section('Awaiting approval', g.approval, b => billRow(b, { actions: true }), owedFn)
+      + section('Later this month', g.month, b => billRow(b), owedFn)
+      + section('Later', g.later, b => billRow(b), owedFn)
+      + section('No due date', g.none, b => billRow(b), owedFn);
+  } else {
+    const sorted = ui.filter === 'paid' || ui.filter === 'all' || ui.filter === 'closed' ? list.sort((a, b) => sortDue(b, a)) : list.sort(sortDue);
+    body = `<section class="sect"><div class="sect-h"><h2>${esc(FILTERS.find(f => f[0] === ui.filter)[1])}</h2><span class="n">${list.length}</span><span class="sum num">${esc(fmtSums(sums(list, ui.filter === 'paid' || ui.filter === 'closed' ? amtFn : owedFn)))}</span></div>${sorted.map(b => billRow(b, { actions: ui.filter !== 'all' })).join('')}</section>`;
+  }
+  return `
+    <div class="page-head">
+      <div><div class="eyebrow">${plural(bills().filter(isOpen).length, 'open bill')} · ${esc(fmtSums(sums(bills().filter(isOpen), owedFn), 'nothing owed'))}</div><h1 style="margin-top:8px">Bills</h1></div>
+      <div class="acts"><button class="btn" data-act="csv">${ICON.dl} CSV</button><button class="btn primary" data-act="newBill">${ICON.plus} New bill</button></div>
+    </div>
+    <div class="toolbar">
+      <div class="chips">${FILTERS.map(([k, l]) => `<button class="chip ${ui.filter === k ? 'on' : ''}" data-act="filter" data-f="${k}">${esc(l)}<span class="n">${counts[k]}</span></button>`).join('')}</div>
+    </div>
+    <div class="toolbar">
+      <input class="input grow" id="billQ" data-inp="q" placeholder="Search supplier, reference, event…" value="${esc(ui.q)}" autocomplete="off">
+      <select class="input" data-chg="cat" aria-label="Category"><option value="">All categories</option>${opts(CATEGORIES, ui.cat)}</select>
+    </div>
+    ${body}`;
+}
+
+/* =========================================================================
+   View: Owed to us (client invoices from Billing)
+   ========================================================================= */
+function viewOwed() {
+  const list = recvList(), t = today();
+  const by = { overdue: [], followup: [], soon: [], later: [] };
+  list.forEach(r => by[recvState(r)].push(r));
+  const due = r => [r.currency, num(r.due)];
+  const sortR = (a, b) => (a.dueDate || '9999').localeCompare(b.dueDate || '9999');
+  const kpi = (label, l, cls) => `<div class="kpi ${l.length ? cls : 'zero'}" style="cursor:default"><span class="eyebrow">${esc(label)}</span><span class="v num">${l.length}</span><span class="s num">${esc(fmtSums(sums(l, due), 'Nothing'))}</span></div>`;
+  return `
+    <div class="page-head">
+      <div><div class="eyebrow">Unpaid tax invoices from Billing</div><h1 style="margin-top:8px">Owed to us</h1></div>
+      <div class="acts"><a class="btn" href="${esc(CONFIG.BILLING)}">Open Billing →</a></div>
+    </div>
+    <div class="kpis">
+      ${kpi('Overdue', by.overdue, 'alert')}${kpi('Follow-ups due', by.followup, 'warn')}${kpi(`Due in ${remindDays()} days`, by.soon, 'warn')}${kpi('Not yet due', by.later, '')}
+    </div>
+    ${!list.length ? `<div class="empty"><b>No unpaid invoices</b>Invoices marked “sent” in Billing show up here until they're marked paid there.</div>` : ''}
+    ${section('Overdue', by.overdue.sort(sortR), recvRow, due)}
+    ${section('Follow-ups due', by.followup.sort(sortR), recvRow, due)}
+    ${section(`Due in the next ${plural(remindDays(), 'day')}`, by.soon.sort(sortR), recvRow, due)}
+    ${section('Not yet due', by.later.sort(sortR), recvRow, due)}
+    ${list.length ? '<p class="foot-note">Record payments and mark invoices paid in Billing. Here you keep track of reminders and follow-ups.</p>' : ''}`;
+}
+
+/* =========================================================================
+   View: Suppliers
+   ========================================================================= */
+function vendorStats(id) {
+  const yr = today().slice(0, 4), list = bills().filter(b => b.vendorId === id);
+  const open = list.filter(isOpen);
+  const paidYr = sums(list.flatMap(b => (b.payments || []).filter(p => (p.date || '').startsWith(yr)).map(p => [curOf(b), num(p.amount)])), x => x);
+  return { list, open, owed: sums(open, b => [curOf(b), owed(b)]), paidYr };
+}
+function viewSuppliers() {
+  const q = ui.vq.trim().toLowerCase();
+  const list = [...db.vendors.values()].filter(v => !q || [v.name, v.category, v.contact, v.email].join(' ').toLowerCase().includes(q)).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  return `
+    <div class="page-head">
+      <div><div class="eyebrow">${plural(db.vendors.size, 'supplier')}</div><h1 style="margin-top:8px">Suppliers</h1></div>
+      <div class="acts"><button class="btn primary" data-act="newVendor">${ICON.plus} New supplier</button></div>
+    </div>
+    <div class="toolbar"><input class="input grow" id="vendQ" data-inp="vq" placeholder="Search suppliers…" value="${esc(ui.vq)}" autocomplete="off"></div>
+    ${!list.length ? `<div class="empty"><b>${db.vendors.size ? 'No matches' : 'No suppliers yet'}</b>${db.vendors.size ? '' : 'Suppliers are added here or straight from a new bill.'}</div>` :
+      `<div class="vrow" style="cursor:default;padding-top:4px;padding-bottom:6px"><span class="lbl">Supplier</span><span class="lbl hide-sm">Category</span><span class="lbl r">Open</span><span class="lbl r hide-md hide-sm">Paid in ${today().slice(0, 4)}</span></div>` +
+      list.map(v => { const s = vendorStats(v.id); return `<div class="vrow" data-act="openVendor" data-id="${esc(v.id)}" role="link" tabindex="0">
+        <div><b>${esc(v.name)}</b><small>${esc([v.contact, v.phone || v.email].filter(Boolean).join(' · ') || (v.terms ? `Pays in ${v.terms} days` : ''))}</small></div>
+        <div class="hide-sm muted">${esc(v.category || '—')}</div>
+        <div class="r num"><b>${esc(fmtSums(s.owed))}</b><small>${plural(s.open.length, 'open bill')}</small></div>
+        <div class="r num muted hide-md hide-sm">${esc(fmtSums(s.paidYr))}</div></div>`; }).join('')}`;
+}
+
+/* =========================================================================
+   Drawer
+   ========================================================================= */
+let drawerState = null;
+function openDrawer({ title, body, footer = '', refresh = null, onClose = null, ...rest }) {
+  drawerState = { refresh, onClose, ...rest };
+  const d = $('#drawer');
+  d.innerHTML = `<div class="dr-h"><h2>${esc(title)}</h2><button class="btn ghost" data-act="closeDrawer" aria-label="Close">${ICON.x}</button></div>
+    <div class="dr-b" id="drBody">${body}</div><div class="dr-f" id="drFoot">${footer}</div>`;
+  requestAnimationFrame(() => { d.classList.add('on'); $('#scrim').classList.add('on'); d.setAttribute('aria-hidden', 'false'); });
+}
+function closeDrawer() {
+  const s = drawerState; drawerState = null;
+  const d = $('#drawer'); d.classList.remove('on'); $('#scrim').classList.remove('on'); d.setAttribute('aria-hidden', 'true');
+  s?.onClose?.();
+}
+const fv = (k, root = $('#drawer')) => { const el = root.querySelector(`[data-f="${k}"]`); return el ? (el.type === 'checkbox' ? el.checked : el.value.trim()) : undefined; };
+
+/* ---------------- bill drawer ---------------- */
+function billForm(b) {
+  const vendors = [...db.vendors.values()].sort((a, c) => (a.name || '').localeCompare(c.name || ''));
+  const evs = [...events.values()].filter(e => e.status !== 'lost' && (e.status !== 'closed' || e.id === b.eventId)).sort((a, c) => ((c.dates || {}).showStart || '').localeCompare((a.dates || {}).showStart || ''));
+  const locked = !isAdmin && (b.status === 'approved' || b.status === 'paid');
+  const ro = locked ? ' readonly title="Only an approver can change this once the bill is approved"' : '';
+  return `<div class="form">
+    <div class="f span"><label for="fVendor">Supplier</label>
+      <select class="input" id="fVendor" data-f="vendorId"${locked ? ' disabled' : ''}><option value="">Choose a supplier…</option>${vendors.map(v => `<option value="${esc(v.id)}"${v.id === b.vendorId ? ' selected' : ''}>${esc(v.name)}</option>`).join('')}<option value="__new">+ New supplier…</option></select>
+      <input class="input${b.vendorId === '__new' ? '' : ' hidden'}" id="fVendorNew" data-f="vendorNew" placeholder="New supplier name" maxlength="120" style="margin-top:6px">
+    </div>
+    <div class="f"><label for="fRef">Their invoice no.</label><input class="input" id="fRef" data-f="invoiceRef" value="${esc(b.invoiceRef)}" maxlength="60" placeholder="e.g. INV-20431"></div>
+    <div class="f"><label for="fCat">Category</label><select class="input" id="fCat" data-f="category"><option value="">—</option>${opts(CATEGORIES, b.category)}</select></div>
+    <div class="f span"><label for="fDesc">What it's for</label><input class="input" id="fDesc" data-f="description" value="${esc(b.description)}" maxlength="200" placeholder="e.g. LED wall hire, 4 days"></div>
+    <div class="f span"><label for="fEvent">Event (optional)</label><select class="input" id="fEvent" data-f="eventId"><option value="">Not for a specific event</option>${evs.map(e => `<option value="${esc(e.id)}"${e.id === b.eventId ? ' selected' : ''}>${esc([e.code, e.name].filter(Boolean).join(' · '))}</option>`).join('')}</select></div>
+    <div class="f"><label for="fAmt">Amount to pay (incl. VAT)</label><input class="input num" id="fAmt" data-f="amount" inputmode="decimal" value="${esc(b.amount ?? '')}" placeholder="0.00"${ro}></div>
+    <div class="f"><label for="fCur">Currency</label><select class="input" id="fCur" data-f="currency"${locked ? ' disabled' : ''}>${opts(CURRENCIES, b.currency || 'SAR')}</select></div>
+    <div class="f"><label for="fVat">VAT in that amount</label><input class="input num" id="fVat" data-f="vat" inputmode="decimal" value="${esc(b.vat ?? '')}" placeholder="optional"><span class="hint"><a href="#" data-act="vat15" style="color:inherit">Work out 15%</a></span></div>
+    <div class="f"><label for="fIssue">Invoice date</label><input class="input" id="fIssue" type="date" data-f="issueDate" value="${esc(b.issueDate || '')}"></div>
+    <div class="f"><label for="fDue">Due date</label><input class="input" id="fDue" type="date" data-f="dueDate" value="${esc(b.dueDate || '')}"><span class="hint" id="dueHint"></span></div>
+    <div class="f"><label for="fRep">Repeats</label><select class="input" id="fRep" data-f="recurrence">${opts(REPEATS, b.recurrence || '')}</select></div>
+    ${isAdmin ? `<div class="f span" id="standingRow"${b.recurrence ? '' : ' hidden'}><label class="check"><input type="checkbox" data-f="standing"${b.standing ? ' checked' : ''}> Pre-approve the repeats (e.g. rent) so they don't wait for approval each time</label></div>` : ''}
+    <div class="f span"><label for="fNotes">Notes</label><textarea class="input" id="fNotes" data-f="notes" maxlength="2000" placeholder="Payment instructions, bank details, anything the payer should know">${esc(b.notes)}</textarea></div>
+  </div>`;
+}
+function stateBlock(b) {
+  const st = stateOf(b), cur = curOf(b);
+  const lines = [];
+  if (b.createdBy) lines.push(`Added by <b>${esc(nameOf(b.createdBy))}</b> ${esc(fmtStamp(b.createdAt))}`);
+  if (b.approvedBy && ['approved', 'paid'].includes(b.status)) lines.push(`Approved by <b>${esc(nameOf(b.approvedBy))}</b> ${esc(fmtStamp(b.approvedAt))}`);
+  if (b.status === 'rejected') lines.push(`Rejected by <b>${esc(nameOf(b.rejectedBy))}</b>${b.rejectReason ? `: “${esc(b.rejectReason)}”` : ''}`);
+  if (b.status === 'pending') lines.push(isAdmin ? 'Check it and approve so it can be paid.' : 'Waiting for a portal admin to approve it.');
+  return `<div class="state"><div>${pill(st)}<div class="info" style="margin-top:8px">${lines.join('<br>')}</div></div>
+    <div class="big num">${esc(money(isOpen(b) ? owed(b) : num(b.amount), cur))}<small>${isOpen(b) ? (paidSum(b) ? 'still to pay' : 'to pay') : b.status === 'paid' ? 'paid' : 'amount'}</small></div></div>`;
+}
+function paymentsBlock(b) {
+  const ps = b.payments || [];
+  const canPay = b.status === 'approved' && owed(b) > 0;
+  return `<div class="block"><div class="block-h"><span class="lbl">Payments</span>${canPay ? `<button class="btn sm" data-act="pay" data-id="${esc(b.id)}">Record payment</button>` : ''}</div>
+    ${ps.length ? ps.map((p, i) => `<div class="line"><div><b>${esc(fmt(p.date))}</b> · ${esc(p.method || 'Payment')}<small>${esc([p.ref && 'Ref ' + p.ref, p.by && 'by ' + nameOf(p.by)].filter(Boolean).join(' · '))}</small></div><span class="r num">${esc(money(p.amount, curOf(b)))}</span>${isAdmin && b.status !== 'void' ? `<button class="iconbtn" data-act="delPayment" data-id="${esc(b.id)}" data-i="${i}" title="Remove this payment" aria-label="Remove payment">${ICON.trash}</button>` : '<span></span>'}</div>`).join('')
+      : `<p class="dim" style="margin:0;font-size:13px">${b.status === 'pending' ? 'Payments can be recorded once the bill is approved.' : 'No payments yet.'}</p>`}
+  </div>`;
+}
+function filesBlock(b, isNew) {
+  const fs = b.files || [];
+  return `<div class="block"><div class="block-h"><span class="lbl">Invoice & receipts</span></div>
+    ${fs.map((f, i) => `<div class="line"><div><a href="#" data-act="openFile" data-path="${esc(f.path)}" style="font-weight:600">${esc(f.name)}</a><small>${esc([f.kind === 'receipt' ? 'Payment receipt' : 'Supplier invoice', f.size ? Math.max(1, Math.round(f.size / 1024)) + ' KB' : '', f.by && nameOf(f.by)].filter(Boolean).join(' · '))}</small></div><span></span><button class="iconbtn" data-act="delFile" data-i="${i}" title="Remove file" aria-label="Remove file">${ICON.trash}</button></div>`).join('')}
+    <label class="drop" id="drop" style="display:block;margin-top:${fs.length ? 10 : 0}px">${ICON.clip.replace('<svg', '<svg width="14" height="14" style="vertical-align:-2px"')} Attach the supplier's invoice (PDF or photo) — click or drop here<input type="file" id="fileIn" accept="application/pdf,image/*,.doc,.docx,.xls,.xlsx" multiple></label>
+    ${isNew ? '<p class="foot-note" style="margin-top:6px">Files upload straight away and stay with this bill when you save it.</p>' : ''}
+  </div>`;
+}
+function historyBlock(b) {
+  const h = (b.history || []).slice().reverse();
+  if (!h.length) return '';
+  return `<div class="block"><div class="block-h"><span class="lbl">History</span></div><div class="hist">${h.slice(0, 12).map(x => `<div><span>${esc(fmtStamp(x.at))}</span><span><b>${esc(nameOf(x.by))}</b> ${esc(x.act)}${x.note ? ` — ${esc(x.note)}` : ''}</span></div>`).join('')}</div></div>`;
+}
+function billFooter(b, isNew) {
+  const id = esc(b.id), out = [];
+  if (!isNew) {
+    if (b.status === 'pending' || b.status === 'rejected' || b.status === 'void' || isAdmin) out.push(`<button class="btn danger" data-act="delBill" data-id="${id}">Delete</button>`);
+    if (isAdmin && (b.status === 'approved') && !paidSum(b)) out.push(`<button class="btn" data-act="sendBack" data-id="${id}" title="Back to awaiting approval">Unapprove</button>`);
+    if (b.status === 'pending' || (isAdmin && b.status === 'approved' && !paidSum(b))) out.push(`<button class="btn" data-act="voidBill" data-id="${id}" title="Cancelled — keep it on record but don't pay it">Void</button>`);
+    if (b.status === 'rejected' || b.status === 'void') out.push(`<button class="btn" data-act="resubmit" data-id="${id}">Resubmit for approval</button>`);
+  }
+  out.push('<span class="sp"></span>');
+  if (isNew) {
+    out.push('<button class="btn ghost" data-act="closeDrawer">Cancel</button>');
+    if (isAdmin) out.push('<button class="btn" data-act="saveBill" data-then="approve">Save & approve</button>');
+    out.push(`<button class="btn primary" data-act="saveBill">${isAdmin ? 'Save' : 'Submit for approval'}</button>`);
+  } else {
+    if (isAdmin && b.status === 'pending') out.push(`<button class="btn" data-act="reject" data-id="${id}">Reject</button><button class="btn good" data-act="saveBill" data-then="approve">Approve</button>`);
+    out.push('<button class="btn primary" data-act="saveBill">Save</button>');
+  }
+  return out.join('');
+}
+function billDrawer(id, preset = {}) {
+  const existing = id && db.bills.get(id);
+  const isNew = !existing;
+  const t = today();
+  const b = existing ? structuredClone(existing) : { id: uid(), status: 'pending', currency: 'SAR', issueDate: t, dueDate: addDays(t, 30), payments: [], files: [], history: [], ...preset };
+  const uploaded = [];  // paths uploaded while a new bill was open, removed if it's cancelled
+  const paint = () => {
+    const cur = drawerState?.bill && isNew ? readBill(drawerState.bill) : b;
+    $('#drBody').innerHTML = (isNew ? '' : stateBlock(cur)) + billForm(cur) + (isNew ? '' : paymentsBlock(cur)) + filesBlock(cur, isNew) + (isNew ? '' : historyBlock(cur));
+    $('#drFoot').innerHTML = billFooter(cur, isNew);
+    wireBillForm();
+  };
+  openDrawer({
+    title: isNew ? 'New bill' : `${vendorName(b)} · ${b.number || 'Bill'}`, body: '', bill: b, isNew, uploaded,
+    refresh: () => {
+      if (isNew || !drawerState) return;
+      const fresh = db.bills.get(b.id);
+      if (!fresh) return closeDrawer();
+      if (JSON.stringify(fresh) !== JSON.stringify(drawerState.base)) { drawerState.base = structuredClone(fresh); Object.assign(drawerState.bill, structuredClone(fresh)); paintKeep(); }
+    },
+    onClose: () => { if (isNew && !db.bills.has(b.id)) uploaded.forEach(p => Backend.removeFile(p).catch(() => {})); },
+    base: existing ? structuredClone(existing) : null, paint,
+  });
+  paint();
+  if (isNew && !('ontouchstart' in window)) setTimeout(() => $('#fVendor')?.focus(), 220);
+}
+/* Repaint the bill drawer while keeping what's typed in the form. */
+function paintKeep() { if (!drawerState?.bill) return; readBill(drawerState.bill); drawerState.paint(); }
+function readBill(b) {
+  const d = $('#drawer'); if (!d.querySelector('[data-f="amount"]')) return b;
+  for (const k of ['vendorId','invoiceRef','category','description','eventId','currency','issueDate','dueDate','recurrence','notes']) { const v = fv(k); if (v !== undefined) b[k] = v; }
+  const a = fv('amount'); if (a !== undefined) b.amount = a === '' ? '' : round2(num(a));
+  const v = fv('vat'); if (v !== undefined) b.vat = v === '' ? '' : round2(num(v));
+  const s = fv('standing'); if (s !== undefined) b.standing = s;
+  b.vendorNew = fv('vendorNew') || '';
+  return b;
+}
+function wireBillForm() {
+  const vs = $('#fVendor'), nw = $('#fVendorNew'), due = $('#fDue'), issue = $('#fIssue'), hint = $('#dueHint');
+  const showHint = () => { if (!hint) return; const d = due.value; hint.textContent = d ? (d < today() ? `${plural(diff(d, today()), 'day')} ago` : d === today() ? 'Today' : `In ${plural(diff(today(), d), 'day')}`) : ''; hint.style.color = d && d < today() ? 'var(--red)' : ''; };
+  vs?.addEventListener('change', () => {
+    nw.classList.toggle('hidden', vs.value !== '__new'); if (vs.value === '__new') nw.focus();
+    const v = db.vendors.get(vs.value);
+    if (v) { if (v.category && !$('#fCat').value) $('#fCat').value = v.category; if (v.terms && drawerState?.isNew && issue.value) { due.value = addDays(issue.value, num(v.terms)); showHint(); } if (v.currency && drawerState?.isNew) $('#fCur').value = v.currency; }
+  });
+  issue?.addEventListener('change', () => { const v = db.vendors.get(vs.value); if (drawerState?.isNew && issue.value) { due.value = addDays(issue.value, num(v?.terms) || 30); showHint(); } });
+  due?.addEventListener('change', showHint); showHint();
+  $('#fRep')?.addEventListener('change', e => { const r = $('#standingRow'); if (r) r.hidden = !e.target.value; });
+  const inp = $('#fileIn'), drop = $('#drop');
+  inp?.addEventListener('change', () => { addFiles([...inp.files], 'invoice'); inp.value = ''; });
+  drop?.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+  drop?.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop?.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); addFiles([...e.dataTransfer.files], 'invoice'); });
+}
+async function addFiles(files, kind) {
+  const st = drawerState; if (!st?.bill || !files.length) return;
+  const b = st.bill; readBill(b);
+  for (const f of files) {
+    if (f.size > 15 * 1024 * 1024) { toast(`${f.name} is over 15 MB`, true); continue; }
+    try {
+      toast(`Uploading ${f.name}…`);
+      const path = await Backend.upload(b.id, f);
+      if (st.isNew) st.uploaded.push(path);
+      b.files = [...(b.files || []), { path, name: f.name, size: f.size, type: f.type, kind, at: new Date().toISOString(), by: me }];
+    } catch (e) { toast('Couldn’t upload — ' + (e.message || 'try again'), true); }
+  }
+  if (!st.isNew) {
+    try { const base = db.bills.get(b.id); const saved = await Backend.put('bills', b.id, { ...base, files: b.files }); st.base = structuredClone(saved); toast('File attached'); render(); }
+    catch (e) { return failed(e); }
+  } else toast('File attached');
+  if (drawerState === st) st.paint();
+}
+
+async function saveBill(then) {
+  const st = drawerState; if (!st?.bill) return;
+  const b = readBill(st.bill), isNew = st.isNew;
+  if (b.vendorId === '__new' && !b.vendorNew) return toast('Type the new supplier’s name', true);
+  if (!b.vendorId) return toast('Choose a supplier', true);
+  if (!(num(b.amount) > 0)) return toast('Enter the amount to pay', true);
+  if (!b.dueDate) return toast('Add a due date', true);
+  const btns = [...document.querySelectorAll('#drFoot .btn')]; btns.forEach(x => x.disabled = true);
+  try {
+    if (b.vendorId === '__new') {
+      const existing = [...db.vendors.values()].find(v => (v.name || '').toLowerCase() === b.vendorNew.toLowerCase());
+      if (existing) b.vendorId = existing.id;
+      else { const v = { id: uid(), name: b.vendorNew, category: b.category || '', currency: b.currency || 'SAR', terms: '', createdAt: new Date().toISOString(), createdBy: me }; await Backend.put('vendors', v.id, v); b.vendorId = v.id; }
+    }
+    b.vendorName = db.vendors.get(b.vendorId)?.name || '';
+    b.eventName = events.get(b.eventId)?.name || '';
+    delete b.vendorNew;
+    if (!b.recurrence) b.standing = false;
+    if (isNew) { b.number = nextNumber(); b.createdBy = me; b.createdAt = new Date().toISOString(); hist(b, 'added the bill'); }
+    else {
+      const was = db.bills.get(b.id) || {};
+      const changed = ['amount', 'currency', 'vendorId', 'dueDate'].filter(k => String(was[k] ?? '') !== String(b[k] ?? ''));
+      if (changed.length) hist(b, 'changed ' + changed.map(k => ({ amount: 'the amount', currency: 'the currency', vendorId: 'the supplier', dueDate: 'the due date' })[k]).join(', '));
+    }
+    if (then === 'approve' && isAdmin && b.status === 'pending') { b.status = 'approved'; hist(b, 'approved'); }
+    const saved = await Backend.put('bills', b.id, b);
+    st.isNew = false; st.uploaded.length = 0;
+    closeDrawer(); render();
+    toast(isNew ? (saved.status === 'approved' ? `${saved.number} added and approved` : `${saved.number} sent for approval`) : (then === 'approve' ? 'Approved' : 'Saved'));
+  } catch (e) { btns.forEach(x => x.disabled = false); failed(e); }
+}
+
+/* ---------------- status changes ---------------- */
+async function setStatus(id, status, act, note, extra = {}) {
+  const base = db.bills.get(id); if (!base) return;
+  const b = { ...structuredClone(base), status, ...extra };
+  hist(b, act, note);
+  try { await Backend.put('bills', id, b); render(); if (drawerState?.bill?.id === id) { drawerState.base = null; drawerState.refresh?.(); } return true; }
+  catch (e) { failed(e); return false; }
+}
+async function recordPayment(id) {
+  const b = db.bills.get(id); if (!b) return;
+  if (b.status !== 'approved') return toast('Approve this bill before recording a payment', true);
+  const left = owed(b), cur = curOf(b);
+  const r = await dialog({
+    title: `Pay ${vendorName(b)}`,
+    body: `<p>${esc(b.number || '')} · ${esc(money(left, cur))} still to pay${b.notes ? `</p><p style="font-size:12.5px;white-space:pre-wrap;border-left:2px solid var(--line2);padding-left:10px">${esc(b.notes)}` : ''}</p>
+      <div class="form">
+        <div class="f"><label>Amount paid (${esc(cur)})</label><input class="input num" data-k="amount" inputmode="decimal" value="${left}"></div>
+        <div class="f"><label>Date paid</label><input class="input" type="date" data-k="date" value="${today()}"></div>
+        <div class="f"><label>Method</label><select class="input" data-k="method">${opts(METHODS, 'Bank transfer')}</select></div>
+        <div class="f"><label>Reference</label><input class="input" data-k="ref" maxlength="60" placeholder="Transfer ref."></div>
+        <div class="f span"><label>Receipt (optional)</label><input class="input" type="file" data-k="file" accept="application/pdf,image/*"></div>
+      </div>`,
+    ok: 'Record payment', okClass: 'good',
+    check: v => !(num(v.amount) > 0) ? 'Enter the amount paid' : num(v.amount) - left > 0.005 ? `That's more than the ${money(left, cur)} still to pay` : !v.date ? 'Add the date paid' : '',
+  });
+  if (!r) return;
+  const nb = structuredClone(db.bills.get(id));
+  try {
+    if (r.file) { toast('Uploading receipt…'); const path = await Backend.upload(id, r.file); nb.files = [...(nb.files || []), { path, name: r.file.name, size: r.file.size, type: r.file.type, kind: 'receipt', at: new Date().toISOString(), by: me }]; }
+    const amt = round2(num(r.amount));
+    nb.payments = [...(nb.payments || []), { id: uid(), date: r.date, amount: amt, method: r.method, ref: r.ref, by: me, at: new Date().toISOString() }];
+    const full = owed(nb) <= 0.005;
+    if (full) nb.status = 'paid';
+    hist(nb, full ? 'paid in full' : 'recorded a part-payment', money(amt, cur));
+    const saved = await Backend.put('bills', id, nb);
+    let msg = full ? 'Paid — marked as settled' : `Part-payment recorded · ${money(owed(saved), cur)} left`;
+    if (full) { const next = await makeNext(saved); if (next) msg += ` · next one due ${fmtShort(next.dueDate)}`; }
+    render(); if (drawerState?.bill?.id === id) drawerState.refresh?.();
+    toast(msg);
+  } catch (e) { failed(e); }
+}
+/* After a repeating bill is paid, add the next one. */
+async function makeNext(b) {
+  if (!b.recurrence || b.nextId) return null;
+  const n = { monthly: 1, quarterly: 3, yearly: 12 }[b.recurrence]; if (!n) return null;
+  const nb = {
+    id: uid(), number: nextNumber(), vendorId: b.vendorId, vendorName: b.vendorName, category: b.category, eventId: '', eventName: '',
+    description: b.description, invoiceRef: '', currency: b.currency, amount: b.amount, vat: b.vat, recurrence: b.recurrence, standing: !!b.standing, notes: b.notes,
+    issueDate: b.issueDate ? addMonths(b.issueDate, n) : '', dueDate: addMonths(b.dueDate || today(), n),
+    status: b.standing && isAdmin ? 'approved' : 'pending', payments: [], files: [], history: [], createdBy: me, createdAt: new Date().toISOString(), prevId: b.id,
+  };
+  hist(nb, `added the next ${b.recurrence} bill`, 'after ' + b.number + ' was paid');
+  if (nb.status === 'approved') hist(nb, 'approved (pre-approved repeat)');
+  try { await Backend.put('bills', nb.id, nb); await Backend.put('bills', b.id, { ...db.bills.get(b.id), nextId: nb.id }); return nb; }
+  catch (e) { console.error(e); toast('Paid, but the next repeat couldn’t be added: ' + e.message, true); return null; }
+}
+
+/* ---------------- client invoice drawer ---------------- */
+function recvDrawer(id) {
+  const r = recv.get(id); if (!r) return;
+  const paint = () => {
+    const keepNote = $('#chNote')?.value || '';
+    const c = chaseOf(id), late = r.dueDate && r.dueDate < today() ? diff(r.dueDate, today()) : 0;
+    const subject = `Payment reminder: invoice ${r.number || ''}`.trim();
+    const text = `Dear ${r.contact || r.company || 'team'},\n\nI hope you're well. This is a friendly reminder that invoice ${r.number || ''} for ${money(r.due, r.currency)} ${late ? `was due on ${fmt(r.dueDate)} and is now ${plural(late, 'day')} overdue` : `is due on ${fmt(r.dueDate)}`}.\n\nThe payment details are on the invoice. If it's already been paid, please send us the transfer confirmation and ignore this message.\n\nThank you,\n${myName || ''}\nBlack Canvas`;
+    $('#drBody').innerHTML = `
+      <div class="state"><div><span class="pill ${late ? 'st-overdue' : 'st-approved'}">${late ? `${plural(late, 'day')} overdue` : 'Not overdue'}</span>
+        <div class="info" style="margin-top:8px"><b>${esc(r.company || 'Client')}</b>${r.contact ? ` · ${esc(r.contact)}` : ''}<br>Issued ${esc(fmt(r.issueDate))} · due ${esc(fmt(r.dueDate))}${r.project ? `<br>${esc(r.project)}` : ''}</div></div>
+        <div class="big num">${esc(money(r.due, r.currency))}<small>${num(r.paid) ? `owed of ${esc(money(r.total, r.currency))}` : 'owed'}</small></div></div>
+      <div class="block" style="border:0;margin-top:0;padding-top:0"><div class="block-h"><span class="lbl">Send a reminder</span></div>
+        <div class="mini">
+          ${r.email ? `<a class="btn" data-act="chaseVia" data-kind="email" data-id="${esc(id)}" href="mailto:${esc(r.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}">Email ${esc(r.email)}</a>` : '<span class="muted" style="font-size:13px">No client email on the invoice.</span>'}
+          ${r.phone && waNumber(r.phone) ? `<a class="btn" data-act="chaseVia" data-kind="whatsapp" data-id="${esc(id)}" target="_blank" rel="noopener" href="https://wa.me/${waNumber(r.phone)}?text=${encodeURIComponent(text)}">WhatsApp</a>` : ''}
+          <button class="btn" data-act="copyChase" data-id="${esc(id)}">Copy message</button>
+        </div>
+        <p class="foot-note">Opens a ready-written reminder in your email or WhatsApp. It's logged below when you click.</p>
+      </div>
+      <div class="block"><div class="block-h"><span class="lbl">Chasing log</span></div>
+        <div class="form" style="margin-bottom:12px">
+          <div class="f span"><label for="chNote">Add a note</label><input class="input" id="chNote" maxlength="300" placeholder="e.g. Spoke to finance, payment promised for Thursday"></div>
+          <div class="f"><label for="chNext">Follow up on</label><input class="input" type="date" id="chNext" value="${esc(c.nextFollowUp || '')}"></div>
+          <div class="f" style="justify-content:flex-end;align-items:flex-start"><button class="btn primary" data-act="chaseNote" data-id="${esc(id)}">Save</button></div>
+        </div>
+        ${(c.log || []).length ? `<div class="hist">${c.log.slice().reverse().map(x => `<div><span>${esc(fmtStamp(x.at))}</span><span><b>${esc(nameOf(x.by))}</b> ${esc({ email: 'emailed a reminder', whatsapp: 'sent a WhatsApp reminder', copy: 'copied the reminder', note: '' }[x.kind] ?? '')}${x.note ? (x.kind === 'note' ? esc(x.note) : ` — ${esc(x.note)}`) : ''}</span></div>`).join('')}</div>` : '<p class="dim" style="margin:0;font-size:13px">Nothing logged yet.</p>'}
+      </div>`;
+    drawerState.text = text;
+    if (keepNote) $('#chNote').value = keepNote;
+  };
+  openDrawer({ title: `${r.company || 'Client'} · ${r.number || 'Invoice'}`, body: '', footer: `<a class="btn" href="${esc(CONFIG.BILLING)}#doc=${encodeURIComponent(id)}">Open in Billing →</a><span class="sp"></span><button class="btn ghost" data-act="closeDrawer">Close</button>`, refresh: () => paint() });
+  paint();
+}
+async function logChase(id, entry, next) {
+  const c = structuredClone(chaseOf(id));
+  c.log = [...(c.log || []), { at: new Date().toISOString(), by: me, ...entry }].slice(-100);
+  if (next !== undefined) c.nextFollowUp = next;
+  else if (entry.kind !== 'note' && (!c.nextFollowUp || c.nextFollowUp <= today())) c.nextFollowUp = addDays(today(), 5);
+  try { await Backend.put('chase', id, c); render(); } catch (e) { failed(e); }
+}
+
+/* ---------------- supplier drawer ---------------- */
+function vendorDrawer(id) {
+  const v = id ? structuredClone(db.vendors.get(id)) : { id: uid(), name: '', category: '', currency: 'SAR', terms: '' };
+  const isNew = !id, s = isNew ? null : vendorStats(id);
+  openDrawer({
+    title: isNew ? 'New supplier' : v.name,
+    body: `<div class="form">
+      <div class="f span"><label>Name</label><input class="input" data-f="name" value="${esc(v.name)}" maxlength="120" placeholder="Company or person"></div>
+      <div class="f"><label>Usual category</label><select class="input" data-f="category"><option value="">—</option>${opts(CATEGORIES, v.category)}</select></div>
+      <div class="f"><label>Pays within (days)</label><input class="input num" data-f="terms" inputmode="numeric" value="${esc(v.terms)}" placeholder="30"></div>
+      <div class="f"><label>Contact person</label><input class="input" data-f="contact" value="${esc(v.contact)}" maxlength="80"></div>
+      <div class="f"><label>Currency</label><select class="input" data-f="currency">${opts(CURRENCIES, v.currency || 'SAR')}</select></div>
+      <div class="f"><label>Email</label><input class="input" type="email" data-f="email" value="${esc(v.email)}" maxlength="120"></div>
+      <div class="f"><label>Phone</label><input class="input" type="tel" data-f="phone" value="${esc(v.phone)}" maxlength="40"></div>
+      <div class="f"><label>VAT number</label><input class="input" data-f="vatNo" value="${esc(v.vatNo)}" maxlength="30"></div>
+      <div class="f"><label>CR number</label><input class="input" data-f="cr" value="${esc(v.cr)}" maxlength="30"></div>
+      <div class="f span"><label>Bank & IBAN</label><input class="input" data-f="bank" value="${esc(v.bank)}" maxlength="140" placeholder="Bank name · SA00 0000 0000 0000 0000 0000"></div>
+      <div class="f span"><label>Notes</label><textarea class="input" data-f="notes" maxlength="1000">${esc(v.notes)}</textarea></div>
+    </div>
+    ${isNew ? '' : `<div class="block"><div class="block-h"><span class="lbl">Bills</span><span class="muted num" style="font-size:12px">Open ${esc(fmtSums(s.owed))} · paid this year ${esc(fmtSums(s.paidYr))}</span></div>
+      ${s.list.length ? s.list.sort((a, b) => sortDue(b, a)).slice(0, 30).map(b => `<div class="line" data-act="openBill" data-id="${esc(b.id)}" style="cursor:pointer"><div><b>${esc(b.number)}</b> · ${esc(b.description || b.category || '')}<small>Due ${esc(fmt(b.dueDate))}</small></div><span class="r num">${esc(money(b.amount, curOf(b)))}</span>${pill(stateOf(b))}</div>`).join('') : '<p class="dim" style="margin:0;font-size:13px">No bills yet.</p>'}
+      <div style="margin-top:12px"><button class="btn sm" data-act="newBillFor" data-id="${esc(id)}">${ICON.plus} New bill from ${esc(v.name)}</button></div></div>`}`,
+    footer: `${isNew ? '' : '<button class="btn danger" data-act="delVendor">Delete</button>'}<span class="sp"></span><button class="btn ghost" data-act="closeDrawer">Cancel</button><button class="btn primary" data-act="saveVendor">Save</button>`,
+    vendor: v,
+  });
+}
+async function saveVendor() {
+  const v = drawerState?.vendor; if (!v) return;
+  for (const k of ['name','category','terms','contact','currency','email','phone','vatNo','cr','bank','notes']) v[k] = fv(k);
+  if (!v.name) return toast('Add the supplier’s name', true);
+  if (v.terms) v.terms = String(Math.max(0, Math.round(num(v.terms))));
+  try { await Backend.put('vendors', v.id, v); closeDrawer(); render(); toast('Supplier saved'); } catch (e) { failed(e); }
+}
+
+/* ---------------- settings ---------------- */
+function settingsDrawer() {
+  const s = settings();
+  openDrawer({
+    title: 'Settings',
+    body: `<div class="form">
+      <div class="f"><label>Warn this many days before a due date</label><input class="input num" data-f="remindDays" inputmode="numeric" value="${esc(s.remindDays)}"><span class="hint">Also used by the morning digest.</span></div>
+      <div class="f"><label>Bill number prefix</label><input class="input" data-f="prefix" value="${esc(s.prefix)}" maxlength="10"><span class="hint">Bills are numbered ${esc((s.prefix || 'BILL') + '-' + today().slice(0, 4))}-001, -002…</span></div>
+    </div>
+    <div class="block"><span class="lbl">Who approves</span><p class="muted" style="margin:8px 0 0;font-size:13px">Portal admins approve and reject bills. Give someone the Bills app in Team access on the apps screen; tick Admin there to make them an approver.</p></div>`,
+    footer: `<span class="sp"></span><button class="btn ghost" data-act="closeDrawer">Cancel</button><button class="btn primary" data-act="saveSettings">Save</button>`,
+  });
+}
+
+/* =========================================================================
+   Dialog (confirm or a small form)
+   ========================================================================= */
+function dialog({ title, body, ok = 'OK', okClass = 'primary', check = null }) {
+  return new Promise(resolve => {
+    const m = document.createElement('div');
+    m.className = 'modal'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true');
+    m.innerHTML = `<div class="modal-box"><h2>${esc(title)}</h2>${body}<p class="err" style="color:var(--red);font-size:13px" hidden></p>
+      <div class="acts"><button class="btn ghost" data-r="cancel">Cancel</button><button class="btn ${okClass}" data-r="ok">${esc(ok)}</button></div></div>`;
+    const vals = () => Object.fromEntries([...m.querySelectorAll('[data-k]')].map(el => [el.dataset.k, el.type === 'file' ? (el.files[0] || null) : el.value.trim()]));
+    const done = r => { m.remove(); document.removeEventListener('keydown', key, true); resolve(r); };
+    const key = e => { if (e.key === 'Escape') { e.stopPropagation(); done(null); } if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type !== 'file') { e.preventDefault(); m.querySelector('[data-r=ok]').click(); } };
+    m.addEventListener('click', e => {
+      const b = e.target.closest('[data-r]'); if (!b && e.target === m) return done(null); if (!b) return;
+      if (b.dataset.r === 'cancel') return done(null);
+      const v = vals(), problem = check ? check(v) : '';
+      if (problem) { const p = m.querySelector('.err'); p.textContent = problem; p.hidden = false; return; }
+      done(v);
+    });
+    document.addEventListener('keydown', key, true);
+    document.body.appendChild(m);
+    (m.querySelector('[data-k]') || m.querySelector('[data-r=ok]')).focus();
+  });
+}
+
+/* =========================================================================
+   Actions
+   ========================================================================= */
+const billIdOf = el => el.dataset.id || drawerState?.bill?.id;
+const actions = {
+  go: el => { location.hash = el.dataset.href; },
+  newBill: () => billDrawer(null),
+  newBillFor: el => { const v = db.vendors.get(el.dataset.id); closeDrawer(); billDrawer(null, { vendorId: v.id, category: v.category || '', currency: v.currency || 'SAR', dueDate: addDays(today(), num(v.terms) || 30) }); },
+  openBill: el => { if (drawerState && !drawerState.bill) closeDrawer(); billDrawer(el.dataset.id); },
+  openRecv: el => recvDrawer(el.dataset.id),
+  openVendor: el => vendorDrawer(el.dataset.id),
+  newVendor: () => vendorDrawer(null),
+  saveVendor,
+  delVendor: async () => {
+    const v = drawerState?.vendor; if (!v) return;
+    if (bills().some(b => b.vendorId === v.id)) return toast('This supplier has bills. Keep it for the record.', true);
+    if (!(await dialog({ title: `Delete ${v.name}?`, body: '<p>The supplier is removed from the list.</p>', ok: 'Delete', okClass: 'danger-solid' }))) return;
+    try { await Backend.del('vendors', v.id); closeDrawer(); render(); toast('Deleted'); } catch (e) { failed(e); }
+  },
+  settings: () => settingsDrawer(),
+  saveSettings: async () => {
+    const s = { ...settings(), remindDays: Math.max(1, Math.min(60, Math.round(num(fv('remindDays'))) || 7)), prefix: (fv('prefix') || 'BILL').replace(/[^\w-]/g, '').toUpperCase() || 'BILL' };
+    try { await Backend.put('settings', 'main', s); closeDrawer(); render(); toast('Settings saved'); } catch (e) { failed(e); }
+  },
+  saveBill: el => saveBill(el.dataset.then),
+  vat15: () => { const a = num($('#fAmt')?.value); if (a > 0) $('#fVat').value = round2(a * 15 / 115); },
+  approve: async el => { const id = billIdOf(el); if (await setStatus(id, 'approved', 'approved')) toast('Approved — ready to pay'); },
+  reject: async el => {
+    const id = billIdOf(el), b = db.bills.get(id);
+    const r = await dialog({ title: `Reject ${b.number}?`, body: `<p>${esc(vendorName(b))} · ${esc(money(b.amount, curOf(b)))}</p><div class="form"><div class="f span"><label>Reason (shown to the team)</label><input class="input" data-k="reason" maxlength="200" placeholder="e.g. Wrong amount — ask for a corrected invoice"></div></div>`, ok: 'Reject', okClass: 'danger-solid' });
+    if (r && await setStatus(id, 'rejected', 'rejected', r.reason, { rejectReason: r.reason })) toast('Rejected');
+  },
+  sendBack: async el => { if (await setStatus(billIdOf(el), 'pending', 'sent back for approval')) toast('Back to awaiting approval'); },
+  resubmit: async el => { if (await setStatus(billIdOf(el), 'pending', 'resubmitted for approval', '', { rejectReason: '' })) toast('Sent for approval'); },
+  voidBill: async el => {
+    const id = billIdOf(el), b = db.bills.get(id);
+    if (!(await dialog({ title: `Void ${b.number}?`, body: '<p>It stays on record as cancelled and won’t be paid or remind anyone.</p>', ok: 'Void', okClass: 'danger-solid' }))) return;
+    if (await setStatus(id, 'void', 'voided')) toast('Voided');
+  },
+  delBill: async el => {
+    const id = billIdOf(el), b = db.bills.get(id);
+    if (!(await dialog({ title: `Delete ${b.number}?`, body: `<p>${esc(vendorName(b))} · ${esc(money(b.amount, curOf(b)))}. The bill and its files are deleted for good.${['approved', 'paid'].includes(b.status) ? ' To keep a record, void it instead.' : ''}</p>`, ok: 'Delete', okClass: 'danger-solid' }))) return;
+    try { await Backend.del('bills', id); closeDrawer(); for (const f of b.files || []) Backend.removeFile(f.path).catch(() => {}); render(); toast('Deleted'); } catch (e) { failed(e); }
+  },
+  pay: el => recordPayment(billIdOf(el)),
+  delPayment: async el => {
+    const id = billIdOf(el), i = +el.dataset.i, b = structuredClone(db.bills.get(id)), p = b.payments[i];
+    if (!(await dialog({ title: 'Remove this payment?', body: `<p>${esc(money(p.amount, curOf(b)))} on ${esc(fmt(p.date))}.${b.status === 'paid' ? ' The bill goes back to unpaid.' : ''}</p>`, ok: 'Remove', okClass: 'danger-solid' }))) return;
+    b.payments.splice(i, 1); if (b.status === 'paid') b.status = 'approved';
+    hist(b, 'removed a payment', money(p.amount, curOf(b)));
+    try { await Backend.put('bills', id, b); render(); drawerState?.refresh?.(); toast('Payment removed'); } catch (e) { failed(e); }
+  },
+  openFile: async el => { const w = window.open('', '_blank'); try { const u = await Backend.fileUrl(el.dataset.path); if (w) w.location = u; else location.href = u; } catch (e) { w?.close(); toast(e.message || 'Couldn’t open the file', true); } },
+  delFile: async el => {
+    const st = drawerState, b = st?.bill; if (!b) return;
+    readBill(b);
+    const f = b.files[+el.dataset.i];
+    if (!(await dialog({ title: 'Remove this file?', body: `<p>${esc(f.name)}</p>`, ok: 'Remove', okClass: 'danger-solid' }))) return;
+    b.files = b.files.filter((_, i) => i !== +el.dataset.i);
+    try {
+      if (!st.isNew) { const saved = await Backend.put('bills', b.id, { ...db.bills.get(b.id), files: b.files }); st.base = structuredClone(saved); render(); }
+      Backend.removeFile(f.path).catch(() => {});
+      st.paint(); toast('File removed');
+    } catch (e) { failed(e); }
+  },
+  chaseVia: el => { logChase(el.dataset.id, { kind: el.dataset.kind }); return 'follow'; },
+  copyChase: async el => { try { await navigator.clipboard.writeText(drawerState?.text || ''); toast('Reminder copied'); logChase(el.dataset.id, { kind: 'copy' }); } catch { toast('Couldn’t copy', true); } },
+  chaseNote: el => { const note = $('#chNote').value.trim(), next = $('#chNext').value; if (!note && next === (chaseOf(el.dataset.id).nextFollowUp || '')) return toast('Write a note or change the follow-up date', true); logChase(el.dataset.id, { kind: 'note', note: note || `Follow-up set for ${fmtShort(next)}` }, next); toast('Saved'); },
+  filter: el => { ui.filter = el.dataset.f; persistUI(); render(); },
+  csv: () => {
+    const rows = [['Bill no.','Supplier','Their invoice no.','Category','Event','Description','Invoice date','Due date','Currency','Amount','VAT','Paid','Outstanding','Status','Approved by','Paid on']];
+    for (const b of filtered().sort(sortDue)) rows.push([b.number, vendorName(b), b.invoiceRef, b.category, events.get(b.eventId)?.name || b.eventName || '', b.description, b.issueDate, b.dueDate, curOf(b), num(b.amount), b.vat === '' || b.vat == null ? '' : num(b.vat), paidSum(b), Math.max(0, owed(b)), ST_LABEL[stateOf(b)], b.approvedBy ? nameOf(b.approvedBy) : '', (b.payments || []).map(p => p.date).join(' ')]);
+    const csv = '﻿' + rows.map(r => r.map(c => { const s = String(c ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }).join(',')).join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `black-canvas-bills-${today()}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  },
+  closeDrawer: () => closeDrawer(),
+  signOut: async () => { try { await sb.auth.signOut(); } finally { leave(''); } },
+  resetDemo: () => { if (confirm('Reset demo data?')) { try { localStorage.removeItem('bc-bills-demo'); } catch {} location.reload(); } },
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  if (e.target.closest('[data-stop]') && !el.hasAttribute('data-stop')) return;
+  const fn = actions[el.dataset.act]; if (!fn) return;
+  const follow = el.dataset.act === 'chaseVia';
+  if (el.tagName === 'A' && !follow) e.preventDefault();
+  e.stopPropagation();
+  fn(el, e);
+});
+document.addEventListener('change', e => { const k = e.target.dataset.chg; if (!k) return; ui[k] = e.target.value; persistUI(); render(); });
+document.addEventListener('input', e => { const k = e.target.dataset.inp; if (!k) return; ui[k] = e.target.value; render(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && drawerState && !document.querySelector('.modal')) return closeDrawer();
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('[role=link][data-act]')) { e.preventDefault(); e.target.click(); }
+});
+$('#scrim').addEventListener('click', closeDrawer);
+window.addEventListener('hashchange', () => { closeDrawer(); render(); window.scrollTo(0, 0); });
+
+let toastT;
+function toast(msg, err = false) { const t = $('#toast'); t.textContent = msg; t.className = 'toast on' + (err ? ' err' : ''); clearTimeout(toastT); toastT = setTimeout(() => t.className = 'toast', err ? 4500 : 2400); }
+
+/* =========================================================================
+   Boot
+   ========================================================================= */
+function leave(to) { location.replace(CONFIG.PORTAL_HOME + to); }
+async function start() {
+  try {
+    if (DEMO) { me = 'you@blackcanvasglobal.com'; myName = 'You'; isAdmin = new URLSearchParams(location.search).get('demo') !== 'team'; }
+    else {
+      if (!sb) throw new Error('The portal connection settings are missing (config.js).');
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return leave('?next=bills');
+      me = (session.user.email || '').toLowerCase();
+      myName = BCPortal.displayName(session.user);
+      sb.auth.onAuthStateChange((ev, ses) => { if (ev === 'SIGNED_OUT' || (!ses && ev !== 'INITIAL_SESSION')) leave(''); });
+      const { data: access, error } = await sb.rpc('my_access');
+      if (error) { if (/jwt/i.test(error.message || '')) return leave('?next=bills'); throw error; }
+      if (!(access?.apps || []).includes('bills')) return leave('?noaccess=bills');
+      isAdmin = !!access.is_admin;
+    }
+    await Backend.load();
+    Backend.subscribe();
+    shell();
+    const nb = new URLSearchParams(location.search).get('bill'); if (nb && db.bills.has(nb)) billDrawer(nb);
+  } catch (e) {
+    console.error(e);
+    $('#app').innerHTML = `<div class="loading"><div style="text-align:center"><b>Couldn’t load Bills</b><br><span class="muted">${esc(e.message || e)}</span><br><br><button class="btn" onclick="location.reload()">Try again</button></div></div>`;
+  }
+}
+
+/* =========================================================================
+   Demo data (only used with ?demo)
+   ========================================================================= */
+function seedDemo() {
+  const t = today(), store = { events: {}, recv: {}, ...Object.fromEntries(COLLS.map(c => [c, {}])) };
+  const V = [['v1','Gulf Stage Rentals','Equipment hire',30,'SAR'],['v2','Riyadh Front Arena','Venue',14,'SAR'],['v3','Khalid Al-Harbi','Freelancers & crew',7,'SAR'],['v4','Olaya Business Tower','Rent & office',0,'SAR'],['v5','STC Business','Utilities & telecom',15,'SAR'],['v6','Adobe','Software & subscriptions',0,'USD'],['v7','Saudia Cargo','Transport & logistics',21,'SAR']];
+  V.forEach(([id, name, category, terms, currency]) => store.vendors[id] = { id, name, category, terms: String(terms), currency, contact: '', email: '', phone: '' });
+  store.events.e1 = { id: 'e1', name: 'Desert Lights Concert', code: 'BC-2611', status: 'build', dates: { showStart: addDays(t, 3) } };
+  store.events.e2 = { id: 'e2', name: 'Padel Open Finals', code: 'BC-2614', status: 'preprod', dates: { showStart: addDays(t, 9) } };
+  const at = new Date().toISOString();
+  const B = [
+    ['v1','LED wall and media server hire','e1','INV-20431',86250,11250,-12,-4,'approved',[],''],
+    ['v2','Venue deposit, 50%','e2','RFA-118',57500,7500,-6,2,'approved',[],''],
+    ['v3','Head rigger, 6 days','e1','',8400,'',-2,5,'pending',[],''],
+    ['v7','Freight Jeddah to Riyadh','e1','SC-7781',12650,1650,-1,20,'pending',[],''],
+    ['v4','Office rent, November','','',18000,'',-25,-2,'approved',[],'monthly'],
+    ['v5','Internet and mobiles','','99012',2300,300,-10,5,'approved',[],'monthly'],
+    ['v6','Creative Cloud team, 5 seats','','',449.95,'',-3,12,'approved',[],'monthly'],
+    ['v1','Lighting hire, AlUla activation','','INV-20388',41400,5400,-50,-20,'paid',[{ id: 'p1', date: addDays(t, -19), amount: 41400, method: 'Bank transfer', ref: 'TRX-55102', by: 'mo.tamer@blackcanvasglobal.com', at }],''],
+    ['v3','Rigging, AlUla activation','','',5600,'',-40,-30,'approved',[{ id: 'p2', date: addDays(t, -25), amount: 2800, method: 'Bank transfer', ref: '', by: 'mo.tamer@blackcanvasglobal.com', at }],''],
+  ];
+  B.forEach(([vendorId, description, eventId, invoiceRef, amount, vat, iss, due, status, payments, recurrence], i) => {
+    const id = 'b' + i, v = store.vendors[vendorId];
+    store.bills[id] = { id, number: `BILL-${t.slice(0, 4)}-${String(i + 1).padStart(3, '0')}`, vendorId, vendorName: v.name, category: v.category, eventId, description, invoiceRef, amount, vat, currency: v.currency,
+      issueDate: addDays(t, iss), dueDate: addDays(t, due), status, payments, files: [], recurrence, standing: !!recurrence, notes: vendorId === 'v4' ? 'Transfer to Al Rajhi · SA03 8000 0000 6080 1016 7519' : '',
+      createdBy: 'w.almalki@blackcanvasglobal.com', createdAt: at, ...(status !== 'pending' ? { approvedBy: 'mo.tamer@blackcanvasglobal.com', approvedAt: at } : {}),
+      history: [{ at, by: 'w.almalki@blackcanvasglobal.com', act: 'added the bill' }] };
+  });
+  store.recv.r1 = { id: 'r1', number: `BC-INV-${t.slice(0, 4)}-014`, company: 'Horizon Entertainment', contact: 'Sara Al-Qahtani', email: 'accounts@example.com', phone: '0551234567', issueDate: addDays(t, -40), dueDate: addDays(t, -10), currency: 'SAR', total: 230000, paid: 115000, due: 115000, project: 'Desert Lights Concert' };
+  store.recv.r2 = { id: 'r2', number: `BC-INV-${t.slice(0, 4)}-016`, company: 'Ace Sports Group', contact: 'Omar', email: 'finance@example.com', phone: '', issueDate: addDays(t, -25), dueDate: addDays(t, 5), currency: 'SAR', total: 95956, paid: 0, due: 95956, project: 'Padel Open Finals' };
+  store.recv.r3 = { id: 'r3', number: `BC-INV-${t.slice(0, 4)}-017`, company: 'Northwind Motors', contact: '', email: '', phone: '', issueDate: addDays(t, -5), dueDate: addDays(t, 25), currency: 'SAR', total: 48300, paid: 0, due: 48300, project: '' };
+  store.chase.r1 = { id: 'r1', log: [{ at: new Date(Date.now() - 6 * 864e5).toISOString(), by: 'y.alanazi@blackcanvasglobal.com', kind: 'email' }], nextFollowUp: addDays(t, -1) };
+  store.settings.main = { remindDays: 7, prefix: 'BILL' };
+  lsSet('bc-bills-demo', store);
+  return store;
+}
+
+if (!DEMO) sb = BCPortal.client();
+start();
+</script>
+</body>
+</html>

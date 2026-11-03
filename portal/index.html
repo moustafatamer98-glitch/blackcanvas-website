@@ -112,7 +112,7 @@ input[type=checkbox]{width:18px;height:18px;padding:0;margin:0;accent-color:var(
 input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
 .add-foot{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;justify-content:space-between}
 .acc-list{margin-top:28px;border-top:1.5px solid var(--fg)}
-.acc-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(4,110px) 190px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.acc-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(5,100px) 190px;gap:12px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
 .acc-row.head{padding:10px 0}
 .acc-row.head span{font:500 10px/1.25 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .acc-row .c{display:flex;justify-content:center}
@@ -198,7 +198,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
     </div>
     <p class="msg apps-note" id="appsNote" role="status" hidden></p>
     <div class="tiles" id="tiles">
-      <a class="tile" href="billing/?v=20261102b" id="tBilling" data-app="billing" hidden>
+      <a class="tile" href="billing/?v=20261103a" id="tBilling" data-app="billing" hidden>
         <span class="ic"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5h22l10 10v36H12z"/><path d="M34 5v10h10"/><path d="M19 25h18M19 32h18M19 39h10"/><rect x="34" y="40" width="8" height="8" fill="#F04E23" stroke="none"/></svg></span>
         <div><h2>Billing</h2></div>
         <p>Quotes and tax invoices in SAR, with VAT, ZATCA QR and PDF export.</p>
@@ -215,6 +215,12 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
         <div><h2>Project management</h2></div>
         <p>Event deliveries and tasks by department, production schedules and a timeline from pitch to load-out.</p>
         <div class="foot"><span class="chip" style="color:var(--good);border-color:currentColor">Live</span><span class="go">Open →</span></div>
+      </a>
+      <a class="tile" href="bills/" id="tBills" data-app="bills" hidden>
+        <span class="ic"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5h32v46l-6-4-5 4-5-4-5 4-5-4-6 4z"/><path d="M20 17h16M20 25h16M20 33h9"/><rect x="34" y="31" width="8" height="8" fill="#F04E23" stroke="none"/></svg></span>
+        <div><h2>Bills</h2></div>
+        <p>Supplier bills to approve and pay, due-date alerts, and client invoices to chase.</p>
+        <div class="foot"><span class="chip" id="billsChip" style="color:var(--good);border-color:currentColor">Live</span><span class="go">Open →</span></div>
       </a>
       <button class="tile" type="button" data-app="admin" id="tAccess" hidden>
         <span class="ic"><svg viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><rect x="10" y="24" width="36" height="26"/><path d="M18 24v-7a10 10 0 0 1 20 0v7"/><rect x="24" y="33" width="8" height="8" fill="#F04E23" stroke="none"/></svg></span>
@@ -243,6 +249,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
         <label class="ck" for="aBilling"><input type="checkbox" id="aBilling" value="billing">Billing</label>
         <label class="ck" for="aCrew"><input type="checkbox" id="aCrew" value="crew">Crew assignment</label>
         <label class="ck" for="aProjects"><input type="checkbox" id="aProjects" value="projects">Project management</label>
+        <label class="ck" for="aBills"><input type="checkbox" id="aBills" value="bills">Bills</label>
         <label class="ck" for="aAdmin"><input type="checkbox" id="aAdmin">Admin</label>
       </div>
       <div class="add-foot">
@@ -270,7 +277,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
   var VIEWS = ["vLoading", "vSetup", "vSignIn", "vForgot", "vSetPw", "vApps", "vAccess"];
   function show(id) { VIEWS.forEach(function (v) { $("#" + v).hidden = v !== id; }); var f = $("#" + id + " input"); if (f && id !== "vApps" && id !== "vAccess") f.focus(); }
   var esc = function (t) { return String(t == null ? "" : t).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); };
-  var APPS = [["billing", "Billing"], ["crew", "Crew assignment"], ["projects", "Project management"]];
+  var APPS = [["billing", "Billing"], ["crew", "Crew assignment"], ["projects", "Project management"], ["bills", "Bills"]];
   function msg(el, text, kind) { el.textContent = text; el.className = "msg " + (kind || "err"); el.hidden = !text; }
   function busy(btn, on, label) { btn.disabled = on; if (label) btn.textContent = label; }
 
@@ -280,7 +287,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
   var hash = new URLSearchParams(location.hash.replace(/^#/, ""));
   var linkType = hash.get("type");               // "invite" or "recovery" from email links
   var linkError = hash.get("error_description");
-  var nextApp = { billing: "billing", crew: "crew", projects: "projects" }[params.get("next")] || "";
+  var nextApp = { billing: "billing", crew: "crew", projects: "projects", bills: "bills" }[params.get("next")] || "";
   var next = nextApp ? nextApp + "/" : "";
   var noAccess = params.get("noaccess");
 
@@ -323,10 +330,27 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
       var on = t.dataset.app === "admin" ? access.is_admin : access.apps.indexOf(t.dataset.app) >= 0;
       t.hidden = !on; if (on) any = true;
     });
-    var label = { billing: "Billing", crew: "Crew assignment", projects: "Project management" }[noAccess];
+    var label = { billing: "Billing", crew: "Crew assignment", projects: "Project management", bills: "Bills" }[noAccess];
+    if (access.apps.indexOf("bills") >= 0) paintBillsChip();
     if (!any) msg($("#appsNote"), "Your account doesn't have any apps yet. Ask a portal admin to give you access.", "err");
     else if (label) msg($("#appsNote"), "Your account doesn't have access to " + label + ". Ask a portal admin if you need it.", "err");
     else msg($("#appsNote"), "");
+  }
+
+  /* Bills tile: what needs attention right now. */
+  function paintBillsChip() {
+    sb.rpc("bills_alerts").then(function (r) {
+      var a = r.data, chip = $("#billsChip"); if (r.error || !a || !chip) return;
+      var parts = [];
+      if (a.overdue) parts.push(a.overdue + " overdue");
+      if (access.is_admin && a.approval) parts.push(a.approval + " to approve");
+      if (a.invoicesOverdue) parts.push(a.invoicesOverdue + " to chase");
+      if (!parts.length && a.soon) parts.push(a.soon + " due soon");
+      if (!parts.length) return;
+      chip.textContent = parts.join(" · ");
+      chip.style.color = (a.overdue || a.invoicesOverdue) ? "var(--bad)" : "var(--ember-text)";
+      $("#tBills").setAttribute("aria-label", "Bills: " + parts.join(", "));
+    });
   }
 
   var settingPassword = linkType === "invite" || linkType === "recovery";
@@ -495,7 +519,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
   $("#fAdd").addEventListener("submit", function (e) {
     e.preventDefault();
     var email = $("#aEmail").value.trim().toLowerCase(), note = $("#aNote").value.trim();
-    var apps = ["aBilling", "aCrew", "aProjects"].filter(function (id) { return $("#" + id).checked; }).map(function (id) { return $("#" + id).value; });
+    var apps = ["aBilling", "aCrew", "aProjects", "aBills"].filter(function (id) { return $("#" + id).checked; }).map(function (id) { return $("#" + id).value; });
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg($("#aMsg"), "Enter a valid email address."); return; }
     if (!apps.length && !$("#aAdmin").checked) { msg($("#aMsg"), "Tick at least one app."); return; }
     if (team.some(function (p) { return p.email === email; })) { msg($("#aMsg"), "That email is already on the list below. Change their apps there."); return; }

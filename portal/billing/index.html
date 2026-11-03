@@ -494,6 +494,9 @@ async function initStore() {
   loading = false; pending.forEach(ch => applyRow(...ch));
   ["docs", "clients", "rates", "settings"].forEach(k => S.loaded.add(k));
   render();
+  /* Opened from another app with #doc=<id> (e.g. "Open in Billing" in Bills). */
+  const want = new URLSearchParams(location.hash.replace(/^#/, "")).get("doc");
+  if (want) { history.replaceState(null, "", location.pathname + location.search); if (S.docs.has(want)) openDoc(want); }
 }
 
 /* ---------- UI state ---------- */
