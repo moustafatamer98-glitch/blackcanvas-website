@@ -1,0 +1,1744 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="../../card/apple-touch-icon.png">
+<title>Black Canvas Staff</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,400..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* same palette as the portal, Billing and Projects */
+  --bg:#0B0B0C; --panel:#141416; --panel2:#1D1D21; --raise:#24242A; --line:#2B2B30; --line2:#45454B;
+  --text:#F4F3EF; --muted:#9C9EA3; --dim:#66686D;
+  --orange:#F04E23; --orange-soft:rgba(240,78,35,.14);
+  --red:#FF7086; --amber:#E6B450; --blue:#7FA2FF; --violet:#B39BFF; --green:#5BC994; --white:#F4F3EF;
+  --radius:6px; --side:220px;
+  --font:'Archivo',Arial,sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+.num{font-variant-numeric:tabular-nums}
+.hidden{display:none!important}
+
+/* ---------- logo ---------- */
+.logo-svg{display:block;width:150px;color:var(--text)}
+.logo-svg svg{display:block;width:100%;height:auto}
+.logo{font-weight:900;font-stretch:80%;letter-spacing:.01em;line-height:.9;font-size:20px;text-transform:uppercase;user-select:none}
+.logo .o{color:transparent;-webkit-text-stroke:1.1px var(--text)}
+.logo .dot{display:inline-block;width:.32em;height:.32em;background:var(--orange);margin-left:.08em}
+.logo-sub{font-size:10px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase;margin-top:6px;font-weight:600}
+
+/* ---------- shell ---------- */
+.shell{display:grid;grid-template-columns:var(--side) 1fr;min-height:100vh}
+.side{position:sticky;top:0;height:100vh;border-right:1px solid var(--line);padding:22px 14px;display:flex;flex-direction:column;gap:22px;background:var(--bg)}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;text-decoration:none;color:var(--muted);font-weight:500}
+.nav a:hover{background:var(--panel2);color:var(--text)}
+.nav a.on{background:var(--panel2);color:var(--text)}
+.nav a.on svg{color:var(--orange)}
+.nav svg{width:17px;height:17px;flex:none}
+.nav .count{margin-left:auto;font-size:11px;background:var(--red);color:#fff;border-radius:20px;padding:0 6px;font-weight:700}
+.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--muted)}
+.side-foot a{text-decoration:none}
+.side-foot a:hover{color:var(--text)}
+.me{display:flex;align-items:center;gap:8px}
+main{min-width:0;padding:28px 34px 80px}
+.demo-bar{background:var(--orange-soft);color:var(--orange);border:1px solid rgba(240,78,35,.35);padding:7px 12px;border-radius:8px;font-size:12px;margin-bottom:18px;font-weight:600}
+
+/* ---------- type ---------- */
+h1{font-size:40px;font-weight:900;font-stretch:62.5%;text-transform:uppercase;letter-spacing:.005em;margin:0;line-height:1}
+h2{font-size:15px;font-weight:700;margin:0;text-transform:uppercase;letter-spacing:.06em;font-stretch:90%}
+.eyebrow{font:500 11px/1.3 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)} .dim{color:var(--dim)}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+
+/* ---------- controls ---------- */
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);background:var(--panel2);padding:8px 13px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap;text-decoration:none}
+.btn:hover{border-color:#4a4a4a;background:var(--raise)}
+.btn.primary{background:var(--orange);border-color:var(--orange);color:#0a0a0a}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{color:var(--text);background:var(--panel2)}
+.btn.danger{color:var(--red);border-color:rgba(255,77,79,.4);background:transparent}
+.btn.sm{padding:5px 9px;font-size:12px}
+.btn svg{width:15px;height:15px}
+.input,select.input,textarea.input{width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;outline:none}
+.input:focus{border-color:var(--orange)}
+textarea.input{resize:vertical;min-height:84px}
+select.input{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 15px) 52%,calc(100% - 10px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:28px}
+input[type=date].input,input[type=time].input{color-scheme:dark}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:6px 11px;cursor:pointer;color:var(--muted);font-size:12px;font-weight:600}
+.seg button.on{background:var(--raise);color:var(--text)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line2);background:transparent;border-radius:30px;padding:5px 12px;font-size:12px;cursor:pointer;color:var(--muted);font-weight:600}
+.chip.on{background:var(--text);color:#0a0a0a;border-color:var(--text)}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.toolbar .grow{flex:1;min-width:180px}
+.check{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;cursor:pointer;user-select:none}
+
+/* ---------- pills ---------- */
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:20px;border:1px solid currentColor;white-space:nowrap;line-height:1.3}
+.pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.s-pitch{color:var(--muted)} .s-confirmed{color:var(--white)} .s-preprod{color:var(--blue)} .s-build{color:var(--amber)}
+.s-live{color:var(--orange)} .s-derig{color:var(--violet)} .s-wrap{color:var(--green)} .s-closed{color:var(--dim)} .s-lost{color:var(--red)}
+.s-live::before{animation:pulse 1.4s infinite}
+@keyframes pulse{50%{opacity:.25}}
+.tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:5px;background:var(--raise);color:var(--muted);white-space:nowrap;font-weight:500}
+.prio{width:8px;height:8px;border-radius:2px;flex:none;display:inline-block}
+.p-low{background:var(--dim)} .p-normal{background:var(--blue)} .p-high{background:var(--amber)} .p-critical{background:var(--red)}
+
+select.status-sel{width:auto;padding:4px 28px 4px 12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-radius:20px;border-color:currentColor;background-color:transparent}
+select.status-sel option{color:var(--text);background:var(--panel)}
+/* ---------- KPI & cards ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.kpi .v{font-size:30px;font-weight:800;font-stretch:80%;line-height:1;margin-top:8px}
+.kpi.alert .v{color:var(--red)}
+.hero{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--orange);border-radius:var(--radius);padding:18px 22px;margin-bottom:22px;cursor:pointer}
+.hero:hover{border-color:var(--line2);border-left-color:var(--orange)}
+.hero .big{font-size:56px;font-weight:900;font-stretch:72%;line-height:.85;color:var(--orange)}
+.hero .big small{display:block;font-size:11px;letter-spacing:.2em;color:var(--muted);font-stretch:100%;font-weight:600;margin-top:6px;text-transform:uppercase}
+.hero .t{font-size:22px;font-weight:800;font-stretch:82%;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;cursor:pointer;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;text-align:left}
+.card:hover{border-color:var(--line2);background:var(--panel2)}
+.card .name{font-size:18px;font-weight:800;font-stretch:84%;text-transform:uppercase;line-height:1.1}
+.card .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.bar{height:4px;background:var(--raise);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--text)}
+.bar.o i{background:var(--orange)}
+.meta{display:flex;gap:12px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.meta .bad{color:var(--red);font-weight:600}
+.empty{border:1px dashed var(--line2);border-radius:var(--radius);padding:40px 20px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--text);font-size:15px;margin-bottom:4px}
+
+.av{width:24px;height:24px;border-radius:50%;background:var(--raise);border:1px solid var(--line2);display:inline-grid;place-items:center;font-size:10px;font-weight:700;color:var(--text);flex:none;letter-spacing:0}
+.av.me{border-color:var(--orange);color:var(--orange)}
+.av.none{border-style:dashed;color:var(--dim)}
+
+/* ---------- event header ---------- */
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:14px}
+.back:hover{color:var(--text)}
+.ev-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px}
+.ev-head h1{font-size:52px}
+.phases{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:18px}
+.phase{background:var(--panel);padding:12px 14px}
+.phase .d{font-size:15px;font-weight:700;margin-top:4px}
+.phase.now{background:var(--panel2);box-shadow:inset 0 2px 0 var(--orange)}
+.countdown{text-align:right}
+.countdown .big{font-size:44px;font-weight:900;font-stretch:72%;line-height:.9;color:var(--orange);text-transform:uppercase}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto}
+.tabs a{padding:10px 14px;text-decoration:none;color:var(--muted);font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs a.on{color:var(--text);border-color:var(--orange)}
+.tabs a .n{font-size:11px;color:var(--dim);margin-left:4px}
+.depts{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px 18px;margin-bottom:20px}
+.dept-row{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:12px}
+.dept-row .bar{grid-column:1/-1}
+
+/* ---------- timeline ---------- */
+.tl-wrap{border:1px solid var(--line);border-radius:var(--radius);overflow:auto;background:var(--panel);max-height:calc(100vh - 210px)}
+.tl{position:relative;display:grid}
+.tl-head,.tl-row{display:flex}
+.tl-label{position:sticky;left:0;z-index:3;width:230px;flex:none;background:var(--panel);border-right:1px solid var(--line);padding:10px 12px;display:flex;flex-direction:column;justify-content:center;cursor:pointer}
+.tl-label:hover .n{color:var(--orange)}
+.tl-label .n{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-label .c{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-head{position:sticky;top:0;z-index:4;background:var(--panel);border-bottom:1px solid var(--line2)}
+.tl-head .tl-label{z-index:5}
+.tl-days{position:relative;flex:none}
+.tl-month{position:absolute;top:0;height:22px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:4px 6px;border-left:1px solid var(--line2);color:var(--muted);white-space:nowrap}
+.tl-day{position:absolute;top:22px;height:24px;font-size:10px;text-align:center;color:var(--dim);line-height:24px}
+.tl-day.we{color:var(--muted)}
+.tl-day.today{color:var(--orange);font-weight:800}
+.tl-track{position:relative;flex:none;border-bottom:1px solid var(--line);height:52px}
+.tl-we{position:absolute;top:0;bottom:0;background:rgba(255,255,255,.025)}
+.tl-today{position:absolute;top:0;bottom:0;width:2px;background:var(--orange);z-index:2;pointer-events:none}
+.tl-bar{position:absolute;top:15px;height:22px;border-radius:4px;cursor:pointer;display:flex;align-items:center;padding:0 7px;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden}
+.tl-bar.b{background:#3a3a37;color:#cfcfcb}
+.tl-bar.s{background:var(--orange);color:#0a0a0a;z-index:1}
+.tl-bar.d{background:repeating-linear-gradient(135deg,#2c2c2a 0 5px,#383836 5px 10px);color:#b0b0ac}
+.tl-ms{position:absolute;top:8px;width:9px;height:9px;background:var(--red);transform:rotate(45deg);z-index:2;cursor:pointer;border:1px solid var(--panel)}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--muted);align-items:center;flex-wrap:wrap}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+/* ---------- remove buttons ---------- */
+.card-x{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:6px;border:1px solid var(--line2);background:var(--panel);color:var(--muted);display:grid;place-items:center;cursor:pointer;opacity:0;transition:opacity .15s;z-index:2;padding:0}
+.card-x svg{width:15px;height:15px}
+.card:hover .card-x,.card:focus-within .card-x{opacity:1}
+.card-x:hover{color:var(--red);border-color:var(--red)}
+.card.has-x .row:first-child{padding-right:36px}
+@media (hover:none){.card-x{opacity:1}}
+.ev-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+/* ---------- confirm dialog ---------- */
+.modal{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.65)}
+.modal-box{width:min(440px,100%);background:var(--panel);border:1px solid var(--line2);border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.modal-box h2{font-size:16px}
+.modal-box p{margin:0;color:var(--muted)}
+.modal-box ul{margin:0;padding-left:18px;color:var(--text)}
+.modal-box .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:4px}
+.btn.danger-solid{background:var(--red);border-color:var(--red);color:#0B0B0C}
+.btn.danger-solid:hover{filter:brightness(1.08)}
+/* ---------- drawer / modal ---------- */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;opacity:0;pointer-events:none;transition:opacity .15s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100vw);background:var(--panel);border-left:1px solid var(--line2);z-index:51;transform:translateX(100%);transition:transform .2s ease;display:flex;flex-direction:column}
+.drawer.wide{width:min(860px,100vw)}
+.drawer.on{transform:none}
+.dr-h{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line)}
+.dr-b{padding:20px 22px;overflow-y:auto;flex:1}
+.dr-f{display:flex;gap:8px;padding:14px 22px;border-top:1px solid var(--line);align-items:center}
+.dr-f .sp{flex:1}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form .f{display:flex;flex-direction:column;gap:5px}
+.form .f.span{grid-column:1/-1}
+.form label{font:500 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.form .sect{grid-column:1/-1;border-top:1px solid var(--line);padding-top:14px;margin-top:4px}
+.cl{display:flex;flex-direction:column;gap:6px}
+.cl-row{display:flex;align-items:center;gap:8px}
+.cl-row .input{padding:6px 8px}
+.cl-row.done .input{color:var(--dim);text-decoration:line-through}
+.tpl-table{width:100%;border-collapse:collapse}
+.tpl-table th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:6px 4px;font-weight:700}
+.tpl-table td{padding:3px 4px}
+.tpl-table .input{padding:6px 7px;font-size:13px}
+.tpl-table select.input{padding-right:22px;background-position:calc(100% - 12px) 52%,calc(100% - 7px) 52%}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#0a0a0a;padding:10px 16px;border-radius:8px;font-weight:600;z-index:60;opacity:0;transition:.2s;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1;transform:translateX(-50%)}
+.toast.err{background:var(--red);color:#fff}
+
+/* ---------- auth ---------- */
+.auth{min-height:100vh;display:grid;place-items:center;padding:20px}
+.auth-box{width:min(380px,100%);display:flex;flex-direction:column;gap:14px}
+.auth-box .logo{font-size:34px;margin-bottom:6px}
+.loading{min-height:100vh;display:grid;place-items:center;color:var(--muted)}
+
+/* ---------- responsive ---------- */
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.srow{grid-template-columns:100px 1fr;}.srow .hide-sm{display:none}}
+@media (max-width:820px){
+  .shell{grid-template-columns:1fr}
+  .side{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;padding:6px 8px;border-right:0;border-top:1px solid var(--line);z-index:40;gap:0}
+  .side .brand,.side-foot{display:none}
+  .nav{flex-direction:row;justify-content:space-around;width:100%}
+  .nav a{flex-direction:column;gap:3px;font-size:10px;padding:6px 8px}
+  .nav .count{position:absolute;margin:0;transform:translate(10px,-4px)}
+  main{padding:18px 16px 90px}
+  h1{font-size:28px}.ev-head h1{font-size:30px}
+  .phases{grid-template-columns:repeat(2,1fr)}
+  .hero{grid-template-columns:1fr}
+  .form{grid-template-columns:1fr}
+  .countdown{text-align:left}
+  .board{grid-template-columns:repeat(5,82vw)}
+  .tl-label{width:140px}
+}
+
+/* ---------- print (production schedule & task lists) ---------- */
+@media print{
+  :root{--bg:#fff;--panel:#fff;--panel2:#fff;--text:#000;--muted:#555;--dim:#777;--line:#ccc;--line2:#999;--raise:#eee}
+  body{background:#fff}
+  .side,.toolbar,.tabs,.back,.demo-bar,.no-print,.drawer,.scrim,.ev-head,.phases,.depts{display:none!important}
+  .shell{display:block} main{padding:0}
+  .srow{grid-template-columns:110px 110px 1fr 150px 140px;break-inside:avoid}
+  .day{break-inside:avoid-page}
+  .logo .o{-webkit-text-stroke-color:#000}
+  .print-only{display:block!important}
+}
+.print-only{display:none}
+
+/* ---------- staff app ---------- */
+.src{font:600 10px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.av.lg{width:32px;height:32px;font-size:11px}
+.fill{font-weight:800;font-size:13px;white-space:nowrap}
+.fill.full{color:var(--green)} .fill.short{color:var(--amber)} .fill.none{color:var(--dim)}
+.issue{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px;white-space:nowrap}
+.issue.bad{background:rgba(255,112,134,.13);color:var(--red)}
+.issue.warn{background:rgba(230,180,80,.13);color:var(--amber)}
+.issue.ok{background:rgba(91,201,148,.12);color:var(--green)}
+.issue.info{background:var(--raise);color:var(--muted)}
+.nowrap{white-space:nowrap}
+.var-pos{color:var(--green)} .var-neg{color:var(--red);font-weight:700}
+.bar.over i{background:var(--red)}
+.bar.ok i{background:var(--green)}
+
+/* overlap check */
+.verify{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:start;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--green);border-radius:var(--radius);padding:16px 20px;margin-bottom:22px}
+.verify.bad{border-left-color:var(--red)}
+.verify .vi{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:rgba(91,201,148,.14);color:var(--green)}
+.verify.bad .vi{background:rgba(255,112,134,.14);color:var(--red)}
+.verify .vi svg{width:20px;height:20px}
+.verify .t{display:block;font-size:20px;font-weight:800;font-stretch:84%;text-transform:uppercase;line-height:1.1;margin-top:2px}
+.verify ul{margin:8px 0 0;padding-left:18px}
+.verify li{margin:4px 0;cursor:pointer}
+.verify li:hover{color:var(--orange)}
+.vleave{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+
+/* staff list */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font:500 10.5px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:8px 8px;border-bottom:1px solid var(--line2);white-space:nowrap}
+.tbl td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr.click{cursor:pointer} .tbl tr.click:hover td{background:var(--panel)}
+.tbl tr.grp td{padding-top:20px;font-weight:800;text-transform:uppercase;font-stretch:84%;font-size:14px;border-bottom:1px solid var(--line2);background:transparent!important}
+.tbl tr.grp td.num{font-stretch:100%;font-size:12px;font-weight:700;text-transform:none}
+.tbl tfoot td{font-weight:800;padding-top:14px;border-bottom:0}
+.tbl .r{text-align:right}
+.tbl .who{display:flex;align-items:center;gap:9px}
+.tbl-wrap{overflow-x:auto}
+.totals{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.pos-t{font-weight:700;cursor:pointer;font-size:14px}
+.pos-t:hover{color:var(--orange)}
+.pos-s{font-size:12px;color:var(--muted);margin-top:2px}
+.ppl{display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+.person{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);background:var(--panel2);border-radius:30px;padding:3px 11px 3px 3px;font-size:12px;font-weight:600;cursor:pointer;max-width:280px;color:var(--text)}
+.person:hover{border-color:var(--muted)}
+.person .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.person small{color:var(--muted);font-weight:500;white-space:nowrap}
+.person .sd{width:7px;height:7px;border-radius:50%;flex:none}
+.person .ex{font-weight:900;font-size:12px;line-height:1}
+.person.st-confirmed .sd{background:var(--green)}
+.person.st-hold .sd{background:var(--amber)}
+.person.bad{border-color:var(--red)} .person.bad .ex{color:var(--red)}
+.person.warn{border-color:rgba(230,180,80,.55)} .person.warn .ex{color:var(--amber)}
+.person.add{border-style:dashed;background:transparent;color:var(--muted);padding:5px 13px}
+.person.add:hover{border-color:var(--orange);color:var(--orange)}
+.legend .sd{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.preview{margin-top:16px;padding:12px 14px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;font-size:13px;display:flex;flex-direction:column;gap:6px}
+.preview .big{font-size:22px;font-weight:800;font-stretch:84%}
+.preview.bad{border-color:var(--red)}
+
+/* picker */
+.pick-top{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.pick-top .f{display:flex;flex-direction:column;gap:5px}
+.pick-top label{font:500 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--muted)}
+.pick-info{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;margin-bottom:12px;font-size:13px}
+.pick{display:grid;grid-template-columns:20px 32px 1fr auto;gap:10px;align-items:center;padding:10px 8px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:6px;user-select:none}
+.pick:hover{background:var(--panel2)}
+.pick.sel{background:var(--orange-soft)}
+.pick.dis{opacity:.5;cursor:not-allowed}
+.pick.dis:hover{background:transparent}
+.pick .nm{font-weight:700}
+.pick .rl{font-size:12px;color:var(--muted)}
+.pick .issues{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.pick .rate{font-size:12px;color:var(--muted);text-align:right;white-space:nowrap}
+.pick .rate b{display:block;color:var(--text);font-size:13px}
+.radio{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line2);display:grid;place-items:center}
+.pick.sel .radio{border-color:var(--orange)}
+.pick.sel .radio::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--orange)}
+.pick-sect{font:500 10.5px/1.2 var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--muted);padding:14px 8px 6px}
+
+/* staff database */
+.crow{display:grid;grid-template-columns:32px 1fr auto;gap:12px;align-items:center;padding:11px 8px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:6px}
+.crow:hover{background:var(--panel)}
+.crow .nm{font-weight:700}
+.crow .sub{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:3px;font-size:12px;color:var(--muted)}
+.crow .right{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--muted);text-align:right}
+.crow.off{opacity:.55}
+.rows-ed{display:flex;flex-direction:column;gap:6px}
+.rows-ed .r4{display:grid;grid-template-columns:140px 140px 1fr 34px;gap:6px}
+.rows-ed .input{padding:6px 8px}
+.bk{display:grid;grid-template-columns:150px 1fr auto;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:13px;align-items:center;cursor:pointer}
+.bk:hover{background:var(--panel2)}
+.free-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:8px;margin-bottom:16px}
+.free-row .input{width:auto}
+.free-row.on{border-color:var(--green)}
+
+/* timeline */
+.gt-wrap{border:1px solid var(--line);border-radius:var(--radius);overflow:auto;background:var(--panel);max-height:calc(100vh - 230px)}
+.gt{min-width:max-content}
+.gt-row{display:flex}
+.gt-name{position:sticky;left:0;z-index:3;width:220px;flex:none;background:var(--panel);border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:7px 10px;display:flex;gap:9px;align-items:center;cursor:pointer;min-width:0}
+.gt-name:hover .n{color:var(--orange)}
+.gt-name .n{font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gt-name .r{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gt-name > div{min-width:0}
+.gt-h{position:sticky;top:0;z-index:4;background:var(--panel)}
+.gt-h .gt-name{z-index:5;border-bottom:1px solid var(--line2);cursor:default}
+.gt-days{position:relative;flex:none;height:46px;border-bottom:1px solid var(--line2)}
+.gt-mo{position:absolute;top:0;height:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:3px 6px;border-left:1px solid var(--line2);color:var(--muted);white-space:nowrap}
+.gt-d{position:absolute;top:20px;height:26px;font-size:10px;text-align:center;line-height:26px;color:var(--dim)}
+.gt-d.we{color:var(--muted)} .gt-d.today{color:var(--orange);font-weight:800}
+.gt-track{position:relative;flex:none;border-bottom:1px solid var(--line);height:44px}
+.gt-we{position:absolute;top:0;bottom:0;background:rgba(255,255,255,.025)}
+.gt-today{position:absolute;top:0;bottom:0;width:2px;background:var(--orange);z-index:2;pointer-events:none;opacity:.8}
+.gt-bar{position:absolute;top:9px;height:26px;border-radius:4px;cursor:pointer;display:flex;align-items:center;padding:0 7px;font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;color:#0a0a0a;z-index:1;border:1px solid transparent}
+.gt-bar.hold{background:transparent!important;border-style:dashed}
+.gt-bar.bad{box-shadow:0 0 0 2px var(--red)}
+.gt-away{position:absolute;top:9px;height:26px;border-radius:4px;background:repeating-linear-gradient(135deg,#232327 0 5px,#2d2d32 5px 10px);font-size:10px;color:var(--muted);padding:0 6px;display:flex;align-items:center;overflow:hidden;white-space:nowrap}
+.wk{display:flex;align-items:center;gap:6px}
+
+@media (max-width:1100px){.totals{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:820px){
+  .verify{grid-template-columns:auto 1fr}
+  .pick{grid-template-columns:20px 1fr auto}.pick .av{display:none}
+  .pick-top{grid-template-columns:1fr 1fr}.pick-top .f:last-child{grid-column:1/-1}
+  .rows-ed .r4{grid-template-columns:1fr 1fr 34px}.rows-ed .r4 .nt{grid-column:1/3}
+  .hide-sm{display:none}
+  .totals{grid-template-columns:repeat(2,1fr)}
+  .gt-name{width:130px}.gt-name .av{display:none}
+  .ev-actions{justify-content:flex-start}
+  .bk{grid-template-columns:1fr auto}.bk .num{grid-column:1/-1}
+}
+@media print{
+  .tbl th,.tbl td{padding:6px 6px}
+  .tbl tr{break-inside:avoid}
+  .person{border:0;padding:0;background:none}
+  .person .sd,.person .ex,.person .av,.btn,.verify{display:none!important}
+  .totals{display:none!important}
+}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading">Loading…</div></div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true"></aside>
+<div class="toast" id="toast"></div>
+
+<script src="../vendor/supabase-2.117.3.js"></script>
+<script src="../brand.js?v=20261101b"></script>
+<script src="../config.js?v=20261101b"></script>
+<script src="../portal.js?v=20261101b"></script>
+<script>
+/* =========================================================================
+   Black Canvas · Staff
+   Staff assignment for the Black Canvas team portal: the staff database,
+   a budgeted staff list for every project (positions with budget rates and
+   allowances, and who fills each one for which dates), budget vs actual,
+   a timeline of who is where, and an overlap check. The database itself
+   refuses any booking that would put someone on two projects on the same day.
+   Data lives in Supabase (table staff_records). Projects come from the
+   Projects app (read-only, through staff_events()) plus staff-only projects
+   added here. Open with ?demo to try it with sample data kept in this browser.
+   ========================================================================= */
+const CONFIG = {
+  TABLE: 'staff_records',
+  PORTAL_HOME: '../',
+  CURRENCY: 'SAR',
+  MONTH_DAYS: 30,   // monthly salaries are charged pro rata: salary × days ÷ 30
+  TL_DAYS: 42,      // days shown on the timeline
+  DAY_W: 30,        // width of one timeline day, px
+};
+const DEMO = new URLSearchParams(location.search).has('demo');
+
+/* ---------------- reference lists ---------------- */
+const STATUSES = [['pitch','Pitch'],['confirmed','Confirmed'],['preprod','Pre-production'],['build','Build'],['live','Live'],['derig','De-rig'],['wrap','Wrap-up'],['closed','Closed'],['lost','Lost']];
+const EVENT_TYPES = ['Concert','Festival','Sports','Corporate','Brand activation','Exhibition','Tour','Ceremony','Other'];
+const DEPTS = ['Management','Production','Creative','Technical','Operations','Logistics','Health & Safety','Guest services','Hospitality','Talent & artists','Marketing & content','Finance & admin','Other'];
+const TITLES = [
+  ['Project director','Management'],['Project manager','Management'],['Account manager','Management'],
+  ['Producer','Production'],['Production manager','Production'],['Production coordinator','Production'],['Stage manager','Production'],['Show caller','Production'],['Production assistant','Production'],['Runner','Production'],
+  ['Creative director','Creative'],['Designer','Creative'],['3D designer','Creative'],
+  ['Technical director','Technical'],['Technical manager','Technical'],['Show control','Technical'],
+  ['Site manager','Operations'],['Operations manager','Operations'],['Venue manager','Operations'],['Area supervisor','Operations'],
+  ['Logistics coordinator','Logistics'],['Transport coordinator','Logistics'],['Driver','Logistics'],
+  ['Health & safety manager','Health & Safety'],['Health & safety officer','Health & Safety'],
+  ['Accreditation manager','Guest services'],['Guest relations','Guest services'],['Host / hostess','Guest services'],['Usher','Guest services'],
+  ['Hospitality manager','Hospitality'],['VIP host','Hospitality'],
+  ['Artist liaison','Talent & artists'],['Talent coordinator','Talent & artists'],
+  ['Content producer','Marketing & content'],['Photographer','Marketing & content'],['Videographer','Marketing & content'],['Social media manager','Marketing & content'],
+  ['Finance officer','Finance & admin'],['Admin assistant','Finance & admin'],
+];
+const TITLE_NAMES = TITLES.map(r => r[0]);
+const deptOf = t => (TITLES.find(r => r[0].toLowerCase() === String(t || '').toLowerCase()) || [0, ''])[1];
+const STAFF_TYPES = [['employee','Employee'],['freelance','Freelancer'],['contract','Contractor'],['agency','Agency']];
+const RATE_TYPES = [['day','Per day'],['month','Per month (pro rata)'],['fixed','Fixed fee']];
+const RATE_UNIT = { day: '/day', month: '/month', fixed: ' fixed' };
+const A_STATUS = [['hold','On hold'],['confirmed','Confirmed'],['released','Released']];
+const label = (list, v) => (list.find(x => x[0] === v) || [v, v || '—'])[1];
+const PROJ_COLORS = ['#F04E23','#7FA2FF','#5BC994','#E6B450','#B39BFF','#FF7086','#4FC3D9','#D7D6D0'];
+
+/* ---------------- helpers ---------------- */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { if (!s) return null; const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const today = () => iso(new Date());
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
+const diff = (a, b) => Math.round((parse(b) - parse(a)) / 864e5);
+const fmt = (s, o = {weekday:'short', day:'numeric', month:'short'}) => s ? parse(s).toLocaleDateString('en-GB', o) : '';
+const fmtShort = s => fmt(s, {day:'numeric', month:'short'});
+const fmtDay = s => fmt(s, {day:'numeric', month:'short', year:'numeric'});
+function fmtRange(a, b) {
+  if (!a) return 'Dates TBC';
+  if (!b || a === b) return fmtDay(a);
+  const A = parse(a), B = parse(b);
+  if (A.getMonth() === B.getMonth() && A.getFullYear() === B.getFullYear()) return `${A.getDate()}–${fmtDay(b)}`;
+  if (A.getFullYear() === B.getFullYear()) return `${fmtShort(a)} – ${fmtDay(b)}`;
+  return `${fmtDay(a)} – ${fmtDay(b)}`;
+}
+const plural = (n, w, ws) => `${n} ${n === 1 ? w : (ws || w + 's')}`;
+const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const num = v => Number(v) || 0;
+const money = n => `${CONFIG.CURRENCY} ${Math.round(Number(n) || 0).toLocaleString('en-US')}`;
+const daysIn = (a, b) => a && b && b >= a ? diff(a, b) + 1 : 0;
+const overlaps = (a, b) => a.from <= b.to && b.from <= a.to;
+const waNumber = ph => { let d = String(ph || '').replace(/[^\d]/g, '').replace(/^00/, ''); if (/^05\d{8}$/.test(d)) d = '966' + d.slice(1); return d; };
+const waLink = (ph, text) => `https://wa.me/${waNumber(ph)}${text ? '?text=' + encodeURIComponent(text) : ''}`;
+const weekStart = s => { const d = parse(s); d.setDate(d.getDate() - d.getDay()); return iso(d); }; // weeks start on Sunday
+const isWeekend = s => { const g = parse(s).getDay(); return g === 5 || g === 6; };
+
+/* What a position (budget) or a booking (actual) costs for its dates. */
+function costOf(o) {
+  const d = daysIn(o.from, o.to), r = num(o.rate), rt = o.rateType || 'day';
+  const fee = rt === 'fixed' ? r : rt === 'month' ? r * d / CONFIG.MONTH_DAYS : r * d;
+  const perDiem = num(o.perDiem) * d, acc = num(o.accommodation), travel = num(o.travel), other = num(o.other);
+  return { days: d, fee, perDiem, acc, travel, other, extras: perDiem + acc + travel + other, total: fee + perDiem + acc + travel + other };
+}
+const rateHTML = (rt, r) => num(r) ? `${money(r)}<span class="dim">${RATE_UNIT[rt || 'day']}</span>` : '<span class="dim">No rate</span>';
+const varHTML = v => v < -0.5 ? `<span class="var-neg">−${money(-v)}</span>` : v > 0.5 ? `<span class="var-pos">${money(v)}</span>` : '<span class="dim">—</span>';
+
+const ICON = {
+  grid:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+  bars:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4v16h18"/><path d="M7 8h7M10 12h8M7 16h5"/></svg>',
+  users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M1 21v-1a7 7 0 0114 0v1"/><path d="M17 4a4 4 0 010 8M23 21v-1a7 7 0 00-4-6.3"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>',
+  left:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>',
+  right:'<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>',
+  x:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+  trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></svg>',
+  print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
+  copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="1"/><path d="M5 15H4a1 1 0 01-1-1V4a1 1 0 011-1h10a1 1 0 011 1v1"/></svg>',
+  dl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>',
+  chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-5A8 8 0 1121 12z"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  alert:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 7v6M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>',
+  coin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="13" rx="1"/><circle cx="12" cy="12.5" r="3"/><path d="M6 9.5v6M18 9.5v6"/></svg>',
+};
+
+/* =========================================================================
+   Data layer: same interface for Supabase and demo mode
+   ========================================================================= */
+const COLLS = ['staff','projects','positions','assign','budgets','settings'];
+const db = Object.fromEntries(COLLS.map(c => [c, new Map()]));
+const pmEvents = new Map();          // projects from the Projects app (read-only here)
+let sb = null, me = null, myName = '';
+
+const Backend = {
+  async load() {
+    COLLS.forEach(c => db[c].clear()); pmEvents.clear();
+    if (DEMO) {
+      const store = lsGet('bc-staff-demo', null) || seedDemo();
+      for (const c of COLLS) for (const [id, data] of Object.entries(store[c] || {})) db[c].set(id, data);
+      for (const [id, data] of Object.entries(store.pm || {})) pmEvents.set(id, data);
+      return;
+    }
+    let from = 0;
+    for (;;) {
+      const { data, error } = await sb.from(CONFIG.TABLE).select('coll,id,data').order('coll').order('id').range(from, from + 999);
+      if (error) throw error;
+      data.forEach(r => db[r.coll]?.set(r.id, r.data));
+      if (data.length < 1000) break;
+      from += 1000;
+    }
+    await this.loadEvents();
+  },
+  async loadEvents() {
+    if (DEMO) return;
+    const { data, error } = await sb.rpc('staff_events');
+    if (error) { console.warn('Projects events unavailable', error); return; }
+    pmEvents.clear();
+    (data || []).forEach(r => pmEvents.set(r.id, { ...r.data, id: r.id }));
+  },
+  saveDemo() {
+    const store = { pm: Object.fromEntries(pmEvents) };
+    for (const c of COLLS) store[c] = Object.fromEntries(db[c]);
+    lsSet('bc-staff-demo', store);
+  },
+  async put(coll, id, data) { return this.putMany([{ coll, id, data }]); },
+  async putMany(rows) {
+    if (DEMO) { demoGuard(rows); rows.forEach(r => db[r.coll].set(r.id, r.data)); return this.saveDemo(); }
+    for (let i = 0; i < rows.length; i += 200) {
+      const { error } = await sb.from(CONFIG.TABLE).upsert(rows.slice(i, i + 200));
+      if (error) throw error;
+    }
+    rows.forEach(r => db[r.coll].set(r.id, r.data));
+  },
+  async delMany(coll, ids) {
+    if (!ids.length) return;
+    ids.forEach(id => db[coll].delete(id));
+    if (DEMO) return this.saveDemo();
+    for (let i = 0; i < ids.length; i += 100) {
+      const { error } = await sb.from(CONFIG.TABLE).delete().eq('coll', coll).in('id', ids.slice(i, i + 100));
+      if (error) throw error;
+    }
+  },
+  subscribe() {
+    if (DEMO) return;
+    sb.channel('staff-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: CONFIG.TABLE }, p => {
+        if (p.eventType === 'DELETE') { const o = p.old || {}; o.coll && db[o.coll]?.delete(o.id); }
+        else { const n = p.new; n?.coll && db[n.coll]?.set(n.id, n.data); }
+        scheduleRender();
+      })
+      .subscribe();
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) this.loadEvents().then(scheduleRender); });
+  },
+};
+
+/* Demo mode has no database, so it applies the database's overlap rule here. */
+function overlapMsg(a, b) {
+  return `${db.staff.get(a.staffId)?.name || 'This person'} is already on ${getProject(b.projectId)?.name || 'another project'} from ${fmtDay(b.from)} to ${fmtDay(b.to)}${(b.status || 'hold') === 'hold' ? ' (on hold)' : ''}. Someone can’t be on two projects at the same time.`;
+}
+function demoGuard(rows) {
+  const asg = new Map(db.assign), err = m => Object.assign(new Error(m), { code: 'P0001' });
+  for (const r of rows) {
+    if (r.coll !== 'assign') continue;
+    const a = r.data;
+    if (!a.staffId) throw err('Pick a staff member for this booking.');
+    if (!a.from || !a.to) throw err('Set a start and end date.');
+    if (a.to < a.from) throw err('The end date is before the start date.');
+    if (live(a)) for (const b of asg.values()) if (b.id !== a.id && b.staffId === a.staffId && live(b) && overlaps(a, b)) throw err(overlapMsg(a, b));
+    asg.set(a.id, a);
+  }
+}
+
+async function save(coll, id, data, msg) {
+  try { await Backend.put(coll, id, data); render(); if (msg) toast(msg); return true; }
+  catch (e) { failed(e); return false; }
+}
+async function failed(e) {
+  console.error(e);
+  if (!DEMO && /jwt/i.test(e?.message || '')) { toast('Your sign-in has expired. Taking you to sign in…', true); return setTimeout(() => leave('?next=staff'), 1600); }
+  if (e?.code === 'P0001') await confirmDialog({ title: 'Can’t save that', body: `<p>${esc(e.message)}</p>`, ok: 'OK', cancel: false });
+  else toast('Couldn’t save — ' + (e?.message || 'check your connection'), true);
+  try { await Backend.load(); render(); } catch {}
+}
+
+/* ---------------- projects ---------------- */
+const getProject = id => pmEvents.get(id) || db.projects.get(id) || null;
+const isPm = id => pmEvents.has(id);
+const allProjects = () => [...pmEvents.values(), ...db.projects.values()];
+const projName = id => getProject(id)?.name || 'Removed project';
+function anchorsOf(p) {
+  const d = p?.dates || {};
+  const show = d.showStart || null;
+  return { show, build: d.buildStart || show, showEnd: d.showEnd || show, derig: d.derigEnd || d.showEnd || show };
+}
+function windowOf(p) { const a = anchorsOf(p); return { from: a.build || a.show || '', to: a.derig || a.showEnd || a.show || '' }; }
+function isPast(p) {
+  if (['closed','lost'].includes(p.status)) return true;
+  const end = [windowOf(p).to, ...(idx().byProject.get(p.id) || []).map(x => x.to)].filter(Boolean).sort().pop();
+  return !!end && end < today();
+}
+function projColor(id) {
+  const ids = allProjects().map(p => p.id).sort();
+  return PROJ_COLORS[Math.max(0, ids.indexOf(id)) % PROJ_COLORS.length];
+}
+
+/* ---------------- staff ---------------- */
+const staffName = id => db.staff.get(id)?.name || 'Removed staff member';
+const firstName = id => staffName(id).split(/\s+/)[0];
+const initials = id => staffName(id).split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+const avatar = (id, lg) => `<span class="av ${lg ? 'lg' : ''}" title="${esc(staffName(id))}">${esc(initials(id))}</span>`;
+const staffTitles = s => [s.title, ...(s.skills || [])].filter(Boolean).map(r => r.toLowerCase());
+const sortStaff = (a, b) => (a.name || '').localeCompare(b.name || '');
+
+/* =========================================================================
+   Derived index, rebuilt once per render
+   ========================================================================= */
+let IDX = null;
+const live = a => (a.status || 'hold') !== 'released';
+const deptRank = d => { const i = DEPTS.indexOf(d); return i < 0 ? 99 : i; };
+const titleRank = t => { const i = TITLE_NAMES.findIndex(x => x.toLowerCase() === String(t || '').toLowerCase()); return i < 0 ? 999 : i; };
+const sortPositions = (a, b) => deptRank(a.dept) - deptRank(b.dept) || (a.dept || '').localeCompare(b.dept || '') || titleRank(a.title) - titleRank(b.title)
+  || (a.title || '').localeCompare(b.title || '') || (a.from || '').localeCompare(b.from || '') || (a.createdAt || '').localeCompare(b.createdAt || '') || (a.n || 0) - (b.n || 0);
+function idx() {
+  if (IDX) return IDX;
+  const byProject = new Map(), byPos = new Map(), byStaff = new Map(), asgByProject = new Map(), issues = new Map();
+  const push = (m, k, v) => { let l = m.get(k); if (!l) m.set(k, l = []); l.push(v); };
+  for (const p of db.positions.values()) push(byProject, p.projectId, p);
+  for (const a of db.assign.values()) {
+    push(byPos, a.positionId, a); push(asgByProject, a.projectId, a);
+    if (live(a)) push(byStaff, a.staffId, a);
+  }
+  byStaff.forEach(l => l.sort((x, y) => (x.from || '').localeCompare(y.from || '')));
+  byPos.forEach(l => l.sort((x, y) => (x.from || '').localeCompare(y.from || '')));
+  byProject.forEach(l => l.sort(sortPositions));
+  IDX = { byProject, byPos, byStaff, asgByProject, issues };
+  return IDX;
+}
+const posAssigns = pid => idx().byPos.get(pid) || [];
+
+function clashesFor(staffId, from, to, ignoreId) {
+  if (!staffId || !from || !to) return [];
+  return (idx().byStaff.get(staffId) || []).filter(b => b.id !== ignoreId && b.from <= to && from <= b.to);
+}
+function leaveFor(staffId, from, to) {
+  if (!from || !to) return [];
+  return (db.staff.get(staffId)?.away || []).filter(w => w.from && w.from <= to && from <= (w.to || w.from));
+}
+function issuesFor(staffId, from, to, ignoreId) {
+  const out = [];
+  for (const b of clashesFor(staffId, from, to, ignoreId)) out.push({ lvl: 'bad', t: `Busy: ${projName(b.projectId)} · ${fmtShort(b.from)}–${fmtShort(b.to)}${b.status === 'hold' ? ' (hold)' : ''}`, a: b });
+  for (const w of leaveFor(staffId, from, to)) out.push({ lvl: 'warn', t: `On leave ${fmtShort(w.from)}–${fmtShort(w.to || w.from)}${w.note ? ' · ' + w.note : ''}` });
+  const s = db.staff.get(staffId);
+  if (s && s.active === false) out.push({ lvl: 'warn', t: 'Marked inactive' });
+  return out;
+}
+function asgIssues(a) {
+  const I = idx().issues;
+  if (!I.has(a.id)) I.set(a.id, live(a) ? issuesFor(a.staffId, a.from, a.to, a.id) : []);
+  return I.get(a.id);
+}
+const worst = list => list.some(i => i.lvl === 'bad') ? 'bad' : list.length ? 'warn' : '';
+const issueTags = list => list.map(i => `<span class="issue ${i.lvl}">${esc(i.t)}</span>`).join('');
+
+/* Which days of a position are covered by someone, and the gaps. */
+function coverage(pos) {
+  const as = posAssigns(pos.id).filter(live), d = daysIn(pos.from, pos.to), covered = new Set(), gaps = [];
+  if (d) {
+    for (const a of as) for (let x = a.from < pos.from ? pos.from : a.from; x <= a.to && x <= pos.to; x = addDays(x, 1)) covered.add(x);
+    let g = null;
+    for (let x = pos.from; x <= pos.to; x = addDays(x, 1)) {
+      if (!covered.has(x)) { if (g) g.to = x; else g = { from: x, to: x }; }
+      else if (g) { gaps.push(g); g = null; }
+    }
+    if (g) gaps.push(g);
+  }
+  return { days: d, covered: covered.size, gaps, as };
+}
+function posState(pos, cv = coverage(pos)) {
+  if (!cv.as.length) return ['open', 'Open', 'warn'];
+  if (cv.gaps.length) return ['gap', `${plural(cv.days - cv.covered, 'day')} uncovered`, 'warn'];
+  if (cv.as.every(a => a.status === 'confirmed')) return ['confirmed', 'Confirmed', 'ok'];
+  return ['hold', 'On hold', 'warn'];
+}
+
+function projStats(pid) {
+  const st = { positions: 0, filled: 0, open: 0, gaps: 0, people: new Set(), lines: 0, actual: 0, confirmed: 0, hold: 0, bad: 0, warn: 0 };
+  for (const p of idx().byProject.get(pid) || []) {
+    st.positions++; st.lines += costOf(p).total;
+    const cv = coverage(p);
+    if (!cv.as.length) st.open++; else { st.filled++; if (cv.gaps.length) st.gaps++; }
+  }
+  for (const a of idx().asgByProject.get(pid) || []) {
+    if (!live(a)) continue;
+    const c = costOf(a).total;
+    st.actual += c; st[a.status === 'confirmed' ? 'confirmed' : 'hold'] += c; st.people.add(a.staffId);
+    const w = worst(asgIssues(a)); if (w) st[w]++;
+  }
+  st.cap = num(db.budgets.get(pid)?.cap);
+  st.budget = st.cap || st.lines;
+  st.remaining = st.budget - st.actual;
+  st.pct = st.positions ? Math.round(st.filled / st.positions * 100) : 0;
+  return st;
+}
+
+/* Every live booking checked against every other one for the same person. */
+function overlapCheck() {
+  const pairs = [], leave = [], t = today();
+  let n = 0;
+  for (const [sid, list] of idx().byStaff) {
+    n += list.length;
+    for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length && list[j].from <= list[i].to; j++) pairs.push([list[i], list[j]]);
+    for (const a of list) if (a.to >= t) { const w = leaveFor(sid, a.from, a.to)[0]; if (w) leave.push({ a, w }); }
+  }
+  return { n, people: idx().byStaff.size, pairs, leave };
+}
+
+/* =========================================================================
+   UI state & routing
+   ========================================================================= */
+const ui = Object.assign({ filter: 'upcoming', q: '', sQ: '', sDept: '', sType: '', showInactive: false, freeFrom: '', freeTo: '',
+  tlStart: '', tlQ: '', tlDept: '', tlProject: '', tlBooked: true, pickQ: '', pickAll: false, newStatus: 'hold' }, lsGet('bc-staff-ui', {}));
+const persistUI = () => lsSet('bc-staff-ui', { filter: ui.filter, showInactive: ui.showInactive, tlDept: ui.tlDept, tlBooked: ui.tlBooked, newStatus: ui.newStatus });
+function route() {
+  const h = location.hash.startsWith('#/') ? location.hash.slice(2) : '';
+  const [view = '', id = '', tab = ''] = h.split('/').map(decodeURIComponent);
+  return { view: view || 'projects', id, tab: tab || 'list' };
+}
+const go = h => { location.hash = h; };
+
+let renderQueued = false;
+function scheduleRender() { if (!renderQueued) { renderQueued = true; setTimeout(() => { renderQueued = false; render(); }, 120); } }
+
+function render() {
+  IDX = null;
+  const main = $('#main'); if (!main) return;
+  const act = document.activeElement, focusId = act && act.id && main.contains(act) ? act.id : null;
+  const sel = focusId && 'selectionStart' in act ? [act.selectionStart, act.selectionEnd] : null;
+  const r = route();
+  const views = { projects: viewProjects, project: viewProject, timeline: viewTimeline, staff: viewStaff };
+  main.innerHTML = (DEMO ? '<div class="demo-bar no-print">Demo mode — sample data, saved only in this browser. Remove ?demo from the address to use the live portal data.</div>' : '') + (views[r.view] || viewProjects)(r);
+  document.querySelectorAll('.nav a').forEach(a => a.classList.toggle('on', a.dataset.v === (r.view === 'project' ? 'projects' : r.view)));
+  const c = $('#openCount'), n = openSoon();
+  if (c) { c.textContent = n; c.classList.toggle('hidden', !n); }
+  if (focusId) { const el = document.getElementById(focusId); if (el) { el.focus(); if (sel) try { el.setSelectionRange(...sel); } catch {} } }
+  if (drawerState?.refresh) drawerState.refresh();
+}
+/* Positions starting in the next 30 days with no one (or not everyone) on them. */
+function openSoon() {
+  const t = today(), end = addDays(t, 30); let n = 0;
+  for (const p of db.positions.values()) {
+    if (!p.from || p.to < t || p.from > end || !getProject(p.projectId)) continue;
+    if (coverage(p).gaps.length) n++;
+  }
+  return n;
+}
+
+/* =========================================================================
+   Shell
+   ========================================================================= */
+function shell() {
+  $('#app').innerHTML = `
+  <div class="shell">
+    <aside class="side">
+      <div class="brand">
+        <a class="logo-svg" href="${esc(CONFIG.PORTAL_HOME)}" aria-label="Black Canvas — all apps">${BCPortal.logoSvg('line')}</a>
+        <div class="logo-sub">Staff</div>
+      </div>
+      <nav class="nav">
+        <a href="#/" data-v="projects">${ICON.grid}<span>Projects</span><span class="count hidden" id="openCount" title="Positions to fill in the next 30 days"></span></a>
+        <a href="#/timeline" data-v="timeline">${ICON.bars}<span>Timeline</span></a>
+        <a href="#/staff" data-v="staff">${ICON.users}<span>Staff</span></a>
+      </nav>
+      <div class="side-foot">
+        <div class="me"><span class="av" style="border-color:var(--orange);color:var(--orange)">${esc((myName || 'Me').split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase())}</span><span>${esc(myName || me)}</span></div>
+        <a href="${esc(CONFIG.PORTAL_HOME)}">← All apps</a>
+        ${DEMO ? '<a href="#" data-act="resetDemo">Reset demo data</a>' : '<a href="#" data-act="signOut">Sign out</a>'}
+      </div>
+    </aside>
+    <main id="main"></main>
+  </div>`;
+  render();
+}
+
+/* =========================================================================
+   View: Projects
+   ========================================================================= */
+function filteredProjects() {
+  const q = ui.q.trim().toLowerCase();
+  return allProjects().filter(p => {
+    const past = isPast(p);
+    if (ui.filter === 'upcoming' && past) return false;
+    if (ui.filter === 'past' && !past) return false;
+    if (q && ![p.name, p.client, p.venue, p.city, p.code].join(' ').toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a, b) => {
+    const A = windowOf(a).from || '9999', B = windowOf(b).from || '9999';
+    return ui.filter === 'past' ? B.localeCompare(A) : A.localeCompare(B);
+  });
+}
+function verifyPanel() {
+  const c = overlapCheck(), ok = !c.pairs.length;
+  const at = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  const head = ok
+    ? `<span class="eyebrow">Overlap check</span><b class="t">No overlaps</b><div class="muted" style="margin-top:4px">${c.n ? `${plural(c.n, 'booking')} for ${plural(c.people, 'person', 'people')} checked — no one is on two projects on the same day.` : 'Nothing booked yet.'} The database refuses any booking that would double-book someone.</div>`
+    : `<span class="eyebrow" style="color:var(--red)">Overlap check</span><b class="t" style="color:var(--red)">${plural(c.pairs.length, 'overlap')} found</b><ul>${c.pairs.map(([a, b]) => `<li data-act="asg" data-id="${esc(a.id)}"><b>${esc(staffName(a.staffId))}</b> — ${esc(projName(a.projectId))} (${esc(fmtShort(a.from))}–${esc(fmtShort(a.to))}) and ${esc(projName(b.projectId))} (${esc(fmtShort(b.from))}–${esc(fmtShort(b.to))})</li>`).join('')}</ul>`;
+  const lv = c.leave.length ? `<div class="vleave"><span class="eyebrow" style="color:var(--amber)">Booked during leave · ${c.leave.length}</span><ul>${c.leave.map(({ a, w }) => `<li data-act="asg" data-id="${esc(a.id)}"><b>${esc(staffName(a.staffId))}</b> — ${esc(projName(a.projectId))} (${esc(fmtShort(a.from))}–${esc(fmtShort(a.to))}), on leave ${esc(fmtShort(w.from))}–${esc(fmtShort(w.to || w.from))}${w.note ? ` · ${esc(w.note)}` : ''}</li>`).join('')}</ul></div>` : '';
+  return `<div class="verify ${ok ? '' : 'bad'}"><span class="vi">${ok ? ICON.check : ICON.alert}</span><div>${head}${lv}</div><span class="eyebrow hide-sm">Checked ${esc(at)}</span></div>`;
+}
+function viewProjects() {
+  const t = today(), wkEnd = addDays(t, 6);
+  const up = allProjects().filter(p => !isPast(p));
+  let open = 0, cost = 0;
+  for (const p of up) { const s = projStats(p.id); open += s.open + s.gaps; cost += s.actual; }
+  const week = new Set();
+  for (const [sid, list] of idx().byStaff) if (list.some(a => a.from <= wkEnd && a.to >= t && getProject(a.projectId))) week.add(sid);
+  const active = [...db.staff.values()].filter(s => s.active !== false).length;
+  const all = allProjects(), pastCount = all.length - up.length;
+  const counts = { upcoming: up.length, past: pastCount, all: all.length };
+  return `
+  <div class="page-head">
+    <div><div class="eyebrow">${esc(fmt(t, {weekday:'long', day:'numeric', month:'long', year:'numeric'}))}</div><h1>Staff</h1></div>
+    <button class="btn" data-act="newProject" title="For work that isn’t a project in Project management">${ICON.plus} Staff-only project</button>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="eyebrow">Positions to fill</div><div class="v num" style="${open ? 'color:var(--amber)' : ''}">${open}</div></div>
+    <div class="kpi"><div class="eyebrow">Staff working · 7 days</div><div class="v num">${week.size}<span class="muted" style="font-size:14px;font-weight:600"> / ${active}</span></div></div>
+    <div class="kpi"><div class="eyebrow">Upcoming projects</div><div class="v num">${up.length}</div></div>
+    <div class="kpi"><div class="eyebrow">Staff cost · upcoming</div><div class="v num" style="font-size:24px">${money(cost)}</div></div>
+  </div>
+  ${verifyPanel()}
+  <div class="toolbar">
+    <div class="chips">${[['upcoming','Upcoming'],['past','Past'],['all','All']].map(([k, l]) => `<button class="chip ${ui.filter === k ? 'on' : ''}" data-act="filter" data-v="${k}">${l} <span class="num">${counts[k]}</span></button>`).join('')}</div>
+    <div class="grow"></div>
+    <input class="input" id="pSearch" style="max-width:260px" placeholder="Search projects, clients, venues…" value="${esc(ui.q)}" data-inp="q">
+  </div>
+  <div id="pGrid">${projectGrid()}</div>`;
+}
+function projectGrid() {
+  const ps = filteredProjects();
+  if (!ps.length) return allProjects().length
+    ? '<div class="empty"><b>No projects here</b>Try another filter or search.</div>'
+    : `<div class="empty"><b>No projects yet</b>Events you create in Project management show up here automatically, ready to staff.<br>For work that isn’t in Projects, add a staff-only project.<br><br><button class="btn primary" data-act="newProject">${ICON.plus} Staff-only project</button></div>`;
+  return `<div class="grid">${ps.map(p => {
+    const s = projStats(p.id), w = windowOf(p), over = s.budget && s.actual > s.budget + 0.5;
+    const toFill = s.open + s.gaps;
+    return `<div class="card" role="link" tabindex="0" data-act="open" data-id="${esc(p.id)}">
+      <div class="row"><span class="pill s-${esc(p.status || 'confirmed')}">${esc(label(STATUSES, p.status || 'confirmed'))}</span><span class="src">${isPm(p.id) ? 'Projects' : 'Staff-only'}${p.code ? ' · ' + esc(p.code) : ''}</span></div>
+      <div><div class="name">${esc(p.name)}</div><div class="muted" style="font-size:13px;margin-top:3px">${esc([p.client, p.venue, p.city].filter(Boolean).join(' · ') || '—')}</div></div>
+      <div class="row" style="font-size:13px"><span class="num">${esc(fmtRange(w.from, w.to))}</span>${s.positions ? `<span class="fill num ${toFill ? 'short' : 'full'}">${s.filled - s.gaps}/${s.positions}</span>` : '<span class="dim">No staff list yet</span>'}</div>
+      <div class="bar ${toFill ? 'o' : 'ok'}"><i style="width:${s.positions ? Math.round((s.filled - s.gaps) / s.positions * 100) : 0}%"></i></div>
+      <div class="meta">${s.positions ? (toFill ? `<span style="color:var(--amber);font-weight:600">${toFill} to fill</span>` : '<span style="color:var(--green);font-weight:600">Fully staffed</span>') : ''}${s.people.size ? `<span>${plural(s.people.size, 'person', 'people')}</span>` : ''}${s.warn ? `<span style="color:var(--amber)">${plural(s.warn, 'warning')}</span>` : ''}</div>
+      ${s.budget || s.actual ? `<div class="row" style="font-size:12px;border-top:1px solid var(--line);padding-top:10px"><span class="muted">Budget <b class="num" style="color:var(--text)">${money(s.budget)}</b></span><span class="num ${over ? 'var-neg' : ''}">${over ? 'Over · ' : ''}${money(s.actual)} booked</span></div>` : ''}
+    </div>`;
+  }).join('')}</div>`;
+}
+
+/* =========================================================================
+   View: one project
+   ========================================================================= */
+function viewProject(r) {
+  const p = getProject(r.id);
+  if (!p) {
+    const orphan = idx().byProject.get(r.id) || [];
+    return `<a class="back" href="#/">${ICON.left} Projects</a><div class="empty"><b>Project not found</b>It may have been removed in Projects.${orphan.length ? `<br><br><button class="btn danger" data-act="dropOrphan" data-id="${esc(r.id)}">${ICON.trash} Remove its ${plural(orphan.length, 'position')}</button>` : ''}</div>`;
+  }
+  const w = windowOf(p), s = projStats(p.id), tab = r.tab, toFill = s.open + s.gaps, over = s.remaining < -0.5;
+  return `
+  <a class="back" href="#/">${ICON.left} Projects</a>
+  <div class="ev-head">
+    <div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+        <span class="pill s-${esc(p.status || 'confirmed')}">${esc(label(STATUSES, p.status || 'confirmed'))}</span>
+        ${p.code ? `<span class="tag">${esc(p.code)}</span>` : ''}<span class="src">${isPm(p.id) ? 'From Projects' : 'Staff-only project'}</span>
+      </div>
+      <h1>${esc(p.name)}</h1>
+      <div class="muted" style="margin-top:6px">${esc([p.client, p.venue, p.city].filter(Boolean).join(' · ') || '—')}</div>
+    </div>
+    <div class="countdown">
+      <div class="big num" style="${s.positions && !toFill ? 'color:var(--green)' : ''}">${s.positions ? (toFill || 'Staffed') : '—'}</div>
+      <div class="eyebrow" style="margin-top:6px">${s.positions ? (toFill ? (toFill === 1 ? 'position to fill' : 'positions to fill') : `${s.positions} of ${s.positions} filled`) : 'No staff list yet'}</div>
+      <div class="ev-actions no-print"><button class="btn sm" data-act="budget" data-id="${esc(p.id)}">${ICON.coin} Budget</button>${isPm(p.id) ? '' : `<button class="btn sm" data-act="editProject" data-id="${esc(p.id)}">Edit project</button>`}</div>
+    </div>
+  </div>
+  <div class="phases">
+    <div class="phase"><div class="eyebrow">Project dates</div><div class="d num">${esc(fmtRange(w.from, w.to))}</div></div>
+    <div class="phase"><div class="eyebrow">Staff budget${s.cap ? '' : ' · from positions'}</div><div class="d num">${money(s.budget)}</div></div>
+    <div class="phase"><div class="eyebrow">Booked cost</div><div class="d num">${money(s.actual)} <span class="muted" style="font-weight:500;font-size:12px">${plural(s.people.size, 'person', 'people')}</span></div></div>
+    <div class="phase ${over ? 'now' : ''}"><div class="eyebrow" style="${over ? 'color:var(--red)' : ''}">${over ? 'Over budget' : 'Remaining'}</div><div class="d num" style="${over ? 'color:var(--red)' : ''}">${money(Math.abs(s.remaining))}</div></div>
+  </div>
+  <div class="tabs">
+    ${[['list', 'Staff list', s.positions], ['budget', 'Budget', null]].map(([k, l, n]) => `<a href="#/project/${encodeURIComponent(p.id)}/${k}" class="${tab === k ? 'on' : ''}">${l}${n != null ? `<span class="n num">${n}</span>` : ''}</a>`).join('')}
+  </div>
+  ${tab === 'budget' ? tabBudget(p) : tabList(p)}`;
+}
+
+/* ---- Staff list tab ---- */
+function printHead(p, what) {
+  const w = windowOf(p);
+  return `<div class="print-only"><div class="logo-svg" style="width:180px;color:#000">${BCPortal.logoSvg('line', '#000')}</div><h2 style="margin-top:12px">${esc(p.name)} — ${esc(what)}</h2><div class="muted">${esc([p.client, p.venue, p.city].filter(Boolean).join(' · '))}${p.code ? ' · ' + esc(p.code) : ''} · ${esc(fmtRange(w.from, w.to))} · printed ${esc(fmtDay(today()))}</div><br></div>`;
+}
+function tabList(p) {
+  const list = idx().byProject.get(p.id) || [];
+  const head = `<div class="toolbar no-print">
+    <button class="btn primary" data-act="newPos" data-id="${esc(p.id)}">${ICON.plus} Add positions</button>
+    <button class="btn" data-act="copyFrom" data-id="${esc(p.id)}">${ICON.copy} Copy from a project</button>
+    <div class="grow"></div>
+    <div class="legend"><span><i class="sd" style="background:var(--green)"></i>Confirmed</span><span><i class="sd" style="background:var(--amber)"></i>On hold</span></div>
+    <button class="btn" data-act="csv" data-id="${esc(p.id)}">${ICON.dl} CSV</button>
+    <button class="btn ghost" data-act="print" title="Print">${ICON.print}</button>
+  </div>`;
+  if (!list.length) return head + `<div class="empty"><b>No staff list yet</b>Add the positions this project needs — e.g. 1 project manager, 2 production coordinators, 4 hosts — with dates and a budget rate, then assign people from your staff.<br><br><button class="btn primary" data-act="newPos" data-id="${esc(p.id)}">${ICON.plus} Add positions</button> <button class="btn" data-act="copyFrom" data-id="${esc(p.id)}">${ICON.copy} Copy from a project</button></div>`;
+  const groups = new Map();
+  for (const ps of list) { const k = ps.dept || 'Other'; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(ps); }
+  let body = '', tb = 0, ta = 0, tAny = false;
+  for (const [dept, ps] of groups) {
+    let gb = 0, ga = 0;
+    const rows = ps.map(x => { const r = posRow(x); gb += r.b; ga += r.a; tAny ||= r.any; return r.html; }).join('');
+    tb += gb; ta += ga;
+    body += `<tr class="grp"><td colspan="5">${esc(dept)} <span class="muted" style="font-weight:600;font-size:12px;font-stretch:100%;text-transform:none">· ${plural(ps.length, 'position')}</span></td><td class="r num">${money(gb)}</td><td class="r num">${money(ga)}</td><td class="r num">${varHTML(gb - ga)}</td></tr>${rows}`;
+  }
+  return head + printHead(p, 'staff list') + `<div class="tbl-wrap"><table class="tbl">
+    <thead><tr><th>Position</th><th>Staff</th><th>Dates</th><th class="r">Days</th><th>Status</th><th class="r">Budget</th><th class="r">Booked</th><th class="r" title="Budget minus booked. Positive is under budget.">Variance</th></tr></thead>
+    <tbody>${body}</tbody>
+    <tfoot><tr><td colspan="5">Total · ${plural(list.length, 'position')}</td><td class="r num">${money(tb)}</td><td class="r num">${money(ta)}</td><td class="r num">${varHTML(tb - ta)}</td></tr></tfoot>
+  </table></div>
+  <p class="dim" style="font-size:12px;margin-top:12px">Budget is each position’s budget rate and allowances for its dates. Booked is each person’s own rate and allowances for the dates they’re assigned. Monthly salaries count pro rata (salary × days ÷ ${CONFIG.MONTH_DAYS}).</p>`;
+}
+function posRow(ps) {
+  const cv = coverage(ps), b = costOf(ps).total, act = cv.as.reduce((n, a) => n + costOf(a).total, 0);
+  const [, stLabel, stCls] = posState(ps, cv);
+  const people = cv.as.map(a => {
+    const iss = asgIssues(a), w = worst(iss), other = a.from !== ps.from || a.to !== ps.to;
+    return `<button class="person st-${esc(a.status || 'hold')} ${w}" data-act="asg" data-id="${esc(a.id)}" title="${esc(label(A_STATUS, a.status || 'hold'))}${iss.length ? ' · ' + iss.map(i => i.t).join(' · ') : ''}">${avatar(a.staffId)}<span class="nm">${esc(staffName(a.staffId))}</span>${other ? `<small class="num">${esc(fmtShort(a.from))}–${esc(fmtShort(a.to))}</small>` : ''}${w ? '<span class="ex">!</span>' : ''}<span class="sd"></span></button>`;
+  }).join('');
+  const add = !cv.as.length ? `<button class="person add no-print" data-act="pick" data-id="${esc(ps.id)}">+ Assign</button>`
+    : cv.gaps.length ? `<button class="person add no-print" data-act="pick" data-id="${esc(ps.id)}">+ Cover ${plural(cv.days - cv.covered, 'day')}</button>` : '';
+  return { b, a: act, any: !!cv.as.length, html: `<tr>
+    <td><div class="pos-t" data-act="pos" data-id="${esc(ps.id)}" role="button" tabindex="0">${esc(ps.title || 'Position')}</div><div class="pos-s">${rateHTML(ps.rateType, ps.rate)}${ps.note ? ` · ${esc(ps.note)}` : ''}</div></td>
+    <td><div class="ppl">${people}${add}</div></td>
+    <td class="num nowrap">${esc(fmtRange(ps.from, ps.to))}</td>
+    <td class="r num">${cv.days}</td>
+    <td><span class="issue ${stCls}">${esc(stLabel)}</span></td>
+    <td class="r num">${money(b)}</td>
+    <td class="r num">${cv.as.length ? money(act) : '<span class="dim">—</span>'}</td>
+    <td class="r num">${cv.as.length ? varHTML(b - act) : ''}</td>
+  </tr>` };
+}
+
+/* ---- Budget tab ---- */
+function tabBudget(p) {
+  const s = projStats(p.id), list = idx().byProject.get(p.id) || [], asg = (idx().asgByProject.get(p.id) || []).filter(live);
+  const bud = db.budgets.get(p.id) || {};
+  const byDept = new Map();
+  const row = k => { if (!byDept.has(k)) byDept.set(k, { pos: 0, people: new Set(), days: 0, b: 0, a: 0 }); return byDept.get(k); };
+  for (const ps of list) { const r = row(ps.dept || 'Other'); r.pos++; r.b += costOf(ps).total; }
+  for (const a of asg) { const ps = db.positions.get(a.positionId), r = row(ps?.dept || 'Other'); r.people.add(a.staffId); r.days += daysIn(a.from, a.to); r.a += costOf(a).total; }
+  const depts = [...byDept.entries()].sort((x, y) => deptRank(x[0]) - deptRank(y[0]));
+  const sum = (arr, k) => arr.reduce((n, o) => n + costOf(o)[k], 0);
+  const kinds = [['Fees and salaries', 'fee'], ['Per diems', 'perDiem'], ['Accommodation', 'acc'], ['Travel', 'travel'], ['Other', 'other']];
+  const over = s.remaining < -0.5, planVsCap = s.cap ? s.lines - s.cap : 0;
+  return `<div class="toolbar no-print"><button class="btn primary" data-act="budget" data-id="${esc(p.id)}">${ICON.coin} ${s.cap ? 'Change' : 'Set'} overall budget</button><div class="grow"></div><button class="btn" data-act="csv" data-id="${esc(p.id)}">${ICON.dl} CSV</button><button class="btn ghost" data-act="print" title="Print">${ICON.print}</button></div>
+  ${printHead(p, 'staff budget')}
+  <div class="totals">
+    <div class="kpi"><div class="eyebrow">Staff budget</div><div class="v num" style="font-size:24px">${money(s.budget)}</div><div class="dim" style="font-size:12px;margin-top:6px">${s.cap ? 'Overall budget you set' : 'Total of the positions'}</div></div>
+    <div class="kpi"><div class="eyebrow">Confirmed</div><div class="v num" style="font-size:24px">${money(s.confirmed)}</div></div>
+    <div class="kpi"><div class="eyebrow">On hold</div><div class="v num" style="font-size:24px;${s.hold ? 'color:var(--amber)' : ''}">${money(s.hold)}</div></div>
+    <div class="kpi ${over ? 'alert' : ''}"><div class="eyebrow">${over ? 'Over budget' : 'Remaining'}</div><div class="v num" style="font-size:24px;${over ? '' : 'color:var(--green)'}">${money(Math.abs(s.remaining))}</div></div>
+  </div>
+  ${s.cap ? `<div class="pick-info"><span>Positions add up to <b class="num">${money(s.lines)}</b> against the overall budget of <b class="num">${money(s.cap)}</b>${bud.note ? ` · <span class="muted">${esc(bud.note)}</span>` : ''}</span>${planVsCap > 0.5 ? `<span class="issue bad">Plan is ${money(planVsCap)} over</span>` : `<span class="issue ok">Plan fits · ${money(-planVsCap)} spare</span>`}</div>` : ''}
+  <h2 style="margin:8px 0 10px">By department</h2>
+  ${depts.length ? `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Department</th><th class="r">Positions</th><th class="r">People</th><th class="r hide-sm">Person-days</th><th class="r">Budget</th><th class="r">Booked</th><th class="r">Variance</th></tr></thead>
+    <tbody>${depts.map(([d, r]) => `<tr><td><b>${esc(d)}</b></td><td class="r num">${r.pos}</td><td class="r num">${r.people.size}</td><td class="r num hide-sm">${r.days}</td><td class="r num">${money(r.b)}</td><td class="r num">${money(r.a)}</td><td class="r num">${varHTML(r.b - r.a)}</td></tr>`).join('')}</tbody>
+    <tfoot><tr><td>Total</td><td class="r num">${list.length}</td><td class="r num">${s.people.size}</td><td class="r num hide-sm">${asg.reduce((n, a) => n + daysIn(a.from, a.to), 0)}</td><td class="r num">${money(s.lines)}</td><td class="r num">${money(s.actual)}</td><td class="r num">${varHTML(s.lines - s.actual)}</td></tr></tfoot></table></div>`
+    : '<div class="empty"><b>Nothing budgeted yet</b>Add positions on the Staff list tab to build the budget.</div>'}
+  <h2 style="margin:28px 0 10px">By cost type</h2>
+  <div class="tbl-wrap" style="max-width:640px"><table class="tbl"><thead><tr><th>Cost</th><th class="r">Budget</th><th class="r">Booked</th><th class="r">Variance</th></tr></thead>
+    <tbody>${kinds.map(([l, k]) => { const b = sum(list, k), a = sum(asg, k); return `<tr><td>${l}</td><td class="r num">${money(b)}</td><td class="r num">${money(a)}</td><td class="r num">${varHTML(b - a)}</td></tr>`; }).join('')}</tbody></table></div>
+  <p class="dim" style="font-size:12px;margin-top:12px">Booked counts confirmed and on-hold bookings; released bookings aren’t counted. Monthly salaries count pro rata (salary × days ÷ ${CONFIG.MONTH_DAYS}).</p>`;
+}
+
+/* =========================================================================
+   View: Timeline (who is where)
+   ========================================================================= */
+function viewTimeline() {
+  const t = today(), N = CONFIG.TL_DAYS, W = CONFIG.DAY_W;
+  const start = ui.tlStart || addDays(weekStart(t), -7), end = addDays(start, N - 1);
+  const q = ui.tlQ.trim().toLowerCase();
+  const inRange = id => (idx().byStaff.get(id) || []).filter(a => a.from <= end && a.to >= start && (!ui.tlProject || a.projectId === ui.tlProject));
+  const staff = [...db.staff.values()].filter(s => s.active !== false || inRange(s.id).length)
+    .filter(s => !ui.tlDept || (s.dept || deptOf(s.title)) === ui.tlDept)
+    .filter(s => !q || [s.name, s.title, s.city].join(' ').toLowerCase().includes(q))
+    .filter(s => !(ui.tlBooked || ui.tlProject) || inRange(s.id).length)
+    .sort((a, b) => deptRank(a.dept || deptOf(a.title)) - deptRank(b.dept || deptOf(b.title)) || titleRank(a.title) - titleRank(b.title) || sortStaff(a, b));
+  const projs = allProjects().filter(p => (idx().asgByProject.get(p.id) || []).some(a => live(a) && a.from <= end && a.to >= start)).sort((a, b) => (windowOf(a).from || '').localeCompare(windowOf(b).from || ''));
+  const head = `<div class="page-head"><div><div class="eyebrow">${esc(fmtShort(start))} – ${esc(fmtDay(end))}</div><h1>Timeline</h1></div>
+    <div class="wk"><button class="btn sm" data-act="tlMove" data-v="-14" aria-label="Earlier">${ICON.left}</button><button class="btn sm" data-act="tlToday">Today</button><button class="btn sm" data-act="tlMove" data-v="14" aria-label="Later">${ICON.right}</button></div></div>
+  <div class="toolbar">
+    <input class="input" id="tlSearch" style="max-width:220px" placeholder="Search staff…" value="${esc(ui.tlQ)}" data-inp="tlQ">
+    <select class="input" style="width:auto" data-chg="tlDept"><option value="">All departments</option>${DEPTS.map(d => `<option ${ui.tlDept === d ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select>
+    <select class="input" style="width:auto;max-width:240px" data-chg="tlProject"><option value="">All projects</option>${projs.map(p => `<option value="${esc(p.id)}" ${ui.tlProject === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select>
+    <label class="check"><input type="checkbox" data-chg="tlBooked" ${ui.tlBooked ? 'checked' : ''}> Only people with bookings</label>
+    <div class="grow"></div><span class="muted">${plural(staff.length, 'person', 'people')}</span>
+  </div>`;
+  if (!db.staff.size) return head + `<div class="empty"><b>No staff yet</b>Add your staff on the Staff page to see who’s on which project.<br><br><a class="btn primary" href="#/staff">${ICON.users} Go to Staff</a></div>`;
+  const days = Array.from({ length: N }, (_, i) => addDays(start, i)), width = N * W;
+  let months = '';
+  days.forEach((d, i) => { if (i === 0 || d.endsWith('-01')) months += `<div class="gt-mo" style="left:${i * W}px">${esc(fmt(d, { month: 'long', year: 'numeric' }))}</div>`; });
+  const dayHead = days.map((d, i) => `<div class="gt-d ${isWeekend(d) ? 'we' : ''} ${d === t ? 'today' : ''}" style="left:${i * W}px;width:${W}px">${parse(d).getDate()}</div>`).join('');
+  const shade = days.map((d, i) => isWeekend(d) ? `<div class="gt-we" style="left:${i * W}px;width:${W}px"></div>` : '').join('');
+  const todayLine = t >= start && t <= end ? `<div class="gt-today" style="left:${diff(start, t) * W + W / 2}px"></div>` : '';
+  const seg = (from, to) => { const a = Math.max(0, diff(start, from)), b = Math.min(N - 1, diff(start, to)); return b < a ? null : { left: a * W + 1, w: (b - a + 1) * W - 3 }; };
+  const seen = new Set();
+  const rows = staff.map(s => {
+    const away = (s.away || []).filter(w => w.from && w.from <= end && (w.to || w.from) >= start).map(w => { const g = seg(w.from, w.to || w.from); return g ? `<div class="gt-away" style="left:${g.left}px;width:${g.w}px" title="${esc(w.note || 'On leave')}">${esc(w.note || 'Leave')}</div>` : ''; }).join('');
+    const bars = inRange(s.id).map(a => {
+      const g = seg(a.from, a.to); if (!g) return '';
+      const p = getProject(a.projectId), col = projColor(a.projectId), hold = a.status !== 'confirmed', bad = worst(asgIssues(a)) === 'bad';
+      seen.add(a.projectId);
+      return `<div class="gt-bar ${hold ? 'hold' : ''} ${bad ? 'bad' : ''}" style="left:${g.left}px;width:${g.w}px;background:${col};${hold ? `color:${col};border-color:${col}` : ''}" data-act="asg" data-id="${esc(a.id)}" title="${esc(projName(a.projectId))} · ${esc(a.title || '')} · ${esc(fmtShort(a.from))}–${esc(fmtShort(a.to))} · ${esc(label(A_STATUS, a.status || 'hold'))}">${esc(p?.code || projName(a.projectId))}${a.title ? ` · ${esc(a.title)}` : ''}</div>`;
+    }).join('');
+    return `<div class="gt-row"><div class="gt-name" data-act="staff" data-id="${esc(s.id)}">${avatar(s.id)}<div><div class="n">${esc(s.name)}</div><div class="r">${esc(s.title || '—')}</div></div></div><div class="gt-track" style="width:${width}px">${shade}${todayLine}${away}${bars}</div></div>`;
+  }).join('');
+  return head + `<div class="gt-wrap"><div class="gt"><div class="gt-row gt-h"><div class="gt-name"><span class="eyebrow">Staff</span></div><div class="gt-days" style="width:${width}px">${months}${dayHead}</div></div>${rows || `<div class="empty" style="margin:16px">${ui.tlBooked ? 'No one is booked in these weeks. Untick “Only people with bookings” to see everyone.' : 'No staff match these filters.'}</div>`}</div></div>
+  <div class="legend" style="margin-top:12px">${[...seen].map(id => `<span><i style="background:${projColor(id)}"></i>${esc(projName(id))}</span>`).join('')}<span><i style="border:1px dashed var(--muted)"></i>On hold</span><span><i style="background:repeating-linear-gradient(135deg,#232327 0 3px,#3a3a40 3px 6px)"></i>Leave</span></div>`;
+}
+
+/* =========================================================================
+   View: Staff database
+   ========================================================================= */
+function viewStaff() {
+  const t = today(), q = ui.sQ.trim().toLowerCase();
+  const all = [...db.staff.values()];
+  const freeOn = ui.freeFrom && ui.freeTo && ui.freeTo >= ui.freeFrom;
+  const list = all.filter(s => ui.showInactive || s.active !== false)
+    .filter(s => !ui.sType || (s.type || 'employee') === ui.sType)
+    .filter(s => !ui.sDept || (s.dept || deptOf(s.title)) === ui.sDept)
+    .filter(s => !q || [s.name, s.title, s.city, s.phone, s.email, s.agency, ...(s.skills || [])].join(' ').toLowerCase().includes(q))
+    .filter(s => !freeOn || (!clashesFor(s.id, ui.freeFrom, ui.freeTo).length && !leaveFor(s.id, ui.freeFrom, ui.freeTo).length))
+    .sort((a, b) => (a.active === false) - (b.active === false) || deptRank(a.dept || deptOf(a.title)) - deptRank(b.dept || deptOf(b.title)) || titleRank(a.title) - titleRank(b.title) || sortStaff(a, b));
+  const counts = { '': all.filter(s => ui.showInactive || s.active !== false).length };
+  STAFF_TYPES.forEach(([k]) => counts[k] = all.filter(s => (ui.showInactive || s.active !== false) && (s.type || 'employee') === k).length);
+  return `<div class="page-head"><div><div class="eyebrow">Database</div><h1>Staff</h1></div>
+    <div style="display:flex;gap:8px"><button class="btn" data-act="importStaff">Import list</button><button class="btn primary" data-act="newStaff">${ICON.plus} Add staff</button></div></div>
+  <div class="toolbar">
+    <div class="chips">${[['', 'All'], ...STAFF_TYPES].map(([k, l]) => `<button class="chip ${ui.sType === k ? 'on' : ''}" data-act="sType" data-v="${k}">${l} <span class="num">${counts[k]}</span></button>`).join('')}</div>
+    <select class="input" style="width:auto" data-chg="sDept"><option value="">All departments</option>${DEPTS.map(d => `<option ${ui.sDept === d ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select>
+    <label class="check"><input type="checkbox" data-chg="showInactive" ${ui.showInactive ? 'checked' : ''}> Show inactive</label>
+    <div class="grow"></div>
+    <input class="input" id="sSearch" style="max-width:240px" placeholder="Search name, position, phone…" value="${esc(ui.sQ)}" data-inp="sQ">
+  </div>
+  <div class="free-row ${freeOn ? 'on' : ''}"><span class="eyebrow">Who’s free</span><span class="muted">from</span><input class="input" type="date" value="${esc(ui.freeFrom)}" data-chg="freeFrom" aria-label="Free from"><span class="muted">to</span><input class="input" type="date" value="${esc(ui.freeTo)}" data-chg="freeTo" aria-label="Free to">
+    ${freeOn ? `<span style="color:var(--green);font-weight:600">${plural(list.length, 'person', 'people')} free for all ${plural(daysIn(ui.freeFrom, ui.freeTo), 'day')}</span><button class="btn sm ghost" data-act="freeClear">Clear</button>` : '<span class="dim" style="font-size:12px">Pick dates to see only people with no bookings or leave then.</span>'}</div>
+  ${list.length ? `<div style="max-width:1040px">${list.map(s => {
+    const bs = idx().byStaff.get(s.id) || [], now = bs.find(a => a.from <= t && a.to >= t), next = bs.find(a => a.from > t);
+    const away = (s.away || []).find(w => w.from && t >= w.from && t <= (w.to || w.from));
+    const booked30 = bs.reduce((n, a) => { const f = a.from > t ? a.from : t, e = a.to < addDays(t, 29) ? a.to : addDays(t, 29); return n + Math.max(0, daysIn(f, e)); }, 0);
+    return `<div class="crow ${s.active === false ? 'off' : ''}" data-act="staff" data-id="${esc(s.id)}">
+      ${avatar(s.id, true)}
+      <div style="min-width:0"><div class="nm">${esc(s.name)}${s.active === false ? ' <span class="dim">(inactive)</span>' : ''}</div>
+        <div class="sub"><span>${esc(s.title || '—')}</span>${(s.skills || []).length ? `<span class="dim">+ ${esc(s.skills.join(', '))}</span>` : ''}<span class="tag">${esc(label(STAFF_TYPES, s.type || 'employee'))}${s.agency ? ' · ' + esc(s.agency) : ''}</span><span class="tag">${esc(s.dept || deptOf(s.title) || 'Other')}</span>${s.city ? `<span>${esc(s.city)}</span>` : ''}
+        ${now ? `<span class="issue info">On ${esc(getProject(now.projectId)?.code || projName(now.projectId))} until ${esc(fmtShort(now.to))}</span>` : away ? `<span class="issue warn">On leave until ${esc(fmtShort(away.to || away.from))}</span>` : '<span class="issue ok">Free today</span>'}</div></div>
+      <div class="right"><div><div class="num" style="color:var(--text);font-weight:600">${rateHTML(s.rateType, s.rate)}</div><div class="hide-sm">${next ? `Next: ${esc(getProject(next.projectId)?.code || projName(next.projectId))} · ${esc(fmtShort(next.from))}` : 'Nothing booked ahead'} · ${booked30}/30 days booked</div></div></div>
+    </div>`;
+  }).join('')}</div>` : all.length ? `<div class="empty"><b>No one matches</b>${freeOn ? 'Everyone is booked or on leave on some of those days.' : 'Try another filter or search.'}</div>`
+    : `<div class="empty"><b>No staff yet</b>Add your team with their positions and rates — or paste a list from a spreadsheet.<br><br><button class="btn primary" data-act="newStaff">${ICON.plus} Add staff</button> <button class="btn" data-act="importStaff">Import list</button></div>`}`;
+}
+
+/* =========================================================================
+   Forms & drawer
+   ========================================================================= */
+const getPath = (o, k) => k.split('.').reduce((v, p) => v?.[p], o);
+const setPath = (o, k, v) => { const ps = k.split('.'); let c = o; ps.slice(0, -1).forEach(p => c = c[p] ||= {}); c[ps.at(-1)] = v; };
+function formHTML(fields, values = {}) {
+  return fields.map(f => {
+    if (f.sect) return `<div class="sect eyebrow">${esc(f.sect)}</div>`;
+    if (f.html) return `<div class="f ${f.span ? 'span' : ''}">${f.html}</div>`;
+    const v = getPath(values, f.k) ?? f.default ?? '';
+    const id = 'f_' + f.k.replace(/\./g, '_');
+    let ctl;
+    if (f.type === 'select') ctl = `<select class="input" id="${id}" data-k="${f.k}">${f.options.map(([ov, ol]) => `<option value="${esc(ov)}" ${String(v) === String(ov) ? 'selected' : ''}>${esc(ol)}</option>`).join('')}</select>`;
+    else if (f.type === 'textarea') ctl = `<textarea class="input" id="${id}" data-k="${f.k}" placeholder="${esc(f.placeholder || '')}">${esc(v)}</textarea>`;
+    else ctl = `<input class="input" id="${id}" data-k="${f.k}" type="${f.type || 'text'}" value="${esc(v)}" placeholder="${esc(f.placeholder || '')}" ${f.list ? `list="${f.list}"` : ''} ${f.min != null ? `min="${f.min}"` : ''} ${f.step ? `step="${f.step}"` : ''}>`;
+    return `<div class="f ${f.span ? 'span' : ''}"><label for="${id}">${esc(f.label)}</label>${ctl}${f.hint ? `<span class="dim" style="font-size:12px">${f.hint}</span>` : ''}</div>`;
+  }).join('');
+}
+function readForm(el, base = {}) {
+  const o = structuredClone(base);
+  el.querySelectorAll('[data-k]').forEach(i => { let v = i.value.trim(); if (i.type === 'number') v = v === '' ? '' : Number(v); setPath(o, i.dataset.k, v); });
+  return o;
+}
+const datalists = () => `<datalist id="dlTitles">${TITLE_NAMES.map(r => `<option value="${esc(r)}">`).join('')}</datalist>`;
+const allowanceFields = (per = 'per person') => [
+  { k: 'rateType', label: 'Rate type', type: 'select', options: RATE_TYPES },
+  { k: 'rate', label: `Rate (${CONFIG.CURRENCY})`, type: 'number', min: 0 },
+  { k: 'perDiem', label: `Per diem (${CONFIG.CURRENCY} / day)`, type: 'number', min: 0 },
+  { k: 'accommodation', label: `Accommodation (${CONFIG.CURRENCY} total ${per})`, type: 'number', min: 0 },
+  { k: 'travel', label: `Travel (${CONFIG.CURRENCY} total ${per})`, type: 'number', min: 0 },
+  { k: 'other', label: `Other (${CONFIG.CURRENCY} total ${per})`, type: 'number', min: 0, placeholder: 'Visa, uniform, phone…' },
+];
+
+let drawerState = null;
+function openDrawer({ title, body, onSave, onDelete, saveLabel = 'Save', wide = false, extra = '', refresh = null, onInput = null }) {
+  drawerState = { onSave, onDelete, refresh, onInput };
+  const d = $('#drawer');
+  d.className = 'drawer' + (wide ? ' wide' : '');
+  d.innerHTML = `<div class="dr-h"><h2>${esc(title)}</h2><button class="btn ghost" data-act="closeDrawer" aria-label="Close">${ICON.x}</button></div>
+    <div class="dr-b" id="drBody">${body}${datalists()}</div>
+    <div class="dr-f">${onDelete ? `<button class="btn danger" data-act="drDelete">${typeof onDelete === 'object' ? esc(onDelete.label) : 'Delete'}</button>` : ''}${extra}<span class="sp"></span><button class="btn ghost" data-act="closeDrawer">Cancel</button>${onSave ? `<button class="btn primary" data-act="drSave" id="drSaveBtn">${esc(saveLabel)}</button>` : ''}</div>`;
+  requestAnimationFrame(() => { d.classList.add('on'); $('#scrim').classList.add('on'); d.setAttribute('aria-hidden', 'false'); const f = d.querySelector('.dr-b input:not([type=checkbox]):not([type=date]), .dr-b textarea, .dr-b select'); f && !('ontouchstart' in window) && f.focus(); });
+}
+function closeDrawer() { const d = $('#drawer'); d.classList.remove('on'); $('#scrim').classList.remove('on'); d.setAttribute('aria-hidden', 'true'); drawerState = null; }
+const clashList = list => `<ul>${list.map(b => `<li>${esc(projName(b.projectId))} · ${esc(fmtShort(b.from))}–${esc(fmtShort(b.to))}${b.status === 'hold' ? ' (on hold)' : ''}</li>`).join('')}</ul>`;
+
+/* ---- position drawer (a line on the staff list, with its budget) ---- */
+function positionDrawer(posId, projectId) {
+  const isNew = !posId, p0 = posId ? db.positions.get(posId) : null;
+  if (posId && !p0) return;
+  const proj = getProject(p0?.projectId || projectId), w = windowOf(proj);
+  const ps = p0 ? structuredClone(p0) : { id: uid(), projectId, title: '', dept: '', from: w.from || today(), to: w.to || w.from || today(), rateType: 'day', rate: '', perDiem: '', accommodation: '', travel: '', other: '', note: '', qty: 1 };
+  const as = posAssigns(ps.id), liveAs = as.filter(live);
+  const fields = [
+    { k: 'title', label: 'Position', list: 'dlTitles', placeholder: 'e.g. Production coordinator', span: !isNew },
+    ...(isNew ? [{ k: 'qty', label: 'How many', type: 'number', min: 1 }] : []),
+    { k: 'dept', label: 'Department', type: 'select', options: [['', 'From the position'], ...DEPTS.map(d => [d, d])] },
+    { k: 'note', label: 'Note', placeholder: 'e.g. Arabic speaker, VIP area' },
+    { k: 'from', label: 'From', type: 'date' }, { k: 'to', label: 'To', type: 'date', hint: w.from ? `Project: ${esc(fmtRange(w.from, w.to))}` : '' },
+    { sect: 'Budget per person' },
+    ...allowanceFields(),
+  ];
+  const preview = () => {
+    const o = readForm($('#drBody').querySelector('.form'), ps), c = costOf(o), q = isNew ? Math.max(1, Math.round(num(o.qty)) || 1) : 1;
+    $('#posPrev').innerHTML = c.days ? `<span class="eyebrow">Budget</span><span class="big num">${money(c.total * q)}</span><span class="muted">${q > 1 ? `${q} × ${money(c.total)} · ` : ''}${plural(c.days, 'day')} · fee ${money(c.fee)}${c.extras ? ` + allowances ${money(c.extras)}` : ''} per person</span>` : '<span class="muted">Set the dates to see the budget.</span>';
+  };
+  openDrawer({
+    title: isNew ? `Add positions · ${proj?.name || ''}` : `${ps.title || 'Position'} · ${proj?.name || ''}`, wide: true,
+    body: `<div class="form">${formHTML(fields, ps)}</div><div class="preview" id="posPrev"></div>
+      ${!isNew && as.length ? `<div class="sect" style="margin-top:18px;border-top:1px solid var(--line);padding-top:14px"><div class="eyebrow" style="margin-bottom:6px">On this position</div>${as.map(a => `<div class="bk" data-act="asg" data-id="${esc(a.id)}"><span class="num">${esc(fmtShort(a.from))} – ${esc(fmtShort(a.to))}</span><span><b>${esc(staffName(a.staffId))}</b></span><span class="issue ${a.status === 'confirmed' ? 'ok' : a.status === 'released' ? 'info' : 'warn'}">${esc(label(A_STATUS, a.status || 'hold'))}</span></div>`).join('')}
+        <p class="dim" style="font-size:12px;margin-top:8px">If you change the dates, people booked for the whole position move with it.</p></div>` : ''}`,
+    extra: isNew ? '' : `<button class="btn" data-act="pick" data-id="${esc(ps.id)}">+ Assign</button><button class="btn" data-act="dupPos" data-id="${esc(ps.id)}">Duplicate</button>`,
+    saveLabel: isNew ? 'Add' : 'Save',
+    onInput: preview,
+    onSave: async () => {
+      const o = readForm($('#drBody').querySelector('.form'), ps);
+      if (!o.title) return toast('Name the position', true);
+      if (!o.from || !o.to) return toast('Set the dates', true);
+      if (o.to < o.from) return toast('The end date is before the start date', true);
+      if (!o.dept) o.dept = deptOf(o.title) || 'Other';
+      const now = new Date().toISOString();
+      if (isNew) {
+        const q = Math.min(50, Math.max(1, Math.round(num(o.qty)) || 1)); delete o.qty;
+        const rows = Array.from({ length: q }, (_, i) => { const id = i ? uid() : o.id; return { coll: 'positions', id, data: { ...o, id, n: i, createdAt: now } }; });
+        try { await Backend.putMany(rows); closeDrawer(); render(); toast(q > 1 ? `${q} positions added` : 'Position added'); } catch (err) { failed(err); }
+        return;
+      }
+      delete o.qty;
+      // people booked for the whole position move with its dates
+      const moved = (o.from !== ps.from || o.to !== ps.to) ? liveAs.filter(a => a.from === ps.from && a.to === ps.to).map(a => ({ ...a, from: o.from, to: o.to })) : [];
+      for (const a of moved) {
+        const c = clashesFor(a.staffId, a.from, a.to, a.id);
+        if (c.length) return confirmDialog({ title: 'Can’t move these dates', body: `<p><b>${esc(staffName(a.staffId))}</b> would overlap with:</p>${clashList(c)}<p>Change their booking first, or pick other dates.</p>`, ok: 'OK', cancel: false });
+      }
+      try { await Backend.putMany([{ coll: 'positions', id: o.id, data: o }, ...moved.map(a => ({ coll: 'assign', id: a.id, data: a }))]); closeDrawer(); render(); toast(moved.length ? `Saved · ${plural(moved.length, 'booking')} moved` : 'Saved'); } catch (err) { failed(err); }
+    },
+    onDelete: isNew ? null : async () => {
+      if (as.length && await confirmDialog({ title: `Delete “${ps.title}”?`, body: `<p>${plural(as.length, 'booking')} on this position will be removed too.</p>`, ok: 'Delete', danger: true }) !== 'ok') return;
+      try { await Backend.delMany('assign', as.map(a => a.id)); await Backend.delMany('positions', [ps.id]); closeDrawer(); render(); toast('Position deleted'); } catch (err) { failed(err); }
+    },
+  });
+  preview();
+}
+
+/* ---- assign picker ---- */
+function pickDrawer(posId) {
+  const ps = db.positions.get(posId); if (!ps) return;
+  const proj = getProject(ps.projectId), cv = coverage(ps), g = cv.gaps[0] || { from: ps.from, to: ps.to };
+  const st = { from: g.from, to: g.to, status: ui.newStatus, sel: null };
+  const title = (ps.title || '').toLowerCase();
+  ui.pickQ = '';
+  ui.pickAll = ![...db.staff.values()].some(s => s.active !== false && staffTitles(s).includes(title));
+  const estimate = s => costOf({ ...ps, rateType: s.rateType || 'day', rate: num(s.rate) ? s.rate : ps.rate, from: st.from, to: st.to }).total;
+  const listHTML = () => {
+    IDX = null;
+    const q = ui.pickQ.trim().toLowerCase(), ok = st.from && st.to && st.to >= st.from;
+    const bud = costOf({ ...ps, from: st.from, to: st.to }).total;
+    const cands = [...db.staff.values()].filter(s => s.active !== false)
+      .filter(s => !q || [s.name, s.title, s.city, ...(s.skills || [])].join(' ').toLowerCase().includes(q))
+      .map(s => { const iss = ok ? issuesFor(s.id, st.from, st.to) : []; return { s, match: staffTitles(s).includes(title), iss, busy: iss.some(i => i.lvl === 'bad'), est: ok ? estimate(s) : 0 }; })
+      .filter(x => ui.pickAll || x.match || st.sel === x.s.id)
+      .sort((x, y) => (x.busy - y.busy) || (y.match - x.match) || (x.iss.length - y.iss.length) || sortStaff(x.s, y.s));
+    if (st.sel && cands.find(x => x.s.id === st.sel)?.busy) st.sel = null;
+    const row = x => `<div class="pick ${x.busy ? 'dis' : st.sel === x.s.id ? 'sel' : ''}" ${x.busy ? 'aria-disabled="true"' : `data-act="pickSel" data-id="${esc(x.s.id)}"`}>
+      <span class="radio"></span>${avatar(x.s.id, true)}
+      <div style="min-width:0"><div class="nm">${esc(x.s.name)}</div>
+        <div class="rl">${esc([x.s.title, ...(x.s.skills || [])].filter(Boolean).join(' · ') || '—')} · ${esc(label(STAFF_TYPES, x.s.type || 'employee'))}${x.s.city ? ' · ' + esc(x.s.city) : ''}</div>
+        <div class="issues">${x.iss.length ? issueTags(x.iss) : '<span class="issue ok">Free</span>'}</div></div>
+      <div class="rate num">${rateHTML(x.s.rateType, x.s.rate)}${ok && !x.busy ? `<b>${money(x.est)}</b><span style="color:${x.est > bud + 0.5 ? 'var(--red)' : 'var(--green)'}">${x.est > bud + 0.5 ? `${money(x.est - bud)} over` : x.est < bud - 0.5 ? `${money(bud - x.est)} under` : 'on budget'}</span>` : ''}</div></div>`;
+    const free = cands.filter(x => !x.busy), busy = cands.filter(x => x.busy);
+    const fm = free.filter(x => x.match), fo = free.filter(x => !x.match);
+    return `<div class="pick-info"><span><b>${esc(ps.title)}</b> · ${esc(proj?.name || '')} · position ${esc(fmtRange(ps.from, ps.to))}</span><span>Budget for these dates <b class="num">${ok ? money(bud) : '—'}</b></span></div>
+      ${!ok ? '<div class="empty" style="padding:20px"><b>Check the dates</b>The end date is before the start date.</div>' : ''}
+      ${!db.staff.size ? `<div class="empty"><b>No staff yet</b>Add people on the Staff page first.<br><br><a class="btn primary" href="#/staff" data-act="closeDrawer">${ICON.users} Go to Staff</a></div>` : ''}
+      ${ok && fm.length ? `<div class="pick-sect">Free · ${esc(ps.title)}</div>${fm.map(row).join('')}` : ''}
+      ${ok && fo.length ? `<div class="pick-sect">Free · other positions</div>${fo.map(row).join('')}` : ''}
+      ${ok && busy.length ? `<div class="pick-sect">Not available — already on another project</div>${busy.map(row).join('')}` : ''}
+      ${ok && db.staff.size && !cands.length ? `<div class="empty" style="margin-top:10px"><b>No one listed</b>${ui.pickAll ? 'No staff match your search.' : `No one has “${esc(ps.title)}” as a position. Tick “Show all staff” to pick from everyone.`}</div>` : ''}`;
+  };
+  const paint = () => {
+    $('#pickList').innerHTML = listHTML();
+    const b = $('#drSaveBtn'); if (b) { b.textContent = st.sel ? `Assign ${firstName(st.sel)}` : 'Assign'; b.disabled = !st.sel; }
+  };
+  openDrawer({
+    title: `Assign · ${ps.title || 'Position'}`, wide: true,
+    body: `<div class="pick-top">
+        <div class="f"><label for="pkFrom">From</label><input class="input" type="date" id="pkFrom" value="${esc(st.from)}" data-pk="from"></div>
+        <div class="f"><label for="pkTo">To</label><input class="input" type="date" id="pkTo" value="${esc(st.to)}" data-pk="to"></div>
+        <div class="f"><label for="pkSt">Book as</label><select class="input" id="pkSt" data-pk="status"><option value="hold" ${st.status === 'hold' ? 'selected' : ''}>On hold</option><option value="confirmed" ${st.status === 'confirmed' ? 'selected' : ''}>Confirmed</option></select></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:6px;flex-wrap:wrap"><input class="input" id="pickQ" placeholder="Search staff…" data-pick="q" autocomplete="off" style="flex:1;min-width:180px"><label class="check"><input type="checkbox" data-pick="all" ${ui.pickAll ? 'checked' : ''}> Show all staff, not only this position</label></div>
+      <div id="pickList"></div>`,
+    saveLabel: 'Assign',
+    onSave: async () => {
+      if (!st.sel) return toast('Pick someone', true);
+      if (!st.from || !st.to || st.to < st.from) return toast('Check the dates', true);
+      const s = db.staff.get(st.sel), c = clashesFor(st.sel, st.from, st.to);
+      if (c.length) return confirmDialog({ title: 'Can’t book this', body: `<p><b>${esc(s.name)}</b> is already on:</p>${clashList(c)}`, ok: 'OK', cancel: false });
+      const lv = leaveFor(st.sel, st.from, st.to);
+      if (lv.length && await confirmDialog({ title: `${s.name} is on leave`, body: `<p>They’re on leave ${esc(fmtShort(lv[0].from))}–${esc(fmtShort(lv[0].to || lv[0].from))}${lv[0].note ? ` (${esc(lv[0].note)})` : ''}. Assign them anyway?</p>`, ok: 'Assign anyway' }) !== 'ok') return;
+      const id = uid();
+      const a = { id, projectId: ps.projectId, positionId: ps.id, staffId: st.sel, title: ps.title, from: st.from, to: st.to, status: st.status,
+        rateType: s.rateType || 'day', rate: num(s.rate) ? s.rate : ps.rate, perDiem: ps.perDiem, accommodation: ps.accommodation, travel: ps.travel, other: ps.other,
+        note: '', createdAt: new Date().toISOString(), createdBy: me };
+      try { await Backend.put('assign', id, a); closeDrawer(); render(); toast(`${s.name} assigned (${label(A_STATUS, st.status).toLowerCase()})`); } catch (err) { failed(err); }
+    },
+    refresh: () => paint(),
+  });
+  Object.assign(drawerState, { pick: { st, paint } });
+  paint();
+}
+
+/* ---- booking drawer ---- */
+function waText(a) {
+  const p = getProject(a.projectId);
+  return `Hi ${firstName(a.staffId)}, this is Black Canvas. You're ${a.status === 'confirmed' ? 'confirmed' : 'pencilled in'} as ${a.title || 'staff'} on ${p?.name || 'our project'}${p?.venue ? ' at ' + p.venue : ''}${p?.city ? ', ' + p.city : ''} from ${fmt(a.from, {weekday:'short', day:'numeric', month:'short'})} to ${fmt(a.to, {weekday:'short', day:'numeric', month:'short'})}. Please reply to confirm. Thank you!`;
+}
+function asgDrawer(aId) {
+  const a = db.assign.get(aId); if (!a) return;
+  const ps = db.positions.get(a.positionId) || {}, s = db.staff.get(a.staffId) || {}, p = getProject(a.projectId);
+  const fields = [
+    { k: 'status', label: 'Status', type: 'select', options: A_STATUS },
+    { k: 'note', label: 'Note', placeholder: 'e.g. Flies in the day before' },
+    { k: 'from', label: 'From', type: 'date' }, { k: 'to', label: 'To', type: 'date', hint: ps.from ? `Position: ${esc(fmtRange(ps.from, ps.to))}` : '' },
+    { sect: `Cost for this booking · ${s.name || ''}` },
+    ...allowanceFields('for this booking'),
+  ];
+  const check = () => {
+    const o = readForm($('#drBody').querySelector('.form'), a), el = $('#asgPrev'), btn = $('#drSaveBtn');
+    const okDates = o.from && o.to && o.to >= o.from;
+    const clash = okDates && live(o) ? clashesFor(a.staffId, o.from, o.to, a.id) : [];
+    const lv = okDates && live(o) ? leaveFor(a.staffId, o.from, o.to) : [];
+    const c = costOf(o), b = ps.id ? costOf({ ...ps, from: o.from, to: o.to }).total : 0;
+    el.className = 'preview' + (clash.length || !okDates ? ' bad' : '');
+    el.innerHTML = !okDates ? '<b style="color:var(--red)">The end date is before the start date.</b>'
+      : `${clash.length ? `<div><b style="color:var(--red)">Overlaps another booking — can’t save these dates:</b>${clashList(clash)}</div>` : '<span class="issue ok" style="align-self:flex-start">No overlaps</span>'}
+        ${lv.length ? `<span class="issue warn" style="align-self:flex-start">On leave ${esc(fmtShort(lv[0].from))}–${esc(fmtShort(lv[0].to || lv[0].from))}${lv[0].note ? ' · ' + esc(lv[0].note) : ''}</span>` : ''}
+        <span class="eyebrow" style="margin-top:4px">Booking cost</span><span class="big num">${money(live(o) ? c.total : 0)}</span>
+        <span class="muted">${plural(c.days, 'day')} · fee ${money(c.fee)}${c.extras ? ` + allowances ${money(c.extras)}` : ''}${b && live(o) ? ` · budget ${money(b)} · ${c.total > b + 0.5 ? `<span class="var-neg">${money(c.total - b)} over</span>` : `<span class="var-pos">${money(b - c.total)} under</span>`}` : ''}${!live(o) ? ' · released, not counted' : ''}</span>`;
+    if (btn) btn.disabled = !okDates || !!clash.length;
+  };
+  openDrawer({
+    title: s.name || staffName(a.staffId), wide: true,
+    body: `<div class="pick-info" style="display:block"><div style="font-weight:700">${esc(a.title || ps.title || 'Staff')} · ${esc(p?.name || 'Removed project')}</div><div class="muted" style="margin-top:4px">${esc(fmtRange(a.from, a.to))} · ${plural(daysIn(a.from, a.to), 'day')}${s.phone ? ' · ' + esc(s.phone) : ''}</div></div>
+      <div class="form">${formHTML(fields, a)}</div><div class="preview" id="asgPrev"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px">
+        ${s.phone ? `<a class="btn" href="tel:${esc(String(s.phone).replace(/\s/g, ''))}">Call</a><a class="btn" href="${esc(waLink(s.phone, waText(a)))}" target="_blank" rel="noopener">${ICON.chat} Send on WhatsApp</a>` : '<span class="dim">No phone number saved for this person.</span>'}
+        <button class="btn ghost" data-act="staff" data-id="${esc(a.staffId)}">Open profile</button>
+        ${route().view !== 'project' || route().id !== a.projectId ? `<a class="btn ghost" href="#/project/${encodeURIComponent(a.projectId)}/list">Open project</a>` : ''}
+      </div>`,
+    onInput: check,
+    onSave: async () => {
+      const o = readForm($('#drBody').querySelector('.form'), a);
+      if (!o.from || !o.to || o.to < o.from) return toast('Check the dates', true);
+      if (o.status !== a.status) o.statusAt = new Date().toISOString();
+      if (live(o)) { const c = clashesFor(a.staffId, o.from, o.to, a.id); if (c.length) return confirmDialog({ title: 'Can’t save these dates', body: `<p>${esc(staffName(a.staffId))} is already on:</p>${clashList(c)}`, ok: 'OK', cancel: false }); }
+      try { await Backend.put('assign', o.id, o); closeDrawer(); render(); toast('Booking saved'); } catch (err) { failed(err); }
+    },
+    onDelete: { label: 'Remove from project' },
+  });
+  drawerState.onDelete = async () => { try { await Backend.delMany('assign', [a.id]); closeDrawer(); render(); toast(`${firstName(a.staffId)} removed`); } catch (err) { failed(err); } };
+  check();
+}
+
+/* ---- staff drawer ---- */
+function staffDrawer(id) {
+  const isNew = !id, s0 = id ? db.staff.get(id) : null;
+  if (id && !s0) return;
+  const s = s0 ? structuredClone(s0) : { id: uid(), name: '', title: '', skills: [], dept: '', type: 'employee', phone: '', email: '', city: '', rateType: 'month', rate: '', away: [], notes: '', active: true };
+  s.away ||= [];
+  const t = today(), books = (idx().byStaff.get(s.id) || []), upcoming = books.filter(a => a.to >= t), past = books.filter(a => a.to < t).reverse();
+  const fields = [
+    { k: 'name', label: 'Full name', span: true },
+    { k: 'title', label: 'Position', list: 'dlTitles', placeholder: 'e.g. Project manager' },
+    { k: 'skillsText', label: 'Can also work as', list: 'dlTitles', placeholder: 'Comma separated, e.g. Producer, Stage manager' },
+    { k: 'dept', label: 'Department', type: 'select', options: [['', 'From the position'], ...DEPTS.map(d => [d, d])] },
+    { k: 'type', label: 'Type', type: 'select', options: STAFF_TYPES },
+    { k: 'agency', label: 'Agency / company', placeholder: 'If through an agency' },
+    { k: 'city', label: 'Based in', placeholder: 'Riyadh' },
+    { k: 'phone', label: 'Mobile', type: 'tel', placeholder: '+966 5x xxx xxxx' },
+    { k: 'email', label: 'Email', type: 'email' },
+    { k: 'rateType', label: 'Pay', type: 'select', options: [['month', 'Monthly salary'], ['day', 'Day rate'], ['fixed', 'Fixed fee per project']] },
+    { k: 'rate', label: `Amount (${CONFIG.CURRENCY})`, type: 'number', min: 0, hint: 'Used as their cost when they’re assigned. Monthly salaries count pro rata.' },
+    { k: 'activeSel', label: 'Status', type: 'select', options: [['1', 'Active'], ['0', 'Inactive — hide from picking']] },
+    { k: 'notes', label: 'Notes', type: 'textarea', span: true, placeholder: 'Languages, strengths, uniform size…' },
+  ];
+  const paintRows = () => {
+    $('#awayRows').innerHTML = s.away.map((w, i) => `<div class="r4"><input class="input" type="date" value="${esc(w.from || '')}" data-away="${i}" data-f="from" title="From"><input class="input" type="date" value="${esc(w.to || '')}" data-away="${i}" data-f="to" title="To"><input class="input nt" placeholder="Reason (optional)" value="${esc(w.note || '')}" data-away="${i}" data-f="note"><button class="btn sm ghost" data-act="rowDel" data-i="${i}" aria-label="Remove">${ICON.x}</button></div>`).join('') || '<span class="dim" style="font-size:12px">No leave booked.</span>';
+  };
+  const bk = a => `<div class="bk" data-act="asg" data-id="${esc(a.id)}"><span class="num">${esc(fmtRange(a.from, a.to))}</span><span style="min-width:0"><b>${esc(projName(a.projectId))}</b> <span class="muted">· ${esc(a.title || '')}</span></span><span class="issue ${a.status === 'confirmed' ? 'ok' : 'warn'}">${esc(label(A_STATUS, a.status || 'hold'))}</span></div>`;
+  openDrawer({
+    title: isNew ? 'Add staff' : s.name, wide: true,
+    body: `<div class="form">${formHTML(fields, { ...s, skillsText: (s.skills || []).join(', '), activeSel: s.active === false ? '0' : '1' })}
+      <div class="sect"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="eyebrow">Leave and unavailable dates</span><button class="btn sm" data-act="rowAdd">${ICON.plus} Add</button></div><div class="rows-ed" id="awayRows"></div></div>
+      ${isNew ? '' : `<div class="sect"><div class="eyebrow" style="margin-bottom:6px">Projects · ${upcoming.length} current or upcoming · ${past.length} past</div>${upcoming.map(bk).join('') || '<span class="dim" style="font-size:12px">Nothing booked ahead.</span>'}${past.length ? `<details style="margin-top:8px"><summary class="dim" style="cursor:pointer;font-size:12px">Past projects</summary>${past.slice(0, 30).map(bk).join('')}</details>` : ''}</div>`}
+    </div>`,
+    extra: !isNew && s.phone ? `<a class="btn" href="${esc(waLink(s.phone))}" target="_blank" rel="noopener">${ICON.chat} WhatsApp</a>` : '',
+    saveLabel: isNew ? 'Add staff' : 'Save',
+    onSave: async () => {
+      const o = readForm($('#drBody').querySelector('.form'), s);
+      if (!o.name) return toast('Add their name', true);
+      o.skills = String(o.skillsText || '').split(',').map(x => x.trim()).filter(Boolean); delete o.skillsText;
+      o.active = o.activeSel !== '0'; delete o.activeSel;
+      if (!o.dept) o.dept = deptOf(o.title) || '';
+      o.away = s.away.filter(w => w.from).map(w => ({ ...w, to: w.to && w.to >= w.from ? w.to : w.from }));
+      o.createdAt ||= new Date().toISOString();
+      try { await Backend.put('staff', o.id, o); closeDrawer(); render(); toast(isNew ? `${o.name} added` : 'Saved'); } catch (err) { failed(err); }
+    },
+    onDelete: isNew ? null : async () => {
+      const mine = [...db.assign.values()].filter(a => a.staffId === s.id);
+      const r = await confirmDialog({ title: `Delete ${s.name}?`, body: mine.length ? `<p>They have ${plural(mine.length, 'booking')}, which will be removed too and their costs taken off those projects. To keep their history, mark them inactive instead.</p>` : '<p>This removes them from the staff database.</p>', ok: 'Delete', danger: true, alt: mine.length ? 'Mark inactive' : null });
+      if (r === 'alt') { closeDrawer(); return save('staff', s.id, { ...s0, active: false }, 'Marked inactive'); }
+      if (r !== 'ok') return;
+      try { await Backend.delMany('assign', mine.map(a => a.id)); await Backend.delMany('staff', [s.id]); closeDrawer(); render(); toast('Deleted'); } catch (err) { failed(err); }
+    },
+  });
+  Object.assign(drawerState, { staff: s, paintRows });
+  paintRows();
+}
+
+/* ---- import staff from a pasted list ---- */
+const IMPORT_COLS = [['name', ['name', 'full name']], ['title', ['position', 'title', 'role', 'job']], ['dept', ['department', 'dept']], ['phone', ['phone', 'mobile', 'number', 'whatsapp']], ['email', ['email', 'e-mail']], ['type', ['type']], ['rate', ['rate', 'salary', 'day rate', 'amount']], ['rateType', ['rate type', 'pay', 'per']], ['city', ['city', 'based']]];
+function parseStaffList(text) {
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  if (!lines.length) return [];
+  const sep = lines[0].includes('\t') ? '\t' : lines[0].includes(';') && !lines[0].includes(',') ? ';' : ',';
+  const split = l => { const out = []; let cur = '', q = false; for (const ch of l) { if (ch === '"') q = !q; else if (ch === sep && !q) { out.push(cur.trim()); cur = ''; } else cur += ch; } out.push(cur.trim()); return out; };
+  let rows = lines.map(split), cols = IMPORT_COLS.map(c => c[0]);
+  const head = rows[0].map(h => h.toLowerCase());
+  if (head.some(h => IMPORT_COLS.some(([, names]) => names.includes(h)))) {
+    cols = head.map(h => (IMPORT_COLS.find(([, names]) => names.includes(h)) || [null])[0]);
+    rows = rows.slice(1);
+  }
+  return rows.map(r => { const o = {}; cols.forEach((k, i) => { if (k && r[i]) o[k] = r[i]; }); return o; }).filter(o => o.name);
+}
+function importDrawer() {
+  openDrawer({
+    title: 'Import staff', wide: true,
+    body: `<p class="muted" style="margin-top:0">Copy rows from Excel or Google Sheets and paste them here. Use these columns, in this order or with a header row: <b style="color:var(--text)">Name, Position, Department, Phone, Email, Type, Rate, Rate type, City</b>. Only the name is required. Type is employee, freelancer, contractor or agency; rate type is month, day or fixed.</p>
+      <textarea class="input" id="impText" style="min-height:220px;font-family:var(--mono);font-size:12px" placeholder="Name, Position, Department, Phone, Email, Type, Rate, Rate type, City&#10;Sara Ali, Project manager, Management, 0551234567, , employee, 18000, month, Riyadh"></textarea>
+      <div id="impPrev" class="dim" style="margin-top:10px;font-size:13px"></div>`,
+    saveLabel: 'Import',
+    onSave: async () => {
+      const list = parseStaffList($('#impText').value);
+      if (!list.length) return toast('Paste at least one row with a name', true);
+      const known = new Set([...db.staff.values()].flatMap(s => [s.name.toLowerCase(), waNumber(s.phone)].filter(Boolean)));
+      const now = new Date().toISOString(), rows = [];
+      let skipped = 0;
+      for (const o of list) {
+        if (known.has(o.name.toLowerCase()) || (o.phone && known.has(waNumber(o.phone)))) { skipped++; continue; }
+        const id = uid(), lc = v => String(v || '').toLowerCase();
+        const type = (STAFF_TYPES.find(([k, l]) => [k, l.toLowerCase()].includes(lc(o.type))) || [lc(o.type).startsWith('free') ? 'freelance' : 'employee'])[0];
+        const rt = /day|daily/.test(lc(o.rateType)) ? 'day' : /fix|project/.test(lc(o.rateType)) ? 'fixed' : /month/.test(lc(o.rateType)) ? 'month' : type === 'employee' ? 'month' : 'day';
+        const dept = DEPTS.find(d => d.toLowerCase() === lc(o.dept)) || deptOf(o.title) || '';
+        rows.push({ coll: 'staff', id, data: { id, name: o.name, title: o.title || '', skills: [], dept, type, phone: o.phone || '', email: o.email || '', city: o.city || '', rateType: rt, rate: Number(String(o.rate || '').replace(/[^\d.]/g, '')) || '', away: [], notes: '', active: true, createdAt: now } });
+        known.add(o.name.toLowerCase());
+      }
+      if (!rows.length) return toast('Everyone in the list is already in the database', true);
+      try { await Backend.putMany(rows); closeDrawer(); render(); toast(`${plural(rows.length, 'person', 'people')} imported${skipped ? ` · ${skipped} already listed` : ''}`); } catch (err) { failed(err); }
+    },
+  });
+}
+
+/* ---- staff-only project ---- */
+function projectDrawer(id) {
+  const isNew = !id, j = id ? structuredClone(db.projects.get(id)) : { id: uid(), name: '', client: '', venue: '', city: '', code: '', type: 'Corporate', status: 'confirmed', dates: {} };
+  if (!j) return;
+  const fields = [
+    { k: 'name', label: 'Project name', span: true, placeholder: 'e.g. Pavilion pre-production, Office for client launch' },
+    { k: 'client', label: 'Client' }, { k: 'code', label: 'Job code' },
+    { k: 'venue', label: 'Venue / site' }, { k: 'city', label: 'City', placeholder: 'Riyadh' },
+    { k: 'type', label: 'Type', type: 'select', options: EVENT_TYPES.map(x => [x, x]) },
+    { k: 'status', label: 'Status', type: 'select', options: STATUSES },
+    { sect: 'Dates' },
+    { k: 'dates.buildStart', label: 'Starts', type: 'date' }, { k: 'dates.showStart', label: 'Show / key day 1', type: 'date', hint: 'Optional' },
+    { k: 'dates.showEnd', label: 'Last show / key day', type: 'date', hint: 'Optional' }, { k: 'dates.derigEnd', label: 'Ends', type: 'date' },
+  ];
+  openDrawer({
+    title: isNew ? 'Staff-only project' : j.name,
+    body: `${isNew ? '<p class="muted" style="margin-top:0">Projects from Project management appear in Staff automatically. Add one here only for work that isn’t tracked in Projects.</p>' : ''}<div class="form">${formHTML(fields, j)}</div>`,
+    saveLabel: isNew ? 'Add project' : 'Save',
+    onSave: async () => {
+      const o = readForm($('#drBody').querySelector('.form'), j);
+      if (!o.name) return toast('Give the project a name', true);
+      const d = o.dates || {};
+      if (!d.buildStart && !d.showStart) return toast('Set when it starts', true);
+      if (d.buildStart && d.derigEnd && d.derigEnd < d.buildStart) return toast('It ends before it starts', true);
+      if (d.showStart && d.showEnd && d.showEnd < d.showStart) return toast('Last show day is before day 1', true);
+      if (!d.showStart) { d.showStart = d.buildStart; d.showEnd ||= d.derigEnd || d.buildStart; }
+      o.createdAt ||= new Date().toISOString();
+      try { await Backend.put('projects', o.id, o); closeDrawer(); if (isNew) go(`#/project/${encodeURIComponent(o.id)}/list`); render(); toast(isNew ? 'Project added' : 'Saved'); } catch (err) { failed(err); }
+    },
+    onDelete: isNew ? null : async () => {
+      const ps = idx().byProject.get(j.id) || [], as = [...db.assign.values()].filter(a => a.projectId === j.id);
+      if (await confirmDialog({ title: `Delete “${j.name}”?`, body: `<p>This removes the project, its ${plural(ps.length, 'position')} and ${plural(as.length, 'booking')}. It can’t be undone.</p>`, ok: 'Delete project', danger: true }) !== 'ok') return;
+      try { await Backend.delMany('assign', as.map(a => a.id)); await Backend.delMany('positions', ps.map(x => x.id)); await Backend.delMany('budgets', db.budgets.has(j.id) ? [j.id] : []); await Backend.delMany('projects', [j.id]); closeDrawer(); go('#/'); render(); toast('Project deleted'); } catch (err) { failed(err); }
+    },
+  });
+}
+
+/* ---- overall budget ---- */
+function budgetDrawer(pid) {
+  const p = getProject(pid); if (!p) return;
+  const b = structuredClone(db.budgets.get(pid) || { id: pid, projectId: pid, cap: '', note: '' }), s = projStats(pid);
+  openDrawer({
+    title: `Staff budget · ${p.name}`,
+    body: `<p class="muted" style="margin-top:0">Set the overall staff budget for this project — for example the staffing line from the client quote. Leave it empty to use the total of the positions (now <b class="num" style="color:var(--text)">${money(s.lines)}</b>).</p>
+      <div class="form">${formHTML([{ k: 'cap', label: `Overall staff budget (${CONFIG.CURRENCY})`, type: 'number', min: 0, span: true }, { k: 'note', label: 'Note', span: true, placeholder: 'e.g. From quote Q-2026-114, staffing line' }], b)}</div>`,
+    saveLabel: 'Save budget',
+    onSave: async () => {
+      const o = readForm($('#drBody').querySelector('.form'), b);
+      if (o.cap === '' && !o.note) { try { await Backend.delMany('budgets', db.budgets.has(pid) ? [pid] : []); closeDrawer(); render(); toast('Using the total of the positions'); } catch (err) { failed(err); } return; }
+      o.cap = o.cap === '' ? '' : Math.max(0, num(o.cap));
+      closeDrawer(); save('budgets', pid, o, 'Budget saved');
+    },
+  });
+}
+
+/* ---- copy positions from another project ---- */
+function copyDrawer(pid) {
+  const p = getProject(pid); if (!p) return;
+  const srcs = allProjects().filter(x => x.id !== pid && (idx().byProject.get(x.id) || []).length).sort((a, b) => (windowOf(b).from || '').localeCompare(windowOf(a).from || ''));
+  if (!srcs.length) return toast('No other project has a staff list yet', true);
+  const dst = windowOf(p);
+  const st = { src: srcs[0].id };
+  const paint = () => {
+    const list = idx().byProject.get(st.src) || [], sw = windowOf(getProject(st.src));
+    const base = sw.from || list.map(x => x.from).sort()[0];
+    $('#cpPrev').innerHTML = `<p>${plural(list.length, 'position')} will be added${dst.from && base ? `, with dates moved to line up with this project (${esc(fmtShort(dst.from))} instead of ${esc(fmtShort(base))})` : ''}. Budget rates and allowances are copied; people aren’t.</p>
+      <div class="tbl-wrap"><table class="tbl"><tbody>${list.slice(0, 40).map(x => `<tr><td>${esc(x.title)}</td><td class="muted">${esc(x.dept || '')}</td><td class="r num">${rateHTML(x.rateType, x.rate)}</td></tr>`).join('')}</tbody></table></div>`;
+  };
+  openDrawer({
+    title: `Copy a staff list · ${p.name}`,
+    body: `<div class="form"><div class="f span"><label for="cpSrc">Copy from</label><select class="input" id="cpSrc" data-cp="src">${srcs.map(x => `<option value="${esc(x.id)}">${esc(x.name)} · ${esc(fmtRange(windowOf(x).from, windowOf(x).to))}</option>`).join('')}</select></div></div><div id="cpPrev" style="margin-top:14px"></div>`,
+    saveLabel: 'Copy positions',
+    onSave: async () => {
+      const list = idx().byProject.get(st.src) || [], sw = windowOf(getProject(st.src));
+      const base = sw.from || list.map(x => x.from).sort()[0], shift = dst.from && base ? diff(base, dst.from) : 0, now = new Date().toISOString();
+      const rows = list.map((x, i) => { const id = uid(); return { coll: 'positions', id, data: { ...x, id, projectId: pid, from: addDays(x.from, shift), to: addDays(x.to, shift), n: i, createdAt: now } }; });
+      try { await Backend.putMany(rows); closeDrawer(); render(); toast(`${plural(rows.length, 'position')} copied`); } catch (err) { failed(err); }
+    },
+  });
+  Object.assign(drawerState, { copy: { st, paint } });
+  paint();
+}
+
+/* ---- CSV export ---- */
+function exportCsv(pid) {
+  const p = getProject(pid);
+  const cell = v => /[",\n]/.test(String(v ?? '')) ? `"${String(v).replace(/"/g, '""')}"` : String(v ?? '');
+  const C = CONFIG.CURRENCY;
+  const rows = [['Department', 'Position', 'Name', 'Phone', 'Type', 'From', 'To', 'Days', 'Status', 'Rate type', `Rate (${C})`, `Fee (${C})`, `Per diems (${C})`, `Accommodation (${C})`, `Travel (${C})`, `Other (${C})`, `Booked cost (${C})`, `Position budget (${C})`]];
+  const r2 = n => Math.round(n * 100) / 100;
+  for (const ps of idx().byProject.get(pid) || []) {
+    const as = posAssigns(ps.id).filter(live), b = costOf(ps).total;
+    if (!as.length) rows.push([ps.dept, ps.title, '(open)', '', '', ps.from, ps.to, daysIn(ps.from, ps.to), 'Open', label(RATE_TYPES, ps.rateType || 'day'), ps.rate, '', '', '', '', '', 0, r2(b)]);
+    as.forEach((a, i) => {
+      const s = db.staff.get(a.staffId) || {}, c = costOf(a);
+      rows.push([ps.dept, ps.title, staffName(a.staffId), s.phone, label(STAFF_TYPES, s.type || 'employee'), a.from, a.to, c.days, label(A_STATUS, a.status || 'hold'), label(RATE_TYPES, a.rateType || 'day'), a.rate, r2(c.fee), r2(c.perDiem), r2(c.acc), r2(c.travel), r2(c.other), r2(c.total), i ? '' : r2(b)]);
+    });
+  }
+  const blob = new Blob(['﻿' + rows.map(r => r.map(cell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob), link = document.createElement('a');
+  link.href = url; link.download = `${(p?.code || p?.name || 'project').replace(/[^\w-]+/g, '-')}-staff.csv`;
+  document.body.appendChild(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+/* =========================================================================
+   Events (delegated)
+   ========================================================================= */
+const actions = {
+  open: el => go(`#/project/${encodeURIComponent(el.dataset.id)}/list`),
+  filter: el => { ui.filter = el.dataset.v; persistUI(); render(); },
+  newProject: () => projectDrawer(null),
+  editProject: el => projectDrawer(el.dataset.id),
+  budget: el => budgetDrawer(el.dataset.id),
+  newPos: el => positionDrawer(null, el.dataset.id),
+  pos: el => positionDrawer(el.dataset.id),
+  dupPos: el => { const ps = db.positions.get(el.dataset.id); if (!ps) return; const id = uid(); closeDrawer(); save('positions', id, { ...ps, id, createdAt: new Date().toISOString() }, 'Position duplicated'); },
+  copyFrom: el => copyDrawer(el.dataset.id),
+  pick: el => pickDrawer(el.dataset.id),
+  pickSel: el => { const p = drawerState?.pick; if (!p) return; p.st.sel = p.st.sel === el.dataset.id ? null : el.dataset.id; p.paint(); },
+  asg: el => asgDrawer(el.dataset.id),
+  staff: el => staffDrawer(el.dataset.id),
+  newStaff: () => staffDrawer(null),
+  importStaff: () => importDrawer(),
+  sType: el => { ui.sType = el.dataset.v; render(); },
+  freeClear: () => { ui.freeFrom = ''; ui.freeTo = ''; render(); },
+  rowAdd: () => { const s = drawerState?.staff; if (!s) return; s.away.push({ from: today(), to: today(), note: '' }); drawerState.paintRows(); },
+  rowDel: el => { const s = drawerState?.staff; if (!s) return; s.away.splice(+el.dataset.i, 1); drawerState.paintRows(); },
+  tlMove: el => { ui.tlStart = addDays(ui.tlStart || addDays(weekStart(today()), -7), +el.dataset.v); render(); },
+  tlToday: () => { ui.tlStart = ''; render(); },
+  csv: el => exportCsv(el.dataset.id),
+  dropOrphan: async el => {
+    const ps = idx().byProject.get(el.dataset.id) || [], as = [...db.assign.values()].filter(a => a.projectId === el.dataset.id);
+    if (await confirmDialog({ title: 'Remove this staff list?', body: `<p>${plural(ps.length, 'position')} and ${plural(as.length, 'booking')} for the removed project will be deleted.</p>`, ok: 'Remove', danger: true }) !== 'ok') return;
+    try { await Backend.delMany('assign', as.map(a => a.id)); await Backend.delMany('positions', ps.map(x => x.id)); await Backend.delMany('budgets', db.budgets.has(el.dataset.id) ? [el.dataset.id] : []); go('#/'); render(); toast('Removed'); } catch (err) { failed(err); }
+  },
+  print: () => window.print(),
+  closeDrawer: el => { closeDrawer(); const h = el.tagName === 'A' && el.getAttribute('href'); if (h && h.startsWith('#')) location.hash = h; },
+  drSave: () => drawerState?.onSave?.(),
+  drDelete: () => drawerState?.onDelete?.(),
+  signOut: async () => { try { await sb.auth.signOut(); } finally { leave(''); } },
+  resetDemo: () => { if (confirm('Reset demo data?')) { try { localStorage.removeItem('bc-staff-demo'); } catch {} location.reload(); } },
+};
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-stop]')) return;
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  if (el.tagName === 'A') e.preventDefault();
+  if (el.disabled) return;
+  actions[el.dataset.act]?.(el, e);
+});
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.away != null && drawerState?.staff) { drawerState.staff.away[+el.dataset.away][el.dataset.f] = el.value; return; }
+  if (el.dataset.pk && drawerState?.pick) { drawerState.pick.st[el.dataset.pk] = el.value; if (el.dataset.pk === 'status') { ui.newStatus = el.value; persistUI(); } drawerState.pick.paint(); return; }
+  if (el.dataset.pick === 'all') { ui.pickAll = el.checked; drawerState?.pick?.paint(); return; }
+  if (el.dataset.cp && drawerState?.copy) { drawerState.copy.st.src = el.value; drawerState.copy.paint(); return; }
+  if (el.closest('#drBody') && drawerState?.onInput) { drawerState.onInput(); return; }
+  const k = el.dataset.chg; if (!k) return;
+  ui[k] = el.type === 'checkbox' ? el.checked : el.value;
+  persistUI(); render();
+});
+document.addEventListener('input', e => {
+  const el = e.target;
+  if (el.dataset.pick === 'q') { ui.pickQ = el.value; drawerState?.pick?.paint(); return; }
+  if (el.id === 'impText') { const n = parseStaffList(el.value).length; $('#impPrev').textContent = n ? `${plural(n, 'person', 'people')} found` : ''; return; }
+  if (el.closest('#drBody') && drawerState?.onInput && el.dataset.k) { drawerState.onInput(); return; }
+  const k = el.dataset.inp; if (!k) return;
+  ui[k] = el.value;
+  if (k === 'q') $('#pGrid').innerHTML = projectGrid(); else render();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && drawerState && !document.querySelector('.modal')) return closeDrawer();
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('[role=link][data-act],[role=button][data-act]')) { e.preventDefault(); e.target.click(); }
+});
+$('#scrim').addEventListener('click', closeDrawer);
+window.addEventListener('hashchange', () => { closeDrawer(); render(); window.scrollTo(0, 0); });
+
+/* ---------------- confirm dialog ---------------- */
+function confirmDialog({ title, body, ok = 'Confirm', danger = false, alt = null, cancel = true }) {
+  return new Promise(resolve => {
+    const m = document.createElement('div');
+    m.className = 'modal'; m.setAttribute('role', 'alertdialog'); m.setAttribute('aria-modal', 'true');
+    m.innerHTML = `<div class="modal-box"><h2>${esc(title)}</h2>${body}
+      <div class="acts">${cancel ? '<button class="btn ghost" data-r="cancel">Cancel</button>' : ''}${alt ? `<button class="btn" data-r="alt">${esc(alt)}</button>` : ''}<button class="btn ${danger ? 'danger-solid' : 'primary'}" data-r="ok">${esc(ok)}</button></div></div>`;
+    const done = r => { m.remove(); document.removeEventListener('keydown', key, true); resolve(r); };
+    const key = e => { if (e.key === 'Escape') { e.stopPropagation(); done('cancel'); } };
+    m.addEventListener('click', e => { const b = e.target.closest('[data-r]'); if (b) done(b.dataset.r); else if (e.target === m) done('cancel'); });
+    document.addEventListener('keydown', key, true);
+    document.body.appendChild(m);
+    m.querySelector(cancel ? '[data-r=cancel]' : '[data-r=ok]').focus();
+  });
+}
+
+/* ---------------- toast ---------------- */
+let toastT;
+function toast(msg, err = false) { const t = $('#toast'); t.textContent = msg; t.className = 'toast on' + (err ? ' err' : ''); clearTimeout(toastT); toastT = setTimeout(() => t.className = 'toast', err ? 4200 : 2200); }
+
+/* =========================================================================
+   Boot
+   ========================================================================= */
+function leave(to) { location.replace(CONFIG.PORTAL_HOME + to); }
+
+async function start() {
+  try {
+    if (DEMO) { me = 'you@blackcanvasglobal.com'; myName = 'You'; }
+    else {
+      if (!sb) throw new Error('The portal connection settings are missing (config.js).');
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) return leave('?next=staff');
+      me = (session.user.email || '').toLowerCase();
+      myName = BCPortal.displayName(session.user);
+      sb.auth.onAuthStateChange((ev, ses) => { if (ev === 'SIGNED_OUT' || (!ses && ev !== 'INITIAL_SESSION')) leave(''); });
+      const { data: access, error } = await sb.rpc('my_access');
+      if (error) { if (/jwt/i.test(error.message || '')) return leave('?next=staff'); throw error; }
+      if (!(access?.apps || []).includes('staff')) return leave('?noaccess=staff');
+    }
+    await Backend.load();
+    Backend.subscribe();
+    shell();
+  } catch (e) {
+    console.error(e);
+    $('#app').innerHTML = `<div class="loading"><div style="text-align:center"><b>Couldn’t load Staff</b><br><span class="muted">${esc(e.message || e)}</span><br><br><button class="btn" onclick="location.reload()">Try again</button></div></div>`;
+  }
+}
+
+/* =========================================================================
+   Demo data (only used with ?demo)
+   ========================================================================= */
+function seedDemo() {
+  const t = today(), store = { pm: {}, ...Object.fromEntries(COLLS.map(c => [c, {}])) }, now = new Date().toISOString();
+  const STAFF = [
+    ['Omar Haddad','Project director',[],'employee','month',32000,'Riyadh'],
+    ['Lina Mansour','Project manager',['Producer'],'employee','month',22000,'Riyadh'],
+    ['Hala Qasim','Project manager',[],'employee','month',21000,'Riyadh'],
+    ['Karim Saleh','Producer',['Project manager'],'freelance','day',2200,'Dubai'],
+    ['Dana Al-Rashid','Production manager',[],'freelance','day',1800,'Riyadh'],
+    ['Fahad Al-Otaibi','Production manager',['Site manager'],'employee','month',18000,'Riyadh'],
+    ['Maya Haddad','Production coordinator',[],'employee','month',11000,'Riyadh'],
+    ['Sami Nasser','Production coordinator',['Logistics coordinator'],'freelance','day',900,'Riyadh'],
+    ['Tom Bennett','Stage manager',['Show caller'],'freelance','day',2000,'London'],
+    ['Rania Khalil','Stage manager',[],'freelance','day',1700,'Jeddah'],
+    ['Ahmed Zaki','Technical director',[],'freelance','day',2600,'Cairo'],
+    ['Yusuf Demir','Technical manager',['Technical director'],'employee','month',20000,'Riyadh'],
+    ['Noura Al-Faisal','Creative director',[],'employee','month',26000,'Riyadh'],
+    ['Leen Saad','Designer',['3D designer'],'freelance','day',1200,'Riyadh'],
+    ['Majed Al-Harbi','Site manager',['Operations manager'],'freelance','day',1500,'Riyadh'],
+    ['Reem Alsaeed','Accreditation manager',['Guest relations'],'freelance','day',1100,'Riyadh'],
+    ['Joanna Cruz','Guest relations',['Host / hostess','VIP host'],'agency','day',650,'Riyadh'],
+    ['Sara Mahmoud','Host / hostess',['Usher'],'agency','day',550,'Riyadh'],
+    ['Aisha Noor','Host / hostess',['Usher'],'agency','day',550,'Riyadh'],
+    ['Layla Hamdan','Host / hostess',[],'agency','day',550,'Jeddah'],
+    ['Mira Toma','Host / hostess',['Guest relations'],'agency','day',600,'Riyadh'],
+    ['Bilal Ahmed','Logistics coordinator',['Transport coordinator'],'freelance','day',900,'Riyadh'],
+    ['Hassan Qureshi','Health & safety manager',[],'freelance','day',1600,'Riyadh'],
+    ['Nadia Farouk','Artist liaison',['Talent coordinator'],'freelance','day',1300,'Riyadh'],
+    ['Ali Raza','Content producer',['Videographer','Photographer'],'freelance','day',1400,'Riyadh'],
+    ['Abdullah Al-Qahtani','Finance officer',[],'employee','month',15000,'Riyadh'],
+    ['Majid Fahad','Runner',['Driver'],'freelance','day',400,'Riyadh'],
+    ['Reza Karimi','Runner',[],'freelance','day',400,'Riyadh'],
+  ];
+  STAFF.forEach(([name, title, skills, type, rateType, rate, city], i) => {
+    const id = 's' + i;
+    store.staff[id] = { id, name, title, skills, dept: deptOf(title), type, rateType, rate, city, phone: `+966 5${(i % 9) + 1} ${String(100 + i * 7).padStart(3, '0')} ${String(2000 + i * 131).slice(-4)}`, email: '', away: [], notes: '', active: true, agency: type === 'agency' ? 'Gulf Hospitality Staffing' : '', createdAt: now };
+  });
+  store.staff.s9.away = [{ from: addDays(t, 2), to: addDays(t, 5), note: 'Annual leave' }];
+  store.staff.s2.away = [{ from: addDays(t, 26), to: addDays(t, 40), note: 'Annual leave' }];
+  const EV = [
+    ['ev0', 'Desert Lights Concert', 'Horizon Entertainment', 'Boulevard Arena', 'Riyadh', 'Concert', 'build', -1, 3, 4, 5, 'BC-2611'],
+    ['ev1', 'Padel Open Finals', 'Ace Sports Group', 'Kingdom Courts', 'Riyadh', 'Sports', 'preprod', 7, 9, 10, 11, 'BC-2614'],
+    ['ev2', 'Northwind Product Launch', 'Northwind Motors', 'Waterfront Pavilion', 'Jeddah', 'Corporate', 'confirmed', 20, 22, 22, 23, 'BC-2620'],
+    ['ev3', 'Fight Night Riyadh', 'Ringside Promotions', 'Arena Hall', 'Riyadh', 'Sports', 'confirmed', 33, 36, 36, 37, 'BC-2631'],
+  ];
+  EV.forEach(([id, name, client, venue, city, type, status, b, s, e, r, code]) => {
+    store.pm[id] = { id, name, client, venue, city, type, status, code, dates: { buildStart: addDays(t, b), showStart: addDays(t, s), showEnd: addDays(t, e), derigEnd: addDays(t, r) } };
+  });
+  store.projects.job0 = { id: 'job0', name: 'Heritage Pavilion pre-production', client: 'Oasis Culture Co.', venue: 'Black Canvas studio', city: 'Riyadh', code: 'BC-J09', type: 'Exhibition', status: 'preprod', dates: { buildStart: addDays(t, 6), showStart: addDays(t, 6), showEnd: addDays(t, 30), derigEnd: addDays(t, 30) }, createdAt: now };
+  const win = id => windowOf(store.pm[id] || store.projects[id]);
+  const show = id => { const d = (store.pm[id] || store.projects[id]).dates; return { from: d.showStart, to: d.showEnd }; };
+  // [title, how many, rate type, budget rate, per diem, accommodation, travel, dates: 'win' | 'show' | [offset from start, offset from end]]
+  const PLAN = {
+    ev0: [['Project manager',1,'month',22000,0,0,0,[-14,0]],['Producer',1,'day',2200,0,0,0,[-10,0]],['Production manager',1,'day',1800,0,0,0,'win'],['Production coordinator',2,'day',900,0,0,0,'win'],
+      ['Stage manager',1,'day',1800,0,0,0,'win'],['Technical director',1,'day',2600,150,3600,2500,'win'],['Site manager',1,'day',1500,0,0,0,'win'],['Health & safety manager',1,'day',1600,0,0,0,'win'],
+      ['Accreditation manager',1,'day',1100,0,0,0,[-3,-1]],['Host / hostess',3,'day',550,0,0,0,'show'],['Artist liaison',1,'day',1300,0,0,0,'show'],['Runner',2,'day',400,0,0,0,'win'],['Content producer',1,'day',1400,0,0,0,'show']],
+    ev1: [['Project manager',1,'month',22000,0,0,0,[-12,0]],['Production manager',1,'day',1800,0,0,0,'win'],['Stage manager',1,'day',1800,0,0,0,'win'],['Technical manager',1,'month',20000,0,0,0,'win'],
+      ['Guest relations',1,'day',650,0,0,0,'show'],['Host / hostess',2,'day',550,0,0,0,'show'],['Logistics coordinator',1,'day',900,0,0,0,'win'],['Runner',1,'day',400,0,0,0,'win'],['Health & safety manager',1,'day',1600,0,0,0,'win']],
+    ev2: [['Project director',1,'month',32000,0,0,0,'show'],['Project manager',1,'month',22000,150,1800,1200,[-10,0]],['Producer',1,'day',2200,150,1800,1200,'win'],['Creative director',1,'month',26000,0,0,0,[-14,-3]],
+      ['Designer',1,'day',1200,0,0,0,[-12,-4]],['Stage manager',1,'day',1800,150,1800,1200,'win'],['Production coordinator',1,'day',900,150,1800,1200,'win'],['Host / hostess',4,'day',550,0,0,0,'show'],['Content producer',1,'day',1400,150,900,1200,'show']],
+    ev3: [['Project manager',1,'month',22000,0,0,0,[-10,0]],['Production manager',1,'day',1800,0,0,0,'win'],['Stage manager',1,'day',1800,0,0,0,'win'],['Technical director',1,'day',2600,0,0,0,'win'],
+      ['Artist liaison',1,'day',1300,0,0,0,[-1,0]],['Accreditation manager',1,'day',1100,0,0,0,[-3,0]],['Host / hostess',4,'day',550,0,0,0,'show'],['Runner',2,'day',400,0,0,0,'win']],
+    job0: [['Project manager',1,'month',21000,0,0,0,'win'],['Creative director',1,'month',26000,0,0,0,[0,-14]],['Designer',1,'day',1200,0,0,0,'win'],['Production coordinator',1,'day',900,0,0,0,'win'],['Finance officer',1,'fixed',3000,0,0,0,[0,-20]]],
+  };
+  const busy = [];
+  const free = (sid, f, to) => !busy.some(b => b.sid === sid && b.f <= to && f <= b.to) && !(store.staff[sid].away || []).some(w => w.from <= to && f <= w.to);
+  const FILL = { ev0: [1, 'confirmed'], ev1: [0.9, 'mix'], ev2: [0.7, 'hold'], ev3: [0.45, 'hold'], job0: [1, 'confirmed'] };
+  for (const [pid, lines] of Object.entries(PLAN)) {
+    const w = win(pid);
+    let k = 0;
+    for (const [title, qty, rateType, rate, perDiem, acc, travel, when] of lines) for (let n = 0; n < qty; n++) {
+      const id = uid(), dates = when === 'win' ? w : when === 'show' ? show(pid) : { from: addDays(w.from, when[0]), to: addDays(w.to, when[1]) };
+      const ps = { id, projectId: pid, title, dept: deptOf(title), from: dates.from, to: dates.to, rateType, rate, perDiem, accommodation: acc, travel, other: '', note: '', n, createdAt: now };
+      store.positions[id] = ps; k++;
+      const [share, mode] = FILL[pid];
+      if ((k * 37 % 100) / 100 >= share) continue;
+      const pool = Object.values(store.staff).filter(s => [s.title, ...s.skills].includes(title)).sort((a, b) => (a.title === title ? 0 : 1) - (b.title === title ? 0 : 1));
+      const s = pool.find(x => free(x.id, ps.from, ps.to)); if (!s) continue;
+      busy.push({ sid: s.id, f: ps.from, to: ps.to });
+      const aid = uid(), status = mode === 'mix' ? (k % 3 ? 'confirmed' : 'hold') : mode;
+      store.assign[aid] = { id: aid, projectId: pid, positionId: id, staffId: s.id, title, from: ps.from, to: ps.to, status, rateType: s.rateType, rate: s.rate || rate, perDiem, accommodation: acc, travel, other: '', note: '', createdAt: now };
+    }
+  }
+  // leave added after the fact for someone already booked, to show the warning
+  const rb = Object.values(store.assign).find(a => a.projectId === 'ev0' && a.title === 'Runner');
+  if (rb) store.staff[rb.staffId].away = [{ from: addDays(t, 3), to: addDays(t, 3), note: 'Family event' }];
+  const lines = pid => Object.values(store.positions).filter(p => p.projectId === pid).reduce((n, p) => n + costOf(p).total, 0);
+  store.budgets.ev0 = { id: 'ev0', projectId: 'ev0', cap: Math.round(lines('ev0') * 1.08 / 1000) * 1000, note: 'Staffing line from the client quote' };
+  store.budgets.ev1 = { id: 'ev1', projectId: 'ev1', cap: Math.round(lines('ev1') * 0.94 / 1000) * 1000, note: 'Client asked to cut staffing' };
+  lsSet('bc-staff-demo', store);
+  return store;
+}
+
+if (!DEMO) sb = BCPortal.client();
+start();
+</script>
+</body>
+</html>
