@@ -4,10 +4,10 @@
 -- After the first run, add yourself as the first admin (see the end of this file).
 
 -- 1. Who may use which app. One row per person, managed from the portal's
---    Team access screen by admins. Apps: billing, crew, projects.
+--    Team access screen by admins. Apps: billing, crew, projects, bills.
 create table if not exists public.portal_access (
   email      text        primary key check (email = lower(email)),
-  apps       text[]      not null default '{}' check (apps <@ array['billing', 'crew', 'projects']::text[]),
+  apps       text[]      not null default '{}' check (apps <@ array['billing', 'crew', 'projects', 'bills']::text[]),
   is_admin   boolean     not null default false,
   note       text,
   updated_at timestamptz not null default now(),
@@ -245,7 +245,270 @@ begin
   end if;
 end $$;
 
+-- 11. Bills app (portal/bills/): bills Black Canvas pays (suppliers, freelancers, rent,
+--     subscriptions...) with an approve-then-pay flow, receipts, recurring bills and
+--     reminders, plus chasing unpaid client invoices from Billing. Stored like the other
+--     apps as one row per item. Only people with the "bills" app can read or change them;
+--     only portal admins can approve or reject bills.
+
+-- Allow "bills" as an app on the access list.
+do $$
+declare c text;
+begin
+  for c in select conname from pg_constraint
+           where conrelid = 'public.portal_access'::regclass and contype = 'c' and pg_get_constraintdef(oid) ilike '%apps%'
+  loop execute format('alter table public.portal_access drop constraint %I', c); end loop;
+  alter table public.portal_access add constraint portal_access_apps_check
+    check (apps <@ array['billing', 'crew', 'projects', 'bills']::text[]);
+end $$;
+
+create table if not exists public.bills_records (
+  coll       text        not null check (coll = any (array['bills','vendors','chase','settings'])),
+  id         text        not null,
+  data       jsonb       not null default '{}'::jsonb,
+  updated_at timestamptz not null default now(),
+  updated_by uuid        default auth.uid(),
+  primary key (coll, id)
+);
+create index if not exists bills_records_due_idx on public.bills_records ((data->>'dueDate')) where coll = 'bills';
+alter table public.bills_records enable row level security;
+revoke all on public.bills_records from anon;
+grant select, insert, update, delete on public.bills_records to authenticated;
+
+drop policy if exists "bills can read"   on public.bills_records;
+drop policy if exists "bills can add"    on public.bills_records;
+drop policy if exists "bills can change" on public.bills_records;
+drop policy if exists "bills can delete" on public.bills_records;
+create policy "bills can read"   on public.bills_records for select to authenticated using (public.has_app('bills'));
+create policy "bills can add"    on public.bills_records for insert to authenticated with check (public.has_app('bills'));
+create policy "bills can change" on public.bills_records for update to authenticated using (public.has_app('bills')) with check (public.has_app('bills'));
+-- Approved and paid bills can only be deleted by admins (others can void a pending bill).
+create policy "bills can delete" on public.bills_records for delete to authenticated using (
+  public.has_app('bills') and (coll <> 'bills' or public.is_portal_admin()
+    or coalesce(data->>'status', 'pending') in ('pending', 'rejected', 'void')));
+
+drop trigger if exists bills_records_touch on public.bills_records;
+create trigger bills_records_touch before insert or update on public.bills_records
+  for each row execute function public.touch_record();
+
+-- The approval rules, enforced by the database so they hold whatever the page does.
+create or replace function public.bills_guard()
+returns trigger language plpgsql set search_path = public as $$
+declare
+  adm  boolean := public.is_portal_admin();
+  who  text    := lower(coalesce(auth.jwt() ->> 'email', ''));
+  st   text    := coalesce(new.data->>'status', 'pending');
+  was  text;
+  now_ text    := to_char(now() at time zone 'utc', 'YYYY-MM-DD"T"HH24:MI:SS"Z"');
+  npay int     := jsonb_array_length(coalesce(new.data->'payments', '[]'::jsonb));
+begin
+  if new.coll <> 'bills' then return new; end if;
+  if st not in ('pending', 'approved', 'rejected', 'paid', 'void') then
+    raise exception 'Unknown bill status "%".', st using errcode = 'P0001';
+  end if;
+  if tg_op = 'INSERT' then
+    was := null;
+    if st <> 'pending' and st <> 'void' and not adm then
+      raise exception 'New bills start as "awaiting approval". Only an approver can add one already approved.' using errcode = 'P0001';
+    end if;
+    if npay > 0 and st not in ('approved', 'paid') then
+      raise exception 'Approve this bill before recording a payment.' using errcode = 'P0001';
+    end if;
+  else
+    was := coalesce(old.data->>'status', 'pending');
+    if st is distinct from was then
+      if st in ('approved', 'rejected') and not adm then
+        raise exception 'Only an approver can approve or reject bills.' using errcode = 'P0001';
+      end if;
+      if st = 'paid' and was <> 'approved' then
+        raise exception 'Approve this bill before marking it paid.' using errcode = 'P0001';
+      end if;
+      if was in ('approved', 'paid') and not adm and st <> 'paid' then
+        raise exception 'Only an approver can change a bill once it is approved.' using errcode = 'P0001';
+      end if;
+    end if;
+    if not adm and was in ('approved', 'paid') and (
+         new.data->'amount'    is distinct from old.data->'amount'
+      or new.data->>'currency' is distinct from old.data->>'currency'
+      or new.data->>'vendorId' is distinct from old.data->>'vendorId') then
+      raise exception 'The amount, currency or supplier of an approved bill can only be changed by an approver.' using errcode = 'P0001';
+    end if;
+    if st in ('pending', 'rejected', 'void') and npay > jsonb_array_length(coalesce(old.data->'payments', '[]'::jsonb)) then
+      raise exception 'Approve this bill before recording a payment.' using errcode = 'P0001';
+    end if;
+  end if;
+  -- Stamp who approved, rejected or settled it (not trusted from the page).
+  if st is distinct from was then
+    if st = 'approved' then new.data := new.data || jsonb_build_object('approvedBy', who, 'approvedAt', now_);
+    elsif st = 'rejected' then new.data := new.data || jsonb_build_object('rejectedBy', who, 'rejectedAt', now_);
+    elsif st = 'paid' then new.data := new.data || jsonb_build_object('paidBy', who, 'paidAt', now_);
+    end if;
+  end if;
+  return new;
+end;
+$$;
+revoke execute on function public.bills_guard() from public, anon, authenticated;
+drop trigger if exists bills_records_guard on public.bills_records;
+create trigger bills_records_guard before insert or update on public.bills_records
+  for each row execute function public.bills_guard();
+
+-- Numbers typed into Billing documents, read the same way the Billing page reads them.
+create or replace function public.bc_num(t text)
+returns numeric language sql immutable set search_path = public as $$
+  select case when t ~ '^\s*[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?\s*$' then t::numeric else null end;
+$$;
+
+-- Totals of a Billing document (same maths as totals() in portal/billing/index.html).
+create or replace function public.bc_invoice_totals(d jsonb)
+returns jsonb language plpgsql immutable set search_path = public as $$
+declare
+  s jsonb; it jsonb; items numeric := 0; sec numeric; subtotal numeric; disc numeric; taxable numeric;
+  rate numeric; vat numeric; total numeric; paid numeric; days numeric;
+begin
+  for s in select * from jsonb_array_elements(coalesce(d->'sections', '[]'::jsonb)) loop
+    if bc_num(s->>'totalOverride') is not null then
+      sec := round(bc_num(s->>'totalOverride'), 2);
+    else
+      sec := 0;
+      for it in select * from jsonb_array_elements(coalesce(s->'items', '[]'::jsonb)) loop
+        days := case when coalesce(it->>'days', '') = '' then 1 else coalesce(bc_num(it->>'days'), 0) end;
+        sec := sec + round(coalesce(bc_num(it->>'qty'), 0) * days * coalesce(bc_num(it->>'rate'), 0), 2);
+      end loop;
+      sec := round(sec, 2);
+    end if;
+    items := items + sec;
+  end loop;
+  items := round(items, 2);
+  subtotal := coalesce(round(bc_num(d->>'subtotalOverride'), 2), items);
+  disc := case when d->'discount'->>'type' = 'amt' then round(coalesce(bc_num(d->'discount'->>'value'), 0), 2)
+               else round(subtotal * coalesce(bc_num(d->'discount'->>'value'), 0) / 100, 2) end;
+  taxable := round(subtotal - disc, 2);
+  rate := case when coalesce(d->>'vatRate', '') = '' then 15 else coalesce(bc_num(d->>'vatRate'), 0) end;
+  vat := round(taxable * rate / 100, 2);
+  total := round(taxable + vat, 2);
+  paid := round(coalesce(bc_num(d->>'amountPaid'), 0), 2);
+  return jsonb_build_object('total', total, 'paid', paid, 'due', round(total - paid, 2));
+end;
+$$;
+
+-- Unpaid client invoices from Billing, for chasing in the Bills app. Only the basics,
+-- and only for people with the "bills" app.
+create or replace function public.bills_receivables()
+returns table (id text, data jsonb)
+language sql stable security definer set search_path = public as $$
+  select r.id, jsonb_build_object(
+    'id', r.id, 'number', r.data->'number', 'issueDate', r.data->'issueDate', 'dueDate', r.data->'dueDate',
+    'currency', coalesce(r.data->>'currency', (select s.data->>'currency' from public.records s where s.coll = 'settings' limit 1), 'SAR'),
+    'project', r.data->'project', 'company', r.data->'client'->'company', 'contact', r.data->'client'->'contact',
+    'email', r.data->'client'->'email', 'phone', r.data->'client'->'phone') || public.bc_invoice_totals(r.data)
+  from public.records r
+  where public.has_app('bills') and r.coll = 'docs' and r.data->>'type' = 'invoice' and r.data->>'status' = 'sent';
+$$;
+revoke all on function public.bills_receivables() from public, anon;
+grant execute on function public.bills_receivables() to authenticated;
+
+-- Events from the Projects app, so bills can be linked to an event.
+create or replace function public.bills_events()
+returns table (id text, data jsonb)
+language sql stable security definer set search_path = public as $$
+  select r.id, jsonb_build_object('id', r.id, 'name', r.data->'name', 'client', r.data->'client',
+    'code', r.data->'code', 'status', r.data->'status', 'dates', r.data->'dates')
+  from public.pm_records r
+  where public.has_app('bills') and r.coll = 'projects';
+$$;
+revoke all on function public.bills_events() from public, anon;
+grant execute on function public.bills_events() to authenticated;
+
+-- What needs attention, as a list of bills with their outstanding amount.
+create or replace function public.bills_open(p_days int default null)
+returns table (id text, number text, vendor text, category text, currency text, due_date date,
+               outstanding numeric, status text, bucket text)
+language sql stable security definer set search_path = public as $$
+  with cfg as (
+    select coalesce(p_days, bc_num((select data->>'remindDays' from public.bills_records where coll = 'settings' and id = 'main'))::int, 7) as days,
+           (now() at time zone 'Asia/Riyadh')::date as today
+  ), b as (
+    select r.id, r.data,
+      coalesce(r.data->>'status', 'pending') as st,
+      case when coalesce(r.data->>'dueDate', '') ~ '^\d{4}-\d{2}-\d{2}$' then (r.data->>'dueDate')::date end as due,
+      round(coalesce(bc_num(r.data->>'amount'), 0) - coalesce((select sum(coalesce(bc_num(p->>'amount'), 0))
+        from jsonb_array_elements(coalesce(r.data->'payments', '[]'::jsonb)) p), 0), 2) as owed
+    from public.bills_records r where r.coll = 'bills'
+  )
+  select b.id, b.data->>'number', coalesce(v.data->>'name', b.data->>'vendorName', 'Supplier'), b.data->>'category',
+         coalesce(b.data->>'currency', 'SAR'), b.due, b.owed, b.st,
+         case when b.st = 'pending' then 'approval'
+              when b.due is not null and b.due < cfg.today then 'overdue'
+              when b.due is not null and b.due <= cfg.today + cfg.days then 'soon'
+              else 'later' end
+  from b cross join cfg
+  left join public.bills_records v on v.coll = 'vendors' and v.id = b.data->>'vendorId'
+  where (public.has_app('bills') or auth.role() is null or auth.role() = 'service_role')
+    and b.st in ('pending', 'approved') and b.owed > 0
+  order by b.due nulls last;
+$$;
+revoke all on function public.bills_open(int) from public, anon;
+grant execute on function public.bills_open(int) to authenticated;
+
+-- Counts for the Bills tile on the portal's apps screen.
+create or replace function public.bills_alerts()
+returns json language sql stable security definer set search_path = public as $$
+  select case when not public.has_app('bills') then null else json_build_object(
+    'overdue',  (select count(*) from public.bills_open() where bucket = 'overdue'),
+    'soon',     (select count(*) from public.bills_open() where bucket = 'soon'),
+    'approval', (select count(*) from public.bills_open() where bucket = 'approval'),
+    'invoicesOverdue', (select count(*) from public.bills_receivables() r
+                        where coalesce(r.data->>'dueDate', '') ~ '^\d{4}-\d{2}-\d{2}$'
+                          and (r.data->>'dueDate')::date < (now() at time zone 'Asia/Riyadh')::date
+                          and (r.data->>'due')::numeric > 0)) end;
+$$;
+revoke all on function public.bills_alerts() from public, anon;
+grant execute on function public.bills_alerts() to authenticated;
+
+-- The morning digest: everything due, overdue or waiting, in one JSON. Not callable from
+-- the website; read by the scheduled digest with the project's own database access.
+create or replace function public.bills_digest(p_days int default null)
+returns jsonb language sql stable security definer set search_path = public as $$
+  with o as (select * from public.bills_open(p_days)),
+  inv as (
+    select r.data->>'number' as number, r.data->>'company' as client, r.data->>'currency' as currency,
+           (r.data->>'due')::numeric as due,
+           case when coalesce(r.data->>'dueDate', '') ~ '^\d{4}-\d{2}-\d{2}$' then (r.data->>'dueDate')::date end as due_date
+    from public.records x
+    cross join lateral (select jsonb_build_object('number', x.data->'number', 'company', x.data->'client'->'company',
+      'currency', coalesce(x.data->>'currency', 'SAR'), 'dueDate', x.data->'dueDate') || public.bc_invoice_totals(x.data) as data) r
+    where x.coll = 'docs' and x.data->>'type' = 'invoice' and x.data->>'status' = 'sent'
+  )
+  select jsonb_build_object(
+    'today', (now() at time zone 'Asia/Riyadh')::date,
+    'bills', coalesce((select jsonb_agg(to_jsonb(o) order by o.due_date nulls last) from o where bucket <> 'later'), '[]'::jsonb),
+    'invoicesUnpaid', coalesce((select jsonb_agg(to_jsonb(inv) order by inv.due_date nulls last) from inv where inv.due > 0), '[]'::jsonb));
+$$;
+revoke all on function public.bills_digest(int) from public, anon, authenticated;
+
+-- Supplier invoices and payment receipts: a private storage bucket for "bills" people only.
+insert into storage.buckets (id, name, public, file_size_limit)
+values ('bill-files', 'bill-files', false, 15728640)
+on conflict (id) do update set public = false, file_size_limit = excluded.file_size_limit;
+
+drop policy if exists "bills files read"   on storage.objects;
+drop policy if exists "bills files add"    on storage.objects;
+drop policy if exists "bills files remove" on storage.objects;
+create policy "bills files read"   on storage.objects for select to authenticated using (bucket_id = 'bill-files' and public.has_app('bills'));
+create policy "bills files add"    on storage.objects for insert to authenticated with check (bucket_id = 'bill-files' and public.has_app('bills'));
+create policy "bills files remove" on storage.objects for delete to authenticated using (bucket_id = 'bill-files' and public.has_app('bills'));
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'bills_records'
+  ) then
+    alter publication supabase_realtime add table public.bills_records;
+  end if;
+end $$;
+
 -- First admin (run once, with your own email):
 -- insert into public.portal_access (email, apps, is_admin)
--- values ('you@blackcanvasglobal.com', array['billing','crew','projects'], true)
+-- values ('you@blackcanvasglobal.com', array['billing','crew','projects','bills'], true)
 -- on conflict (email) do update set apps = excluded.apps, is_admin = true;
