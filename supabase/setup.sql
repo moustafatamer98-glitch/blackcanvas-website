@@ -638,6 +638,73 @@ begin
   end if;
 end $$;
 
+-- 13. Finding people on Team access. When an admin types a name or email in the "Add a
+--     person" form, the portal suggests matching people from the Staff database, the Crew
+--     roster and the company's Microsoft 365 directory, and fills in their email and name.
+--
+-- The Microsoft 365 directory, copied in by the "portal-directory" Edge Function (only
+-- names, work emails, job titles and departments of enabled member accounts). Nobody can
+-- read it directly; admins search it through portal_people_search() below.
+create table if not exists public.directory_people (
+  email      text        primary key check (email = lower(email)),
+  name       text        not null default '',
+  title      text,
+  dept       text,
+  active     boolean     not null default true,
+  synced_at  timestamptz not null default now()
+);
+alter table public.directory_people enable row level security;
+revoke all on public.directory_people from anon, authenticated;
+
+-- Up to 8 people whose name or email contains every word typed, best matches first.
+-- Only portal admins get results. on_team says they're already on the access list.
+create or replace function public.portal_people_search(q text)
+returns table (email text, name text, title text, source text, on_team boolean)
+language sql stable security definer set search_path = public
+as $$
+  with words as (
+    select array_remove(regexp_split_to_array(lower(trim(coalesce(q, ''))), '\s+'), '') as w
+  ),
+  people as (
+    select lower(trim(d.email)) as email, d.name, nullif(trim(coalesce(d.title, '')), '') as title,
+           'm365'::text as source, 1 as rank
+    from public.directory_people d
+    where d.active
+    union all
+    select lower(trim(s.data->>'email')), coalesce(s.data->>'name', ''),
+           nullif(trim(coalesce(s.data->>'title', '')), ''), 'staff', 2
+    from public.staff_records s
+    where s.coll = 'staff' and coalesce((s.data->>'active')::boolean, true)
+    union all
+    select lower(trim(c.data->>'email')), coalesce(c.data->>'name', ''),
+           nullif(trim(coalesce(c.data->>'role', '')), ''), 'crew', 3
+    from public.crew_records c
+    where c.coll = 'crew' and coalesce((c.data->>'active')::boolean, true)
+  ),
+  usable as (
+    select distinct on (p.email) p.*
+    from people p
+    where p.email ~ '^[^\s@]+@[^\s@]+\.[^\s@]+$'
+    order by p.email, p.rank
+  )
+  select u.email, u.name, u.title, u.source,
+         exists (select 1 from public.portal_access a where a.email = u.email) as on_team
+  from usable u, words
+  where public.is_portal_admin()
+    and cardinality(words.w) > 0
+    and not exists (
+      select 1 from unnest(words.w) t
+      where position(t in lower(u.name || ' ' || u.email)) = 0
+    )
+  order by
+    (lower(u.name) like words.w[1] || '%' or u.email like words.w[1] || '%') desc,
+    exists (select 1 from public.portal_access a where a.email = u.email),
+    u.name, u.email
+  limit 8;
+$$;
+revoke all on function public.portal_people_search(text) from public, anon;
+grant execute on function public.portal_people_search(text) to authenticated;
+
 -- First admin (run once, with your own email):
 -- insert into public.portal_access (email, apps, is_admin)
 -- values ('you@blackcanvasglobal.com', array['billing','crew','projects','bills','staff'], true)

@@ -106,6 +106,23 @@ button.tile:hover .go{transform:translateX(4px)}
 .panel h2{margin:0}
 .add-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:12px}
 @media (max-width:620px){.add-grid{grid-template-columns:minmax(0,1fr)}}
+.find{position:relative}
+.sugg{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:20;list-style:none;margin:0;padding:6px;background:var(--surface);border:1px solid var(--line-strong);border-radius:6px;box-shadow:0 18px 40px rgba(0,0,0,.35);max-height:min(360px,60vh);overflow-y:auto}
+.sugg li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 14px;align-items:center;padding:10px 12px;border-radius:4px;cursor:pointer}
+.sugg li[aria-selected="true"],.sugg li:hover{background:var(--surface-2)}
+.sugg li[aria-selected="true"]{box-shadow:inset 3px 0 0 var(--ember)}
+.sugg .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sugg mark{background:none;color:var(--ember-text)}
+.sugg .em{grid-column:1;color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sugg .src{grid-column:2;grid-row:1 / span 2;display:flex;flex-direction:column;align-items:flex-end;gap:5px;text-align:right}
+.sugg .tt{font-size:12.5px;color:var(--muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sugg .chip{padding:4px 7px;font-size:9.5px}
+.sugg .chip.on{color:var(--ember-text);border-color:currentColor}
+.sugg .none{display:block;cursor:default;color:var(--muted);font-size:14px}
+.sugg .none:hover{background:none}
+@media (max-width:620px){.sugg .tt{display:none}}
+.find-note{margin:-4px 0 0;color:var(--muted);font-size:13px}
+.find-note.err{color:var(--bad)}
 .checks{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
 .ck{display:inline-flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;white-space:nowrap}
 input[type=checkbox]{width:18px;height:18px;padding:0;margin:0;accent-color:var(--ember);cursor:pointer;flex:none}
@@ -246,10 +263,14 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
 
     <form class="panel" id="fAdd" novalidate>
       <h2 class="label">Add a person</h2>
-      <div class="add-grid">
-        <label class="fld" for="aEmail"><span class="fl">Email</span><input id="aEmail" type="email" autocomplete="off" placeholder="name@blackcanvasglobal.com" required></label>
-        <label class="fld" for="aNote"><span class="fl">Name or role (optional)</span><input id="aNote" type="text" autocomplete="off" maxlength="80" placeholder="e.g. Wael Almalki, Operations"></label>
+      <div class="find">
+        <div class="add-grid">
+          <label class="fld" for="aEmail"><span class="fl">Email</span><input id="aEmail" type="email" autocomplete="off" spellcheck="false" placeholder="Type a name or email" required role="combobox" aria-autocomplete="list" aria-controls="aSugg" aria-expanded="false"></label>
+          <label class="fld" for="aNote"><span class="fl">Name or role (optional)</span><input id="aNote" type="text" autocomplete="off" maxlength="80" placeholder="e.g. Wael Almalki, Operations" role="combobox" aria-autocomplete="list" aria-controls="aSugg" aria-expanded="false"></label>
+        </div>
+        <ul class="sugg" id="aSugg" role="listbox" aria-label="Matching people" hidden></ul>
       </div>
+      <p class="find-note" id="dirNote">Start typing a name and pick the person to fill in their email and name.</p>
       <div class="checks" role="group" aria-label="Apps">
         <span class="fl">Apps</span>
         <label class="ck" for="aBilling"><input type="checkbox" id="aBilling" value="billing">Billing</label>
@@ -443,7 +464,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
   function openAccess() {
     if (!access.is_admin) return;
     if (location.hash !== "#access") history.replaceState(null, "", location.pathname + location.search + "#access");
-    show("vAccess"); loadTeam();
+    show("vAccess"); loadTeam(); syncDirectory();
   }
   function closeAccess() { history.replaceState(null, "", location.pathname + location.search); show("vApps"); }
   function loadTeam() {
@@ -490,6 +511,83 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
       return { ok: ok, text: text };
     });
   }
+  /* ---------- Find a person: suggestions from Microsoft 365, Staff and Crew ---------- */
+  var SRC = { m365: "Microsoft 365", staff: "Staff", crew: "Crew" };
+  var sugg = $("#aSugg"), found = [], pick = -1, findSeq = 0, findTimer = 0, findFrom = null, dirSynced = false;
+  function dirNote(text, bad) { var n = $("#dirNote"); n.textContent = text; n.className = "find-note" + (bad ? " err" : ""); }
+  function syncDirectory() {
+    if (dirSynced) return; dirSynced = true;
+    sb.functions.invoke("portal-directory", { body: {} }).then(async function (r) {
+      var out = r.data;
+      if (r.error) { try { out = await r.error.context.json(); } catch (e) { out = null; } }
+      var st = out && out.status;
+      if (st === "synced" || st === "fresh") dirNote("Start typing a name and pick the person to fill in their email and name. Suggestions come from Microsoft 365, Staff and Crew.");
+      else if (st === "not_configured") dirNote("Start typing a name and pick the person to fill in their email and name. Suggestions come from Staff and Crew; connect Microsoft 365 to include everyone with a company email.");
+      else { dirSynced = false; dirNote("Suggestions from Staff and Crew still work, but the Microsoft 365 directory couldn't be updated: " + ((out && out.error) || "try again later."), true); }
+    });
+  }
+  function hl(text, q) {
+    var t = esc(text); q.split(/\s+/).filter(Boolean).forEach(function (w) {
+      var i = t.toLowerCase().indexOf(esc(w).toLowerCase());
+      if (i >= 0 && t.lastIndexOf("<", i) <= t.lastIndexOf(">", i)) t = t.slice(0, i) + "<mark>" + t.slice(i, i + esc(w).length) + "</mark>" + t.slice(i + esc(w).length);
+    });
+    return t;
+  }
+  function setExpanded(on) { ["#aEmail", "#aNote"].forEach(function (s) { $(s).setAttribute("aria-expanded", on ? "true" : "false"); }); }
+  function closeSugg() { sugg.hidden = true; found = []; pick = -1; setExpanded(false); if (findFrom) findFrom.removeAttribute("aria-activedescendant"); }
+  function paintSugg(q) {
+    if (!found.length) {
+      sugg.innerHTML = '<li class="none" role="option" aria-disabled="true">No one matches “' + esc(q) + '”. You can still type their email.</li>';
+    } else {
+      sugg.innerHTML = found.map(function (p, i) {
+        var right = (p.title ? '<span class="tt">' + esc(p.title) + "</span>" : "") +
+          (p.on_team ? '<span class="chip on">On the team</span>' : '<span class="chip">' + esc(SRC[p.source] || p.source) + "</span>");
+        return '<li role="option" id="sg-' + i + '" data-i="' + i + '" aria-selected="' + (i === pick) + '">' +
+          '<span class="nm">' + hl(p.name || p.email.split("@")[0], q) + "</span>" +
+          '<span class="src">' + right + "</span>" +
+          '<span class="em">' + hl(p.email, q) + "</span></li>";
+      }).join("");
+    }
+    sugg.hidden = false; setExpanded(true);
+    if (findFrom) { if (pick >= 0) findFrom.setAttribute("aria-activedescendant", "sg-" + pick); else findFrom.removeAttribute("aria-activedescendant"); }
+  }
+  function findPeople(input) {
+    var q = input.value.trim(); findFrom = input;
+    clearTimeout(findTimer);
+    if (q.length < 2) { findSeq++; closeSugg(); return; }
+    var seq = ++findSeq;
+    findTimer = setTimeout(function () {
+      sb.rpc("portal_people_search", { q: q }).then(function (r) {
+        if (seq !== findSeq || document.activeElement !== input) return;
+        if (r.error) { closeSugg(); return; }
+        found = r.data || []; pick = found.findIndex(function (p) { return !p.on_team; }); if (pick < 0 && found.length) pick = 0; paintSugg(q);
+      });
+    }, 160);
+  }
+  function choose(i) {
+    var p = found[i]; if (!p) return;
+    if (p.on_team) { closeSugg(); msg($("#aMsg"), (p.name || p.email) + " is already on the list below. Change their apps there."); return; }
+    $("#aEmail").value = p.email;
+    $("#aNote").value = (p.name || "") + (p.title && p.name ? ", " + p.title : "");
+    closeSugg(); msg($("#aMsg"), "");
+    $("#aBilling").focus();
+  }
+  ["#aEmail", "#aNote"].forEach(function (s) {
+    var input = $(s);
+    input.addEventListener("input", function () { findPeople(input); });
+    input.addEventListener("keydown", function (e) {
+      if (sugg.hidden || !found.length) { if (e.key === "Escape") closeSugg(); return; }
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault(); pick = (pick + (e.key === "ArrowDown" ? 1 : -1) + found.length) % found.length;
+        paintSugg(input.value.trim()); var el = $("#sg-" + pick); if (el) el.scrollIntoView({ block: "nearest" });
+      } else if (e.key === "Enter" && pick >= 0) { e.preventDefault(); choose(pick); }
+      else if (e.key === "Escape") { e.preventDefault(); closeSugg(); }
+    });
+    input.addEventListener("blur", function () { setTimeout(function () { if (document.activeElement !== $("#aEmail") && document.activeElement !== $("#aNote")) closeSugg(); }, 120); });
+  });
+  sugg.addEventListener("mousedown", function (e) { e.preventDefault(); });
+  sugg.addEventListener("click", function (e) { var li = e.target.closest("li[data-i]"); if (li) choose(+li.dataset.i); });
+
   $("#tAccess").addEventListener("click", openAccess);
   $("#accBack").addEventListener("click", closeAccess);
   $("#accList").addEventListener("change", function (e) {
@@ -524,7 +622,7 @@ input[type=checkbox]:disabled{cursor:not-allowed;opacity:.55}
     }
   });
   $("#fAdd").addEventListener("submit", function (e) {
-    e.preventDefault();
+    e.preventDefault(); closeSugg();
     var email = $("#aEmail").value.trim().toLowerCase(), note = $("#aNote").value.trim();
     var apps = ["aBilling", "aCrew", "aStaff", "aProjects", "aBills"].filter(function (id) { return $("#" + id).checked; }).map(function (id) { return $("#" + id).value; });
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg($("#aMsg"), "Enter a valid email address."); return; }

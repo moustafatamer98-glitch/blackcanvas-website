@@ -41,6 +41,7 @@ Each folder has the page (`index.html`) and the person's contact file (`.vcf`), 
 - `portal/portal.js`, `portal/brand.js`, `portal/vendor/`: shared sign-in helper, logo artwork and the Supabase library.
 - `supabase/setup.sql`: the database tables and access rules.
 - `supabase/functions/portal-invite/`: the Edge Function admins use to send invites.
+- `supabase/functions/portal-directory/`: the Edge Function that copies the Microsoft 365 directory in, so Team access can suggest people.
 
 When you change `brand.js`, `config.js` or `portal.js`, raise the `?v=` tag on their `<script>` links in both portal pages. GitHub Pages caches files for about 10 minutes, and the new tag makes browsers load the new version straight away.
 
@@ -55,9 +56,24 @@ Sign-in and data run on [Supabase](https://supabase.com). Access is per app: eac
 5. **Authentication → URL Configuration**: set **Site URL** to `https://blackcanvasglobal.com/portal/` and add `https://blackcanvasglobal.com/portal/**` under **Redirect URLs**.
 6. **Project Settings → API Keys**: copy the Project URL and the publishable key into `portal/config.js`. Never use the secret or `service_role` key.
 
+### Connect the Microsoft 365 directory (once)
+
+This lets Team access suggest everyone with a company email. Until it's done, suggestions come from Staff and Crew only. You need to be a Microsoft 365 global admin (or have someone who is do steps 1 to 4).
+
+1. Go to [entra.microsoft.com](https://entra.microsoft.com) → **Applications → App registrations → New registration**. Name it `Black Canvas portal directory`, keep "Accounts in this organizational directory only", leave Redirect URI empty, and click **Register**.
+2. On the app's **Overview**, copy the **Application (client) ID** and the **Directory (tenant) ID**.
+3. **API permissions → Add a permission → Microsoft Graph → Application permissions**, tick **User.Read.All**, click **Add permissions**, then click **Grant admin consent for …** and confirm. The status should turn green.
+4. **Certificates & secrets → New client secret**, choose 24 months, click **Add**, and copy the **Value** straight away (it's only shown once).
+5. In Supabase: **Edge Functions → Secrets**, add `MS_TENANT_ID` (the tenant ID), `MS_CLIENT_ID` (the client ID) and `MS_CLIENT_SECRET` (the secret value).
+6. Open **Team access** in the portal. The directory is copied in, and the note under the form says suggestions now include Microsoft 365. It refreshes by itself whenever an admin opens Team access (at most every 30 minutes), so new starters appear and leavers drop out.
+
+Only enabled member accounts with a mailbox are copied (no guests or disabled accounts), and only their name, email, job title and department. The client secret expires after the period you chose: before then, make a new one in Entra and update `MS_CLIENT_SECRET`. If something's wrong, Team access shows the reason under the form.
+
 ### Add a team member
 
 Admins open **Team access** from the apps screen, enter the person's email, tick their apps and click **Add person**. With "Email them an invite now" ticked, the invite goes out straight away; otherwise use **Send invite** on their row later. They follow the link, enter their name and a password, and see only the apps you ticked. Untick or tick apps at any time; changes apply immediately. **Remove** takes all their access away.
+
+**Finding people as you type.** In the Email or Name box, type part of a name (or email) and pick the person from the list: their work email and name (with job title) fill in for you. Suggestions come from the company's Microsoft 365 directory, the Staff app's database and the Crew roster (people in Staff or Crew need an email saved to appear). People already on the access list are marked "On the team". Only portal admins can search, through `portal_people_search()` in the database; nobody can read the copied directory directly.
 
 Invites are sent by the `portal-invite` Edge Function (`supabase/functions/portal-invite/`), which only works for admins.
 
