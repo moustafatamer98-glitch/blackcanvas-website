@@ -1490,45 +1490,183 @@ function crewDrawer(id) {
   paintRows();
 }
 
-/* ---- import crew from a pasted list ---- */
-const IMPORT_COLS = [['name', ['name', 'full name']], ['role', ['role', 'position', 'job']], ['phone', ['phone', 'mobile', 'number', 'whatsapp']], ['email', ['email', 'e-mail']], ['day', ['rate', 'day rate', 'daily rate', 'day']], ['show', ['show rate', 'show']], ['type', ['type']], ['city', ['city', 'based']]];
-function parseCrewList(text) {
-  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+/* ---- reading a spreadsheet: an Excel (.xlsx) or .csv file, or rows pasted from one ----
+   An .xlsx file is a zip of XML files; it's unzipped with the browser's own DecompressionStream,
+   so no spreadsheet library is needed. */
+function unzipIndex(b) {
+  const dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  let e = b.length - 22;
+  while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
+  if (e < 0) throw new Error('Couldn’t read this file. Is it an Excel (.xlsx) file?');
+  const n = dv.getUint16(e + 10, true), map = new Map(), td = new TextDecoder();
+  let p = dv.getUint32(e + 16, true);
+  for (let i = 0; i < n && dv.getUint32(p, true) === 0x02014b50; i++) {
+    const nl = dv.getUint16(p + 28, true), xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true);
+    map.set(td.decode(b.subarray(p + 46, p + 46 + nl)), { method: dv.getUint16(p + 10, true), size: dv.getUint32(p + 20, true), off: dv.getUint32(p + 42, true) });
+    p += 46 + nl + xl + cl;
+  }
+  return map;
+}
+async function unzipEntry(b, { method, size, off }) {
+  const dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+  const start = off + 30 + dv.getUint16(off + 26, true) + dv.getUint16(off + 28, true), data = b.subarray(start, start + size);
+  if (method === 0) return data;
+  if (method !== 8 || typeof DecompressionStream === 'undefined') throw new Error('This browser can’t open .xlsx files. In Excel, use File → Save As → CSV and upload that instead.');
+  return new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer());
+}
+const colIndex = ref => { let n = 0; for (const ch of ref.replace(/\d+$/, '').toUpperCase()) n = n * 26 + ch.charCodeAt(0) - 64; return n - 1; };
+const tags = (el, name) => [...el.getElementsByTagNameNS('*', name)];
+const NAME_HEAD = /^\s*(full\s+)?name\s*\*?\s*$/i;
+/* The rows of the first visible sheet that has a Name column, preferring one whose name matches `prefer`. */
+async function readSheetFile(file, prefer) {
+  if (/\.(csv|txt|tsv)$/i.test(file.name) || /^text\//.test(file.type)) return { rows: textToRows(await file.text()), sheet: '' };
+  const b = new Uint8Array(await file.arrayBuffer());
+  if (b[0] !== 0x50 || b[1] !== 0x4b) throw new Error(/\.xls$/i.test(file.name) ? 'This is an old-style .xls file. In Excel, use File → Save As → Excel Workbook (.xlsx), then upload that.' : 'Couldn’t read this file. Upload an Excel (.xlsx) or .csv file.');
+  const zip = unzipIndex(b), td = new TextDecoder();
+  const text = async n => { const e = zip.get(n); return e ? td.decode(await unzipEntry(b, e)) : ''; };
+  const xml = s => new DOMParser().parseFromString(s || '<x/>', 'application/xml');
+  const R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+  const wb = xml(await text('xl/workbook.xml')), rels = xml(await text('xl/_rels/workbook.xml.rels'));
+  const target = Object.fromEntries(tags(rels, 'Relationship').map(r => [r.getAttribute('Id'), r.getAttribute('Target')]));
+  const sheets = tags(wb, 'sheet').map(s => {
+    let t = target[s.getAttributeNS(R, 'id') || s.getAttribute('r:id')] || '';
+    t = t.replace(/^\/+/, ''); if (!t.startsWith('xl/')) t = 'xl/' + t;
+    return { name: s.getAttribute('name') || '', path: t, hidden: (s.getAttribute('state') || 'visible') !== 'visible' };
+  });
+  const shared = tags(xml(await text('xl/sharedStrings.xml')), 'si').map(si => tags(si, 't').filter(t => t.parentNode.localName !== 'rPh').map(t => t.textContent).join(''));
+  const readRows = async sh => {
+    const rows = [];
+    for (const row of tags(xml(await text(sh.path)), 'row')) {
+      const out = []; let ci = 0;
+      for (const c of tags(row, 'c')) {
+        const ref = c.getAttribute('r'); if (ref) ci = colIndex(ref);
+        const t = c.getAttribute('t'), v = tags(c, 'v')[0]?.textContent ?? '';
+        out[ci++] = t === 's' ? (shared[+v] ?? '') : t === 'inlineStr' ? tags(c, 't').map(x => x.textContent).join('') : t === 'b' ? (v === '1' ? 'TRUE' : 'FALSE') : v;
+      }
+      rows[(+row.getAttribute('r') || rows.length + 1) - 1] = Array.from(out, x => x ?? '');
+    }
+    return Array.from(rows, r => r || []);
+  };
+  const visible = sheets.filter(s => !s.hidden), order = [...visible.filter(s => prefer.test(s.name)), ...visible.filter(s => !prefer.test(s.name))];
+  for (const sh of order) { const rows = await readRows(sh); if (rows.slice(0, 15).some(r => r.some(c => NAME_HEAD.test(c)))) return { rows, sheet: sh.name }; }
+  return { rows: order.length ? await readRows(order[0]) : [], sheet: order[0]?.name || '' };
+}
+/* Rows pasted from Excel or Google Sheets (tab separated), or a CSV file. */
+function textToRows(text) {
+  const lines = String(text || '').replace(/^﻿/, '').split(/\r?\n/).filter(l => l.trim());
   if (!lines.length) return [];
   const sep = lines[0].includes('\t') ? '\t' : lines[0].includes(';') && !lines[0].includes(',') ? ';' : ',';
-  const split = l => { const out = []; let cur = '', q = false; for (const ch of l) { if (ch === '"') q = !q; else if (ch === sep && !q) { out.push(cur.trim()); cur = ''; } else cur += ch; } out.push(cur.trim()); return out; };
-  let rows = lines.map(split), cols = IMPORT_COLS.map(c => c[0]);
-  const head = rows[0].map(h => h.toLowerCase());
-  if (head.some(h => IMPORT_COLS.some(([, names]) => names.includes(h)))) {
-    cols = head.map(h => (IMPORT_COLS.find(([, names]) => names.includes(h)) || [null])[0]);
-    rows = rows.slice(1);
-  }
-  return rows.map(r => { const o = {}; cols.forEach((k, i) => { if (k && r[i]) o[k] = r[i]; }); return o; }).filter(o => o.name);
+  return lines.map(l => { const out = []; let cur = '', q = false; for (const ch of l) { if (ch === '"') q = !q; else if (ch === sep && !q) { out.push(cur.trim()); cur = ''; } else cur += ch; } out.push(cur.trim()); return out; });
 }
-function importDrawer() {
+const normHead = h => String(h ?? '').toLowerCase().replace(/\(.*?\)/g, '').replace(/[*:]/g, '').replace(/\s+/g, ' ').trim();
+/* Turns rows into one object per person. The header row (the one with a Name column) decides the
+   columns; numbered columns (Role 1, Day rate 1, Show rate 1, Role 2…) become role1, day1, show1….
+   Without a header the columns are read in `legacy` order. The template's example row (a name
+   starting with "e.g.") and rows without a name are skipped. */
+function tableToPeople(rows, cols, legacy) {
+  rows = rows.map(r => r.map(c => String(c ?? '').trim()));
+  const hi = rows.findIndex((r, i) => i < 15 && r.some(c => NAME_HEAD.test(c)));
+  let keys = legacy;
+  if (hi >= 0) {
+    keys = rows[hi].map(h => {
+      const n = normHead(h); let m;
+      if ((m = n.match(/^(?:role|position)\s*(\d+)$/))) return 'role' + m[1];
+      if ((m = n.match(/^day rate\s*(\d+)$/))) return 'day' + m[1];
+      if ((m = n.match(/^show rate\s*(\d+)$/))) return 'show' + m[1];
+      return (cols.find(([, names]) => names.includes(n)) || [null])[0];
+    });
+    rows = rows.slice(hi + 1);
+  }
+  return rows.map(r => { const o = {}; keys.forEach((k, i) => { if (k && r[i]) o[k] = r[i]; }); return o; })
+    .filter(o => o.name && !/^e\.?\s?g\.?(\s|$)/i.test(o.name));
+}
+const money0 = v => { const s = String(v ?? '').trim(), n = Number(s.replace(/[^\d.]/g, '')); return s === '' || s.replace(/[^\d.]/g, '') === '' || isNaN(n) ? '' : n; };
+/* Roles (or positions) with their rates: numbered columns first, then a plain Role column where
+   several roles can be separated with | — the plain day/show rate columns go with the first. */
+function rolesFromRow(o, dayKey) {
+  const roles = [], seen = new Set();
+  const add = (role, day, show) => { role = String(role || '').trim(); if (!role || seen.has(role.toLowerCase())) return; seen.add(role.toLowerCase()); roles.push({ role, day: money0(day), show: money0(show) }); };
+  for (let i = 1; i <= 20; i++) if (o['role' + i]) add(o['role' + i], o['day' + i], o['show' + i]);
+  String(o.role || '').split(/\s*[|;]\s*/).forEach((r, i) => add(r, !i && dayKey ? o[dayKey] : '', !i && dayKey ? o.show : ''));
+  return roles;
+}
+const cleanPhone = v => { let s = String(v || '').trim(); if (/^5\d{8}$/.test(s)) s = '0' + s; else if (/^9665\d{8}$/.test(s)) s = '+' + s; return s; };
+const lc = v => String(v || '').toLowerCase().trim();
+/* The import drawer shared by both apps: upload a file or paste rows, check the preview, import. */
+function importDrawer2({ title, what, template, templateName, prefer, cols, legacy, toRecord, known, rolesLabel, intro, placeholder }) {
+  const st = { people: [], source: '' };
+  const preview = () => {
+    const el = $('#impPrev'); if (!el) return;
+    const seen = new Set(known()), rows = st.people.map(o => {
+      const rec = toRecord(o), keys = [lc(rec.name), waNumber(rec.phone)].filter(Boolean), dup = keys.some(k => seen.has(k));
+      keys.forEach(k => seen.add(k));
+      return { rec, dup };
+    });
+    st.rows = rows;
+    const fresh = rows.filter(r => !r.dup).length;
+    const b = $('#drSaveBtn'); if (b) { b.disabled = !fresh; b.textContent = fresh ? `Import ${plural(fresh, 'person', 'people')}` : 'Import'; }
+    if (!st.people.length) { el.innerHTML = st.source ? `<div class="issue warn" style="margin-top:12px">No one found in ${esc(st.source)}. Check the names are in a column headed “Name”.</div>` : ''; return; }
+    el.innerHTML = `<div style="margin:14px 0 8px;font-size:13px"><b>${plural(rows.length, 'person', 'people')}</b> found${st.source ? ` in ${esc(st.source)}` : ''} · <span style="color:var(--green);font-weight:600">${fresh} new</span>${rows.length - fresh ? ` · <span class="muted">${rows.length - fresh} already listed, will be skipped</span>` : ''}</div>
+      <div class="tbl-wrap" style="max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:8px"><table class="tbl"><thead><tr><th>Name</th><th>${esc(rolesLabel)}</th><th class="hide-sm">Type</th><th class="hide-sm">Mobile</th><th class="hide-sm"></th></tr></thead><tbody>
+      ${rows.slice(0, 200).map(({ rec, dup }) => `<tr style="${dup ? 'opacity:.5' : ''}"><td style="font-weight:600">${esc(rec.name)}${dup ? '<div class="dim" style="font-weight:400;font-size:11px">Already listed</div>' : ''}</td>
+        <td>${rec.pay ? `<div class="dim" style="font-size:11px;margin-bottom:3px">${esc(rec.pay)}</div>` : ''}<div class="rates" style="margin:0">${rateChips(rec) || '<span class="dim">—</span>'}</div></td>
+        <td class="hide-sm">${esc(rec.typeLabel || '')}</td><td class="hide-sm num">${esc(rec.phone || '')}</td>
+        <td class="hide-sm">${dup ? '<span class="issue info">Skipped</span>' : '<span class="issue ok">New</span>'}</td></tr>`).join('')}
+      </tbody></table></div>${rows.length > 200 ? `<div class="dim" style="font-size:12px;margin-top:6px">Showing the first 200.</div>` : ''}`;
+  };
   openDrawer({
-    title: 'Import crew', wide: true,
-    body: `<p class="muted" style="margin-top:0">Copy rows from Excel or Google Sheets and paste them here. Use these columns, in this order or with a header row: <b style="color:var(--text)">Name, Role, Phone, Email, Day rate, Show rate, Type, City</b>. Only the name is required. The rates are for their main role; to list more roles, separate them with <b style="color:var(--text)">|</b> (e.g. Rigger | Stagehand) and add their rates on each profile afterwards.</p>
-      <textarea class="input" id="impText" style="min-height:220px;font-family:var(--mono);font-size:12px" placeholder="Name, Role, Phone, Email, Day rate, Show rate, Type, City&#10;Ahmed Saleh, Rigger | Stagehand, 0551234567, , 900, 1200, freelance, Riyadh"></textarea>
-      <div id="impPrev" class="dim" style="margin-top:10px;font-size:13px"></div>`,
+    title, wide: true,
+    body: `<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <label class="btn primary" for="impFile" style="cursor:pointer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M4 21h16"/></svg> Upload Excel file</label>
+        <input type="file" id="impFile" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:none">
+        <a class="btn" href="${esc(template)}" download="${esc(templateName)}" data-stop>${ICON.dl || ''} Download template</a>
+        <span class="muted" id="impFileName" style="font-size:13px"></span>
+      </div>
+      <p class="muted" style="margin:12px 0 0">${intro}</p>
+      <details style="margin-top:14px" id="impPaste"><summary class="muted" style="cursor:pointer;font-size:13px">Or paste rows copied from a spreadsheet</summary>
+        <textarea class="input" id="impText" style="min-height:160px;margin-top:8px;font-family:var(--mono);font-size:12px" placeholder="${placeholder}"></textarea></details>
+      <div id="impPrev"></div>`,
     saveLabel: 'Import',
     onSave: async () => {
-      const list = parseCrewList($('#impText').value);
-      if (!list.length) return toast('Paste at least one row with a name', true);
-      const known = new Set([...db.crew.values()].flatMap(c => [c.name.toLowerCase(), waNumber(c.phone)].filter(Boolean)));
-      const now = new Date().toISOString(), rows = [];
-      let skipped = 0;
-      for (const o of list) {
-        if (known.has(o.name.toLowerCase()) || (o.phone && known.has(waNumber(o.phone)))) { skipped++; continue; }
-        const id = uid(), type = (CREW_TYPES.find(([k, l]) => [k, l.toLowerCase()].includes(String(o.type || '').toLowerCase())) || ['freelance'])[0];
-        const money0 = v => Number(String(v || '').replace(/[^\d.]/g, '')) || '';
-        const roles = String(o.role || '').split(/\s*[|;]\s*/).map(r => r.trim()).filter(Boolean).map((role, i) => ({ role, day: i ? '' : money0(o.day), show: i ? '' : money0(o.show) }));
-        rows.push({ coll: 'crew', id, data: { id, name: o.name, roles, role: roles[0]?.role || '', skills: roles.slice(1).map(r => r.role), type, phone: o.phone || '', email: o.email || '', city: o.city || '', rate: roles[0]?.day ?? '', certs: [], away: [], notes: '', active: true, createdAt: now } });
-        known.add(o.name.toLowerCase());
-      }
-      if (!rows.length) return toast('Everyone in the list is already on the roster', true);
-      try { await Backend.putMany(rows); closeDrawer(); render(); toast(`${plural(rows.length, 'person', 'people')} imported${skipped ? ` · ${skipped} already listed` : ''}`); } catch (err) { failed(err); }
+      const list = (st.rows || []).filter(r => !r.dup);
+      if (!list.length) return toast(st.people.length ? 'Everyone in the list is already listed' : 'Upload a file or paste at least one row with a name', true);
+      const now = new Date().toISOString();
+      const rows = list.map(({ rec }) => { const id = uid(), data = { ...rec, id, createdAt: now }; delete data.pay; delete data.typeLabel; return { coll: what, id, data }; });
+      try { await Backend.putMany(rows); closeDrawer(); render(); toast(`${plural(rows.length, 'person', 'people')} imported${st.rows.length - rows.length ? ` · ${st.rows.length - rows.length} already listed` : ''}`); } catch (err) { failed(err); }
     },
+  });
+  drawerState.imp = {
+    async file(f) {
+      $('#impFileName').textContent = `Reading ${f.name}…`;
+      try {
+        const { rows, sheet } = await readSheetFile(f, prefer);
+        st.people = tableToPeople(rows, cols, legacy); st.source = `${f.name}${sheet ? ` (sheet “${sheet}”)` : ''}`;
+        $('#impFileName').textContent = f.name; $('#impText').value = '';
+      } catch (err) { console.error(err); st.people = []; st.source = ''; $('#impFileName').textContent = ''; toast(err.message || 'Couldn’t read that file', true); }
+      preview();
+    },
+    text(v) { st.people = tableToPeople(textToRows(v), cols, legacy); st.source = v.trim() ? 'the pasted rows' : ''; $('#impFileName').textContent = ''; preview(); },
+  };
+  preview();
+}
+
+/* ---- import crew ---- */
+const IMPORT_COLS = [['name', ['name', 'full name']], ['role', ['role', 'roles', 'main role', 'position', 'job']], ['phone', ['phone', 'mobile', 'mobile number', 'number', 'whatsapp']], ['email', ['email', 'e-mail']],
+  ['day', ['rate', 'day rate', 'daily rate', 'day']], ['show', ['show rate', 'show']], ['type', ['type', 'crew type']], ['city', ['city', 'based', 'based in']], ['agency', ['agency', 'agency / company', 'company']], ['notes', ['notes', 'note']]];
+const IMPORT_LEGACY = ['name', 'role', 'phone', 'email', 'day', 'show', 'type', 'city'];   // pasted rows with no header row
+function crewFromRow(o) {
+  const roles = rolesFromRow(o, 'day');
+  const type = (CREW_TYPES.find(([k, l]) => [k, l.toLowerCase()].includes(lc(o.type))) || ['freelance'])[0];
+  return { name: o.name, roles, role: roles[0]?.role || '', skills: roles.slice(1).map(r => r.role), type, agency: o.agency || '', phone: cleanPhone(o.phone), email: o.email || '', city: o.city || '',
+    rate: roles[0]?.day ?? '', certs: [], away: [], notes: o.notes || '', active: true, typeLabel: label(CREW_TYPES, type) };
+}
+function importDrawer() {
+  importDrawer2({
+    title: 'Import crew', what: 'crew', template: 'crew-import-template.xlsx', templateName: 'Black Canvas crew import template.xlsx', prefer: /crew/i,
+    cols: IMPORT_COLS, legacy: IMPORT_LEGACY, toRecord: crewFromRow, rolesLabel: 'Roles · day / show rate',
+    known: () => [...db.crew.values()].flatMap(c => [lc(c.name), waNumber(c.phone)].filter(Boolean)),
+    intro: 'Download the Excel template, fill in one person per row (name, mobile, roles and each role’s day and show rate) and upload it here. You can also drop the file onto this panel. Everyone is shown before anything is saved; anyone already on the roster (same name or mobile) is skipped.',
+    placeholder: 'Name, Role, Phone, Email, Day rate, Show rate, Type, City&#10;Ahmed Saleh, Rigger | Stagehand, 0551234567, , 900, 1200, freelance, Riyadh',
   });
 }
 
@@ -1666,6 +1804,7 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.id === 'impFile' && drawerState?.imp) { const f = el.files?.[0]; el.value = ''; if (f) drawerState.imp.file(f); return; }
   if (el.dataset.roler != null && drawerState?.crew) { drawerState.crew.roles[+el.dataset.roler][el.dataset.f] = el.value; return; }
   if (el.dataset.cert != null && drawerState?.crew) { drawerState.crew.certs[+el.dataset.cert][el.dataset.f] = el.value; return; }
   if (el.dataset.away != null && drawerState?.crew) { drawerState.crew.away[+el.dataset.away][el.dataset.f] = el.value; return; }
@@ -1681,7 +1820,7 @@ document.addEventListener('change', e => {
 document.addEventListener('input', e => {
   const el = e.target;
   if (el.dataset.pick === 'q') { ui.pickQ = el.value; drawerState?.pick?.paint(); return; }
-  if (el.id === 'impText') { const n = parseCrewList(el.value).length; $('#impPrev').textContent = n ? `${plural(n, 'person', 'people')} found` : ''; return; }
+  if (el.id === 'impText' && drawerState?.imp) { drawerState.imp.text(el.value); return; }
   const k = el.dataset.inp; if (!k) return;
   ui[k] = el.value;
   if (k === 'q') $('#evGrid').innerHTML = eventGrid(); else render();
@@ -1691,6 +1830,8 @@ document.addEventListener('keydown', e => {
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('[role=link][data-act]')) { e.preventDefault(); e.target.click(); }
 });
 $('#scrim').addEventListener('click', closeDrawer);
+document.addEventListener('dragover', e => { if (drawerState?.imp && e.dataTransfer?.types?.includes('Files')) e.preventDefault(); });
+document.addEventListener('drop', e => { if (!drawerState?.imp) return; const f = e.dataTransfer?.files?.[0]; if (f) { e.preventDefault(); drawerState.imp.file(f); } });
 window.addEventListener('hashchange', () => { closeDrawer(); render(); window.scrollTo(0, 0); });
 
 /* ---------------- confirm dialog ---------------- */
