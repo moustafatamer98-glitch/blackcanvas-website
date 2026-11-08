@@ -341,6 +341,18 @@ select.status-sel option{color:var(--text);background:var(--panel)}
 .crow.off{opacity:.55}
 .rows-ed{display:flex;flex-direction:column;gap:6px}
 .rows-ed .r4{display:grid;grid-template-columns:140px 140px 1fr 34px;gap:6px}
+.rows-ed .r5{display:grid;grid-template-columns:1fr 130px 130px 34px 34px;gap:6px;align-items:center}
+.rows-ed .r5h{display:grid;grid-template-columns:1fr 130px 130px 74px;gap:6px;font:500 10px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--dim);padding:0 2px}
+.rows-ed.norates .r5{grid-template-columns:1fr 34px 34px}
+.rows-ed.norates .r5h{grid-template-columns:1fr 74px}
+.rows-ed.norates .rt{display:none!important}
+.rows-ed .r5 .rt{display:block;min-width:0;font:400 14px/1.45 var(--font);letter-spacing:normal;text-transform:none;color:var(--text)}
+.rows-ed .r5 .rt span{display:none}
+.rows-ed .r5 .main{font:600 9.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--orange);text-align:center}
+.rates{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.rchip{display:inline-flex;align-items:baseline;gap:6px;font-size:12px;padding:3px 8px;border-radius:5px;background:var(--raise);color:var(--muted);white-space:nowrap}
+.rchip b{color:var(--text);font-weight:700}
+.rchip.main{box-shadow:inset 0 0 0 1px var(--line2)}
 .rows-ed .input{padding:6px 8px}
 .bk{display:grid;grid-template-columns:150px 1fr auto;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:13px;align-items:center;cursor:pointer}
 .bk:hover{background:var(--panel2)}
@@ -370,7 +382,19 @@ select.status-sel option{color:var(--text);background:var(--panel)}
 .gt-bar.hold{background:transparent!important;border-style:dashed}
 .gt-bar.bad{box-shadow:0 0 0 2px var(--red)}
 .gt-away{position:absolute;top:9px;height:26px;border-radius:4px;background:repeating-linear-gradient(135deg,#232327 0 5px,#2d2d32 5px 10px);font-size:10px;color:var(--muted);padding:0 6px;display:flex;align-items:center;overflow:hidden;white-space:nowrap}
-.wk{display:flex;align-items:center;gap:6px}
+.wk{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.wk input[type=date].input{width:auto;padding:5px 8px;font-size:12px}
+.tl-filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.tl-filters select.input{width:auto;max-width:220px}
+.tl-filters select.input.set{border-color:var(--orange);color:var(--text);background-color:var(--orange-soft)}
+.tl-sum{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:14px;font-size:12px;color:var(--muted)}
+.tl-sum .chip{padding:4px 10px}
+.tl-sum .chip b{color:inherit;font-weight:800;margin-left:6px}
+.tl-ftoggle{display:none}
+.legend .pj{cursor:pointer;border-radius:4px;padding:2px 6px;margin:-2px -6px}
+.legend .pj:hover,.legend .pj.on{background:var(--panel2);color:var(--text)}
+.gt-d.inp{box-shadow:inset 0 -2px 0 var(--orange)}
+.gt-name .cnt{margin-left:auto;font-size:10.5px;color:var(--dim);flex:none;padding-left:6px}
 
 @media (max-width:1100px){.totals{grid-template-columns:repeat(2,1fr)}}
 @media (max-width:820px){
@@ -378,9 +402,16 @@ select.status-sel option{color:var(--text);background:var(--panel)}
   .pick{grid-template-columns:20px 1fr auto}.pick .av{display:none}
   .pick-top{grid-template-columns:1fr 1fr}.pick-top .f:last-child{grid-column:1/-1}
   .rows-ed .r4{grid-template-columns:1fr 1fr 34px}.rows-ed .r4 .nt{grid-column:1/3}
+  .rows-ed .r5{grid-template-columns:1fr 1fr 34px 34px;margin-bottom:6px}.rows-ed .r5 .rl{grid-column:1/-1}.rows-ed .r5h{display:none}
+  .rows-ed.norates .r5{grid-template-columns:1fr 34px 34px;margin-bottom:0}.rows-ed.norates .r5 .rl{grid-column:auto}
+  .rows-ed .r5 .rt{position:relative}.rows-ed .r5 .rt span{display:block;position:absolute;right:9px;top:50%;transform:translateY(-50%);font:600 9.5px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim);pointer-events:none}
   .hide-sm{display:none}
   .totals{grid-template-columns:repeat(2,1fr)}
   .gt-name{width:130px}.gt-name .av{display:none}
+  .tl-filters .input,.tl-filters select.input{flex:1 1 calc(50% - 8px);max-width:none!important;width:auto}
+  .tl-filters:not(.open){display:none}
+  .tl-ftoggle{display:inline-flex;margin-bottom:10px}
+  .tl-sum{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.tl-sum .chip{flex:none}
   .ev-actions{justify-content:flex-start}
   .bk{grid-template-columns:1fr auto}.bk .num{grid-column:1/-1}
 }
@@ -446,7 +477,7 @@ const TITLES = [
 const TITLE_NAMES = TITLES.map(r => r[0]);
 const deptOf = t => (TITLES.find(r => r[0].toLowerCase() === String(t || '').toLowerCase()) || [0, ''])[1];
 const STAFF_TYPES = [['employee','Employee'],['freelance','Freelancer'],['contract','Contractor'],['agency','Agency']];
-const RATE_TYPES = [['day','Per day'],['month','Per month (pro rata)'],['fixed','Fixed fee']];
+const RATE_TYPES = [['day','Day rate (+ show rate)'],['month','Per month (pro rata)'],['fixed','Fixed fee']];
 const RATE_UNIT = { day: '/day', month: '/month', fixed: ' fixed' };
 const A_STATUS = [['hold','On hold'],['confirmed','Confirmed'],['released','Released']];
 const label = (list, v) => (list.find(x => x[0] === v) || [v, v || '—'])[1];
@@ -485,14 +516,24 @@ const waLink = (ph, text) => `https://wa.me/${waNumber(ph)}${text ? '?text=' + e
 const weekStart = s => { const d = parse(s); d.setDate(d.getDate() - d.getDay()); return iso(d); }; // weeks start on Sunday
 const isWeekend = s => { const g = parse(s).getDay(); return g === 5 || g === 6; };
 
-/* What a position (budget) or a booking (actual) costs for its dates. */
+const amt = v => v === '' || v == null || isNaN(Number(v)) ? null : Number(v);
+/* How many of the dates from–to fall on the project's show days. */
+function showDaysIn(pid, from, to) {
+  const a = anchorsOf(getProject(pid));
+  if (!a.show || !from || !to) return 0;
+  return daysIn(from > a.show ? from : a.show, to < a.showEnd ? to : a.showEnd);
+}
+/* What a position (budget) or a booking (actual) costs for its dates. A day rate can have a show
+   rate: days that fall on the project's show days cost the show rate, the rest the day rate. */
 function costOf(o) {
   const d = daysIn(o.from, o.to), r = num(o.rate), rt = o.rateType || 'day';
-  const fee = rt === 'fixed' ? r : rt === 'month' ? r * d / CONFIG.MONTH_DAYS : r * d;
+  const sr = rt === 'day' ? amt(o.showRate) : null, sd = sr != null ? showDaysIn(o.projectId, o.from, o.to) : 0;
+  const fee = rt === 'fixed' ? r : rt === 'month' ? r * d / CONFIG.MONTH_DAYS : r * (d - sd) + (sr || 0) * sd;
   const perDiem = num(o.perDiem) * d, acc = num(o.accommodation), travel = num(o.travel), other = num(o.other);
-  return { days: d, fee, perDiem, acc, travel, other, extras: perDiem + acc + travel + other, total: fee + perDiem + acc + travel + other };
+  return { days: d, showDays: sd, fee, perDiem, acc, travel, other, extras: perDiem + acc + travel + other, total: fee + perDiem + acc + travel + other };
 }
-const rateHTML = (rt, r) => num(r) ? `${money(r)}<span class="dim">${RATE_UNIT[rt || 'day']}</span>` : '<span class="dim">No rate</span>';
+const rateHTML = (rt, r, sr) => num(r) || (rt === 'day' && amt(sr) != null) ? `${num(r) ? `${money(r)}<span class="dim">${RATE_UNIT[rt || 'day']}</span>` : ''}${(rt || 'day') === 'day' && amt(sr) != null ? `<span class="dim"> · </span>${num(r) ? Number(sr).toLocaleString('en-US') : money(sr)}<span class="dim">/show</span>` : ''}` : '<span class="dim">No rate</span>';
+const feeNote = c => c.showDays ? ` (${plural(c.showDays, 'show day')} at the show rate)` : '';
 const varHTML = v => v < -0.5 ? `<span class="var-neg">−${money(-v)}</span>` : v > 0.5 ? `<span class="var-pos">${money(v)}</span>` : '<span class="dim">—</span>';
 
 const ICON = {
@@ -638,7 +679,28 @@ const staffName = id => db.staff.get(id)?.name || 'Removed staff member';
 const firstName = id => staffName(id).split(/\s+/)[0];
 const initials = id => staffName(id).split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
 const avatar = (id, lg) => `<span class="av ${lg ? 'lg' : ''}" title="${esc(staffName(id))}">${esc(initials(id))}</span>`;
-const staffTitles = s => [s.title, ...(s.skills || [])].filter(Boolean).map(r => r.toLowerCase());
+/* Each staff member has one or more positions, each with a day rate and a show rate (used when
+   they're paid by the day). The first is their main position. Older records read the same way. */
+function rolesOf(s) {
+  if (Array.isArray(s?.roles) && s.roles.length) return s.roles;
+  const day = (s?.rateType || 'day') === 'day';
+  return [s?.title, ...(s?.skills || [])].filter(Boolean).map((role, i) => ({ role, day: day && !i ? (s.rate ?? '') : '', show: '' }));
+}
+const staffTitles = s => rolesOf(s).map(r => r.role).filter(Boolean).map(r => r.toLowerCase());
+/* What someone is paid on a position: their salary or fixed fee, or their day and show rate for
+   that position (falling back to their main position, then to the position's budget rate). */
+function staffRate(s, ps) {
+  const rt = s?.rateType || 'day', fromPos = { rateType: ps.rateType || 'day', rate: ps.rate ?? '', showRate: ps.showRate ?? '', note: 'position budget rate' };
+  if (rt !== 'day') return num(s.rate) ? { rateType: rt, rate: s.rate, showRate: '', note: '' } : fromPos;
+  const rs = rolesOf(s), want = String(ps.title || '').toLowerCase(), m = rs.find(r => (r.role || '').toLowerCase() === want);
+  for (const r of [m, rs[0]]) {
+    if (!r) continue;
+    const d = amt(r.day), sh = amt(r.show);
+    if (d != null || sh != null) return { rateType: 'day', rate: d ?? sh, showRate: sh ?? '', note: r === m ? '' : `${r.role} rate` };
+  }
+  return fromPos;
+}
+const rateChips = s => rolesOf(s).filter(r => r.role).map((r, i) => `<span class="rchip ${i === 0 ? 'main' : ''}">${esc(r.role)}${amt(r.day) != null ? ` <span>Day <b class="num">${esc(Number(r.day).toLocaleString('en-US'))}</b></span>` : ''}${amt(r.show) != null ? ` <span>Show <b class="num">${esc(Number(r.show).toLocaleString('en-US'))}</b></span>` : ''}</span>`).join('');
 const sortStaff = (a, b) => (a.name || '').localeCompare(b.name || '');
 
 /* =========================================================================
@@ -748,8 +810,11 @@ function overlapCheck() {
    UI state & routing
    ========================================================================= */
 const ui = Object.assign({ filter: 'upcoming', q: '', sQ: '', sDept: '', sType: '', showInactive: false, freeFrom: '', freeTo: '',
-  tlStart: '', tlQ: '', tlDept: '', tlProject: '', tlBooked: true, pickQ: '', pickAll: false, newStatus: 'hold' }, lsGet('bc-staff-ui', {}));
-const persistUI = () => lsSet('bc-staff-ui', { filter: ui.filter, showInactive: ui.showInactive, tlDept: ui.tlDept, tlBooked: ui.tlBooked, newStatus: ui.newStatus });
+  tlStart: '', tlQ: '', tlDept: '', tlProject: '', tlTitle: '', tlType: '', tlCity: '', tlStatus: '', tlShow: '', tlDays: CONFIG.TL_DAYS, tlFiltersOpen: false,
+  pickQ: '', pickAll: false, newStatus: 'hold' }, lsGet('bc-staff-ui', {}));
+if (!ui.tlShow) ui.tlShow = ui.tlBooked === false ? 'all' : 'booked';   // older saved setting: "Only people with bookings"
+const TL_FILTERS = ['tlProject', 'tlDept', 'tlTitle', 'tlType', 'tlCity', 'tlStatus'];
+const persistUI = () => lsSet('bc-staff-ui', { filter: ui.filter, showInactive: ui.showInactive, newStatus: ui.newStatus, tlShow: ui.tlShow, tlDays: ui.tlDays, ...Object.fromEntries(TL_FILTERS.map(k => [k, ui[k]])) });
 function route() {
   const h = location.hash.startsWith('#/') ? location.hash.slice(2) : '';
   const [view = '', id = '', tab = ''] = h.split('/').map(decodeURIComponent);
@@ -965,7 +1030,7 @@ function posRow(ps) {
   const add = !cv.as.length ? `<button class="person add no-print" data-act="pick" data-id="${esc(ps.id)}">+ Assign</button>`
     : cv.gaps.length ? `<button class="person add no-print" data-act="pick" data-id="${esc(ps.id)}">+ Cover ${plural(cv.days - cv.covered, 'day')}</button>` : '';
   return { b, a: act, any: !!cv.as.length, html: `<tr>
-    <td><div class="pos-t" data-act="pos" data-id="${esc(ps.id)}" role="button" tabindex="0">${esc(ps.title || 'Position')}</div><div class="pos-s">${rateHTML(ps.rateType, ps.rate)}${ps.note ? ` · ${esc(ps.note)}` : ''}</div></td>
+    <td><div class="pos-t" data-act="pos" data-id="${esc(ps.id)}" role="button" tabindex="0">${esc(ps.title || 'Position')}</div><div class="pos-s">${rateHTML(ps.rateType, ps.rate, ps.showRate)}${ps.note ? ` · ${esc(ps.note)}` : ''}</div></td>
     <td><div class="ppl">${people}${add}</div></td>
     <td class="num nowrap">${esc(fmtRange(ps.from, ps.to))}</td>
     <td class="r num">${cv.days}</td>
@@ -1011,47 +1076,100 @@ function tabBudget(p) {
 /* =========================================================================
    View: Timeline (who is where)
    ========================================================================= */
+const TL_SPANS = [[14, '2 wks', 56], [28, '4 wks', 40], [42, '6 wks', 30], [84, '12 wks', 16]];
+const TL_SHOW = [['all', 'Everyone'], ['booked', 'Booked in this period'], ['free', 'Free all period'], ['leave', 'On leave'], ['warn', 'Booked during leave']];
+const tlSpan = () => TL_SPANS.find(x => x[0] === +ui.tlDays) || TL_SPANS[2];
+const tlActive = () => TL_FILTERS.filter(k => ui[k]).length + (ui.tlQ.trim() ? 1 : 0);
+/* Move the timeline to a project's dates unless they're all on screen already (always, with force). */
+function tlJumpToProject(force) {
+  const w = windowOf(getProject(ui.tlProject)); if (!w.from) return;
+  const N = tlSpan()[0], st = ui.tlStart || addDays(weekStart(today()), -7), en = addDays(st, N - 1);
+  if (force || w.from < st || w.to > en) ui.tlStart = addDays(weekStart(w.from), -7);
+}
 function viewTimeline() {
-  const t = today(), N = CONFIG.TL_DAYS, W = CONFIG.DAY_W;
+  const t = today(), [N, , W] = tlSpan();
   const start = ui.tlStart || addDays(weekStart(t), -7), end = addDays(start, N - 1);
   const q = ui.tlQ.trim().toLowerCase();
-  const inRange = id => (idx().byStaff.get(id) || []).filter(a => a.from <= end && a.to >= start && (!ui.tlProject || a.projectId === ui.tlProject));
-  const staff = [...db.staff.values()].filter(s => s.active !== false || inRange(s.id).length)
-    .filter(s => !ui.tlDept || (s.dept || deptOf(s.title)) === ui.tlDept)
-    .filter(s => !q || [s.name, s.title, s.city].join(' ').toLowerCase().includes(q))
-    .filter(s => !(ui.tlBooked || ui.tlProject) || inRange(s.id).length)
+  const proj = ui.tlProject ? getProject(ui.tlProject) : null, pw = proj ? windowOf(proj) : null;
+  const all = [...db.staff.values()];
+  const inRange = id => (idx().byStaff.get(id) || []).filter(a => a.from <= end && a.to >= start);
+  const shown = id => inRange(id).filter(a => (!ui.tlProject || a.projectId === ui.tlProject) && (!ui.tlStatus || (a.status || 'hold') === ui.tlStatus));
+  const awayIn = x => (x.away || []).some(w => w.from && w.from <= end && (w.to || w.from) >= start);
+  const base = all.filter(x => x.active !== false || inRange(x.id).length)
+    .filter(x => !ui.tlDept || (x.dept || deptOf(x.title)) === ui.tlDept)
+    .filter(x => !ui.tlTitle || staffTitles(x).includes(ui.tlTitle.toLowerCase()))
+    .filter(x => !ui.tlType || (x.type || 'employee') === ui.tlType)
+    .filter(x => !ui.tlCity || (x.city || '') === ui.tlCity)
+    .filter(x => !q || [x.name, x.city, x.phone, ...staffTitles(x)].join(' ').toLowerCase().includes(q));
+  const test = {
+    all: () => true,
+    booked: x => shown(x.id).length > 0,
+    free: x => !inRange(x.id).length && !awayIn(x),
+    leave: x => awayIn(x),
+    warn: x => shown(x.id).some(a => worst(asgIssues(a))),
+  };
+  const show = test[ui.tlShow] ? ui.tlShow : 'booked';
+  const staff = base.filter(test[show])
     .sort((a, b) => deptRank(a.dept || deptOf(a.title)) - deptRank(b.dept || deptOf(b.title)) || titleRank(a.title) - titleRank(b.title) || sortStaff(a, b));
-  const projs = allProjects().filter(p => (idx().asgByProject.get(p.id) || []).some(a => live(a) && a.from <= end && a.to >= start)).sort((a, b) => (windowOf(a).from || '').localeCompare(windowOf(b).from || ''));
+  const counts = Object.fromEntries(Object.entries(test).map(([k, f]) => [k, base.filter(f).length]));
+  const titles = [...new Set(all.flatMap(x => rolesOf(x).map(r => r.role)).filter(Boolean))].sort((a, b) => titleRank(a) - titleRank(b) || a.localeCompare(b));
+  const depts = DEPTS.filter(d => all.some(x => (x.dept || deptOf(x.title)) === d));
+  const cities = [...new Set(all.map(x => x.city).filter(Boolean))].sort();
+  const projs = allProjects().filter(p => windowOf(p).from || (idx().byProject.get(p.id) || []).length).sort((a, b) => (windowOf(a).from || '9').localeCompare(windowOf(b).from || '9'));
+  const opt = (k, list, first) => `<select class="input ${ui[k] ? 'set' : ''}" data-chg="${k}" aria-label="${esc(first)}"><option value="">${esc(first)}</option>${list.map(([v, l]) => `<option value="${esc(v)}" ${ui[k] === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
+  const nAct = tlActive();
   const head = `<div class="page-head"><div><div class="eyebrow">${esc(fmtShort(start))} – ${esc(fmtDay(end))}</div><h1>Timeline</h1></div>
-    <div class="wk"><button class="btn sm" data-act="tlMove" data-v="-14" aria-label="Earlier">${ICON.left}</button><button class="btn sm" data-act="tlToday">Today</button><button class="btn sm" data-act="tlMove" data-v="14" aria-label="Later">${ICON.right}</button></div></div>
-  <div class="toolbar">
-    <input class="input" id="tlSearch" style="max-width:220px" placeholder="Search staff…" value="${esc(ui.tlQ)}" data-inp="tlQ">
-    <select class="input" style="width:auto" data-chg="tlDept"><option value="">All departments</option>${DEPTS.map(d => `<option ${ui.tlDept === d ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select>
-    <select class="input" style="width:auto;max-width:240px" data-chg="tlProject"><option value="">All projects</option>${projs.map(p => `<option value="${esc(p.id)}" ${ui.tlProject === p.id ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select>
-    <label class="check"><input type="checkbox" data-chg="tlBooked" ${ui.tlBooked ? 'checked' : ''}> Only people with bookings</label>
-    <div class="grow"></div><span class="muted">${plural(staff.length, 'person', 'people')}</span>
+    <div class="wk">
+      <div class="seg">${TL_SPANS.map(([v, l]) => `<button class="${N === v ? 'on' : ''}" data-act="tlDays" data-v="${v}">${l}</button>`).join('')}</div>
+      <button class="btn sm" data-act="tlMove" data-v="${-Math.max(7, N / 3 | 0)}" aria-label="Earlier">${ICON.left}</button><button class="btn sm" data-act="tlToday">Today</button><button class="btn sm" data-act="tlMove" data-v="${Math.max(7, N / 3 | 0)}" aria-label="Later">${ICON.right}</button>
+      <input class="input" type="date" data-chg="tlJump" value="${esc(start)}" title="Jump to a date" aria-label="Jump to a date">
+    </div></div>
+  <button class="btn sm tl-ftoggle" data-act="tlFilters">Filters${nAct ? ` · ${nAct}` : ''} ${ui.tlFiltersOpen ? '▴' : '▾'}</button>
+  <div class="tl-filters ${ui.tlFiltersOpen ? 'open' : ''}">
+    <input class="input" id="tlSearch" style="max-width:200px" placeholder="Search staff…" value="${esc(ui.tlQ)}" data-inp="tlQ">
+    ${opt('tlProject', projs.map(p => [p.id, `${p.code ? p.code + ' · ' : ''}${p.name}`]), 'All projects')}
+    ${opt('tlDept', depts.map(d => [d, d]), 'All departments')}
+    ${opt('tlTitle', titles.map(x => [x, x]), 'All positions')}
+    ${opt('tlType', STAFF_TYPES, 'All staff types')}
+    ${cities.length > 1 ? opt('tlCity', cities.map(c => [c, c]), 'All cities') : ''}
+    ${opt('tlStatus', [['confirmed', 'Confirmed only'], ['hold', 'On hold only']], 'Any status')}
+    ${nAct ? `<button class="btn sm ghost" data-act="tlClear">${ICON.x} Clear ${nAct > 1 ? plural(nAct, 'filter') : 'filter'}</button>` : ''}
+  </div>
+  <div class="tl-sum">
+    ${TL_SHOW.map(([k, l]) => `<button class="chip ${show === k ? 'on' : ''}" data-act="tlShow" data-v="${k}">${esc(l)}<b class="num">${counts[k]}</b></button>`).join('')}
+    ${proj ? `<span style="margin-left:6px">Showing <b style="color:var(--text)">${esc(proj.name)}</b>${pw.from ? ` · ${esc(fmtRange(pw.from, pw.to))}` : ''}${pw.from && (pw.from < start || pw.to > end) ? ` · <a href="#" data-act="tlToProject">jump to its dates</a>` : ''}</span>` : ''}
   </div>`;
   if (!db.staff.size) return head + `<div class="empty"><b>No staff yet</b>Add your staff on the Staff page to see who’s on which project.<br><br><a class="btn primary" href="#/staff">${ICON.users} Go to Staff</a></div>`;
   const days = Array.from({ length: N }, (_, i) => addDays(start, i)), width = N * W;
   let months = '';
-  days.forEach((d, i) => { if (i === 0 || d.endsWith('-01')) months += `<div class="gt-mo" style="left:${i * W}px">${esc(fmt(d, { month: 'long', year: 'numeric' }))}</div>`; });
-  const dayHead = days.map((d, i) => `<div class="gt-d ${isWeekend(d) ? 'we' : ''} ${d === t ? 'today' : ''}" style="left:${i * W}px;width:${W}px">${parse(d).getDate()}</div>`).join('');
+  // the first month's label is left out when the next month starts too close to fit it
+  const firstGap = days.findIndex((d, i) => i && d.endsWith('-01'));
+  days.forEach((d, i) => { if ((i === 0 && (firstGap < 0 || firstGap * W >= 130)) || (i && d.endsWith('-01'))) months += `<div class="gt-mo" style="left:${i * W}px">${esc(fmt(d, { month: W < 20 ? 'short' : 'long', year: 'numeric' }))}</div>`; });
+  const dayHead = days.map((d, i) => `<div class="gt-d ${isWeekend(d) ? 'we' : ''} ${d === t ? 'today' : ''} ${pw && pw.from && d >= pw.from && d <= pw.to ? 'inp' : ''}" style="left:${i * W}px;width:${W}px">${W < 20 && i % 2 && d !== t ? '' : parse(d).getDate()}</div>`).join('');
   const shade = days.map((d, i) => isWeekend(d) ? `<div class="gt-we" style="left:${i * W}px;width:${W}px"></div>` : '').join('');
   const todayLine = t >= start && t <= end ? `<div class="gt-today" style="left:${diff(start, t) * W + W / 2}px"></div>` : '';
   const seg = (from, to) => { const a = Math.max(0, diff(start, from)), b = Math.min(N - 1, diff(start, to)); return b < a ? null : { left: a * W + 1, w: (b - a + 1) * W - 3 }; };
   const seen = new Set();
-  const rows = staff.map(s => {
-    const away = (s.away || []).filter(w => w.from && w.from <= end && (w.to || w.from) >= start).map(w => { const g = seg(w.from, w.to || w.from); return g ? `<div class="gt-away" style="left:${g.left}px;width:${g.w}px" title="${esc(w.note || 'On leave')}">${esc(w.note || 'Leave')}</div>` : ''; }).join('');
-    const bars = inRange(s.id).map(a => {
+  const rows = staff.map(x => {
+    const away = (x.away || []).filter(w => w.from && w.from <= end && (w.to || w.from) >= start).map(w => { const g = seg(w.from, w.to || w.from); return g ? `<div class="gt-away" style="left:${g.left}px;width:${g.w}px" title="${esc(w.note || 'On leave')}">${esc(w.note || 'Leave')}</div>` : ''; }).join('');
+    const list = shown(x.id);
+    const bars = list.map(a => {
       const g = seg(a.from, a.to); if (!g) return '';
       const p = getProject(a.projectId), col = projColor(a.projectId), hold = a.status !== 'confirmed', bad = worst(asgIssues(a)) === 'bad';
       seen.add(a.projectId);
       return `<div class="gt-bar ${hold ? 'hold' : ''} ${bad ? 'bad' : ''}" style="left:${g.left}px;width:${g.w}px;background:${col};${hold ? `color:${col};border-color:${col}` : ''}" data-act="asg" data-id="${esc(a.id)}" title="${esc(projName(a.projectId))} · ${esc(a.title || '')} · ${esc(fmtShort(a.from))}–${esc(fmtShort(a.to))} · ${esc(label(A_STATUS, a.status || 'hold'))}">${esc(p?.code || projName(a.projectId))}${a.title ? ` · ${esc(a.title)}` : ''}</div>`;
     }).join('');
-    return `<div class="gt-row"><div class="gt-name" data-act="staff" data-id="${esc(s.id)}">${avatar(s.id)}<div><div class="n">${esc(s.name)}</div><div class="r">${esc(s.title || '—')}</div></div></div><div class="gt-track" style="width:${width}px">${shade}${todayLine}${away}${bars}</div></div>`;
+    const nd = list.reduce((n, a) => n + Math.max(0, daysIn(a.from > start ? a.from : start, a.to < end ? a.to : end)), 0);
+    return `<div class="gt-row"><div class="gt-name" data-act="staff" data-id="${esc(x.id)}">${avatar(x.id)}<div><div class="n">${esc(x.name)}</div><div class="r">${esc(x.title || '—')}</div></div>${nd ? `<span class="cnt num" title="Days booked in this period">${nd}d</span>` : ''}</div><div class="gt-track" style="width:${width}px">${shade}${todayLine}${away}${bars}</div></div>`;
   }).join('');
-  return head + `<div class="gt-wrap"><div class="gt"><div class="gt-row gt-h"><div class="gt-name"><span class="eyebrow">Staff</span></div><div class="gt-days" style="width:${width}px">${months}${dayHead}</div></div>${rows || `<div class="empty" style="margin:16px">${ui.tlBooked ? 'No one is booked in these weeks. Untick “Only people with bookings” to see everyone.' : 'No staff match these filters.'}</div>`}</div></div>
-  <div class="legend" style="margin-top:12px">${[...seen].map(id => `<span><i style="background:${projColor(id)}"></i>${esc(projName(id))}</span>`).join('')}<span><i style="border:1px dashed var(--muted)"></i>On hold</span><span><i style="background:repeating-linear-gradient(135deg,#232327 0 3px,#3a3a40 3px 6px)"></i>Leave</span></div>`;
+  const projHasStaff = proj && (idx().asgByProject.get(proj.id) || []).some(live);
+  const empty = `<div class="empty" style="margin:16px;position:sticky;left:16px;width:min(640px, calc(100vw - 72px))"><b>No one matches</b>${show === 'free' ? 'Everyone who matches is booked or on leave in this period.'
+    : proj && !projHasStaff ? `No one is assigned to ${esc(proj.name)} yet. <a href="#/project/${encodeURIComponent(proj.id)}/list">Open its staff list</a>.`
+    : proj && pw.from && (pw.from > end || pw.to < start) ? 'This project is outside the dates on screen. <a href="#" data-act="tlToProject">Jump to its dates</a>.'
+    : show === 'booked' && !nAct ? 'No one is booked in these weeks. Pick “Everyone” to see all staff.' : 'Try removing a filter.'}${nAct ? `<br><br><button class="btn sm" data-act="tlClear">${ICON.x} Clear filters</button>` : ''}</div>`;
+  const legendProjects = [...new Set([...seen, ...(ui.tlProject ? [ui.tlProject] : [])])];
+  return head + `<div class="gt-wrap"><div class="gt"><div class="gt-row gt-h"><div class="gt-name"><span class="eyebrow">${plural(staff.length, 'person', 'people')}</span></div><div class="gt-days" style="width:${width}px">${months}${dayHead}</div></div>${rows || empty}</div></div>
+  <div class="legend" style="margin-top:12px">${legendProjects.map(id => `<span class="pj ${ui.tlProject === id ? 'on' : ''}" data-act="tlProject" data-id="${esc(id)}" title="${ui.tlProject === id ? 'Show all projects' : 'Show only this project'}"><i style="background:${projColor(id)}"></i>${esc(projName(id))}</span>`).join('')}<span><i style="border:1px dashed var(--muted)"></i>On hold</span><span><i style="background:repeating-linear-gradient(135deg,#232327 0 3px,#3a3a40 3px 6px)"></i>Leave</span></div>`;
 }
 
 /* =========================================================================
@@ -1088,8 +1206,9 @@ function viewStaff() {
       ${avatar(s.id, true)}
       <div style="min-width:0"><div class="nm">${esc(s.name)}${s.active === false ? ' <span class="dim">(inactive)</span>' : ''}</div>
         <div class="sub"><span>${esc(s.title || '—')}</span>${(s.skills || []).length ? `<span class="dim">+ ${esc(s.skills.join(', '))}</span>` : ''}<span class="tag">${esc(label(STAFF_TYPES, s.type || 'employee'))}${s.agency ? ' · ' + esc(s.agency) : ''}</span><span class="tag">${esc(s.dept || deptOf(s.title) || 'Other')}</span>${s.city ? `<span>${esc(s.city)}</span>` : ''}
-        ${now ? `<span class="issue info">On ${esc(getProject(now.projectId)?.code || projName(now.projectId))} until ${esc(fmtShort(now.to))}</span>` : away ? `<span class="issue warn">On leave until ${esc(fmtShort(away.to || away.from))}</span>` : '<span class="issue ok">Free today</span>'}</div></div>
-      <div class="right"><div><div class="num" style="color:var(--text);font-weight:600">${rateHTML(s.rateType, s.rate)}</div><div class="hide-sm">${next ? `Next: ${esc(getProject(next.projectId)?.code || projName(next.projectId))} · ${esc(fmtShort(next.from))}` : 'Nothing booked ahead'} · ${booked30}/30 days booked</div></div></div>
+        ${now ? `<span class="issue info">On ${esc(getProject(now.projectId)?.code || projName(now.projectId))} until ${esc(fmtShort(now.to))}</span>` : away ? `<span class="issue warn">On leave until ${esc(fmtShort(away.to || away.from))}</span>` : '<span class="issue ok">Free today</span>'}</div>
+        ${(s.rateType || 'day') === 'day' ? `<div class="rates">${rateChips(s)}</div>` : ''}</div>
+      <div class="right"><div><div class="num" style="color:var(--text);font-weight:600">${(s.rateType || 'day') === 'day' ? '' : rateHTML(s.rateType, s.rate)}</div><div class="hide-sm">${next ? `Next: ${esc(getProject(next.projectId)?.code || projName(next.projectId))} · ${esc(fmtShort(next.from))}` : 'Nothing booked ahead'} · ${booked30}/30 days booked</div></div></div>
     </div>`;
   }).join('')}</div>` : all.length ? `<div class="empty"><b>No one matches</b>${freeOn ? 'Everyone is booked or on leave on some of those days.' : 'Try another filter or search.'}</div>`
     : `<div class="empty"><b>No staff yet</b>Add your team with their positions and rates — or paste a list from a spreadsheet.<br><br><button class="btn primary" data-act="newStaff">${ICON.plus} Add staff</button> <button class="btn" data-act="importStaff">Import list</button></div>`}`;
@@ -1118,10 +1237,17 @@ function readForm(el, base = {}) {
   el.querySelectorAll('[data-k]').forEach(i => { let v = i.value.trim(); if (i.type === 'number') v = v === '' ? '' : Number(v); setPath(o, i.dataset.k, v); });
   return o;
 }
+/* Rate fields follow the rate type: the show rate only applies to day rates. */
+function syncRateFields(root = $('#drBody')) {
+  const rt = root?.querySelector('[data-k=rateType]')?.value || 'day';
+  const sr = root?.querySelector('[data-k=showRate]')?.closest('.f'); if (sr) sr.style.display = rt === 'day' ? '' : 'none';
+  const lb = root?.querySelector('label[for=f_rate]'); if (lb) lb.textContent = `${rt === 'day' ? 'Day rate' : rt === 'month' ? 'Monthly salary' : 'Fixed fee'} (${CONFIG.CURRENCY})`;
+}
 const datalists = () => `<datalist id="dlTitles">${TITLE_NAMES.map(r => `<option value="${esc(r)}">`).join('')}</datalist>`;
 const allowanceFields = (per = 'per person') => [
   { k: 'rateType', label: 'Rate type', type: 'select', options: RATE_TYPES },
   { k: 'rate', label: `Rate (${CONFIG.CURRENCY})`, type: 'number', min: 0 },
+  { k: 'showRate', label: `Show rate (${CONFIG.CURRENCY} / show day)`, type: 'number', min: 0, placeholder: 'Same as the day rate', hint: 'Paid for the days that fall on the project’s show days.' },
   { k: 'perDiem', label: `Per diem (${CONFIG.CURRENCY} / day)`, type: 'number', min: 0 },
   { k: 'accommodation', label: `Accommodation (${CONFIG.CURRENCY} total ${per})`, type: 'number', min: 0 },
   { k: 'travel', label: `Travel (${CONFIG.CURRENCY} total ${per})`, type: 'number', min: 0 },
@@ -1146,7 +1272,7 @@ function positionDrawer(posId, projectId) {
   const isNew = !posId, p0 = posId ? db.positions.get(posId) : null;
   if (posId && !p0) return;
   const proj = getProject(p0?.projectId || projectId), w = windowOf(proj);
-  const ps = p0 ? structuredClone(p0) : { id: uid(), projectId, title: '', dept: '', from: w.from || today(), to: w.to || w.from || today(), rateType: 'day', rate: '', perDiem: '', accommodation: '', travel: '', other: '', note: '', qty: 1 };
+  const ps = p0 ? structuredClone(p0) : { id: uid(), projectId, title: '', dept: '', from: w.from || today(), to: w.to || w.from || today(), rateType: 'day', rate: '', showRate: '', perDiem: '', accommodation: '', travel: '', other: '', note: '', qty: 1 };
   const as = posAssigns(ps.id), liveAs = as.filter(live);
   const fields = [
     { k: 'title', label: 'Position', list: 'dlTitles', placeholder: 'e.g. Production coordinator', span: !isNew },
@@ -1158,8 +1284,9 @@ function positionDrawer(posId, projectId) {
     ...allowanceFields(),
   ];
   const preview = () => {
+    syncRateFields();
     const o = readForm($('#drBody').querySelector('.form'), ps), c = costOf(o), q = isNew ? Math.max(1, Math.round(num(o.qty)) || 1) : 1;
-    $('#posPrev').innerHTML = c.days ? `<span class="eyebrow">Budget</span><span class="big num">${money(c.total * q)}</span><span class="muted">${q > 1 ? `${q} × ${money(c.total)} · ` : ''}${plural(c.days, 'day')} · fee ${money(c.fee)}${c.extras ? ` + allowances ${money(c.extras)}` : ''} per person</span>` : '<span class="muted">Set the dates to see the budget.</span>';
+    $('#posPrev').innerHTML = c.days ? `<span class="eyebrow">Budget</span><span class="big num">${money(c.total * q)}</span><span class="muted">${q > 1 ? `${q} × ${money(c.total)} · ` : ''}${plural(c.days, 'day')} · fee ${money(c.fee)}${feeNote(c)}${c.extras ? ` + allowances ${money(c.extras)}` : ''} per person</span>` : '<span class="muted">Set the dates to see the budget.</span>';
   };
   openDrawer({
     title: isNew ? `Add positions · ${proj?.name || ''}` : `${ps.title || 'Position'} · ${proj?.name || ''}`, wide: true,
@@ -1207,7 +1334,8 @@ function pickDrawer(posId) {
   const title = (ps.title || '').toLowerCase();
   ui.pickQ = '';
   ui.pickAll = ![...db.staff.values()].some(s => s.active !== false && staffTitles(s).includes(title));
-  const estimate = s => costOf({ ...ps, rateType: s.rateType || 'day', rate: num(s.rate) ? s.rate : ps.rate, from: st.from, to: st.to }).total;
+  const payOf = s => { const r = staffRate(s, ps); return { rateType: r.rateType, rate: r.rate, showRate: r.showRate }; };
+  const estimate = s => costOf({ ...ps, ...payOf(s), from: st.from, to: st.to }).total;
   const listHTML = () => {
     IDX = null;
     const q = ui.pickQ.trim().toLowerCase(), ok = st.from && st.to && st.to >= st.from;
@@ -1223,7 +1351,7 @@ function pickDrawer(posId) {
       <div style="min-width:0"><div class="nm">${esc(x.s.name)}</div>
         <div class="rl">${esc([x.s.title, ...(x.s.skills || [])].filter(Boolean).join(' · ') || '—')} · ${esc(label(STAFF_TYPES, x.s.type || 'employee'))}${x.s.city ? ' · ' + esc(x.s.city) : ''}</div>
         <div class="issues">${x.iss.length ? issueTags(x.iss) : '<span class="issue ok">Free</span>'}</div></div>
-      <div class="rate num">${rateHTML(x.s.rateType, x.s.rate)}${ok && !x.busy ? `<b>${money(x.est)}</b><span style="color:${x.est > bud + 0.5 ? 'var(--red)' : 'var(--green)'}">${x.est > bud + 0.5 ? `${money(x.est - bud)} over` : x.est < bud - 0.5 ? `${money(bud - x.est)} under` : 'on budget'}</span>` : ''}</div></div>`;
+      <div class="rate num">${(() => { const r = staffRate(x.s, ps); return rateHTML(r.rateType, r.rate, r.showRate) + (r.note ? `<span class="dim" style="display:block;font-size:10.5px">${esc(r.note)}</span>` : ''); })()}${ok && !x.busy ? `<b>${money(x.est)}</b><span style="color:${x.est > bud + 0.5 ? 'var(--red)' : 'var(--green)'}">${x.est > bud + 0.5 ? `${money(x.est - bud)} over` : x.est < bud - 0.5 ? `${money(bud - x.est)} under` : 'on budget'}</span>` : ''}</div></div>`;
     const free = cands.filter(x => !x.busy), busy = cands.filter(x => x.busy);
     const fm = free.filter(x => x.match), fo = free.filter(x => !x.match);
     return `<div class="pick-info"><span><b>${esc(ps.title)}</b> · ${esc(proj?.name || '')} · position ${esc(fmtRange(ps.from, ps.to))}</span><span>Budget for these dates <b class="num">${ok ? money(bud) : '—'}</b></span></div>
@@ -1257,7 +1385,7 @@ function pickDrawer(posId) {
       if (lv.length && await confirmDialog({ title: `${s.name} is on leave`, body: `<p>They’re on leave ${esc(fmtShort(lv[0].from))}–${esc(fmtShort(lv[0].to || lv[0].from))}${lv[0].note ? ` (${esc(lv[0].note)})` : ''}. Assign them anyway?</p>`, ok: 'Assign anyway' }) !== 'ok') return;
       const id = uid();
       const a = { id, projectId: ps.projectId, positionId: ps.id, staffId: st.sel, title: ps.title, from: st.from, to: st.to, status: st.status,
-        rateType: s.rateType || 'day', rate: num(s.rate) ? s.rate : ps.rate, perDiem: ps.perDiem, accommodation: ps.accommodation, travel: ps.travel, other: ps.other,
+        ...payOf(s), perDiem: ps.perDiem, accommodation: ps.accommodation, travel: ps.travel, other: ps.other,
         note: '', createdAt: new Date().toISOString(), createdBy: me };
       try { await Backend.put('assign', id, a); closeDrawer(); render(); toast(`${s.name} assigned (${label(A_STATUS, st.status).toLowerCase()})`); } catch (err) { failed(err); }
     },
@@ -1283,6 +1411,7 @@ function asgDrawer(aId) {
     ...allowanceFields('for this booking'),
   ];
   const check = () => {
+    syncRateFields();
     const o = readForm($('#drBody').querySelector('.form'), a), el = $('#asgPrev'), btn = $('#drSaveBtn');
     const okDates = o.from && o.to && o.to >= o.from;
     const clash = okDates && live(o) ? clashesFor(a.staffId, o.from, o.to, a.id) : [];
@@ -1293,7 +1422,7 @@ function asgDrawer(aId) {
       : `${clash.length ? `<div><b style="color:var(--red)">Overlaps another booking — can’t save these dates:</b>${clashList(clash)}</div>` : '<span class="issue ok" style="align-self:flex-start">No overlaps</span>'}
         ${lv.length ? `<span class="issue warn" style="align-self:flex-start">On leave ${esc(fmtShort(lv[0].from))}–${esc(fmtShort(lv[0].to || lv[0].from))}${lv[0].note ? ' · ' + esc(lv[0].note) : ''}</span>` : ''}
         <span class="eyebrow" style="margin-top:4px">Booking cost</span><span class="big num">${money(live(o) ? c.total : 0)}</span>
-        <span class="muted">${plural(c.days, 'day')} · fee ${money(c.fee)}${c.extras ? ` + allowances ${money(c.extras)}` : ''}${b && live(o) ? ` · budget ${money(b)} · ${c.total > b + 0.5 ? `<span class="var-neg">${money(c.total - b)} over</span>` : `<span class="var-pos">${money(b - c.total)} under</span>`}` : ''}${!live(o) ? ' · released, not counted' : ''}</span>`;
+        <span class="muted">${plural(c.days, 'day')} · fee ${money(c.fee)}${feeNote(c)}${c.extras ? ` + allowances ${money(c.extras)}` : ''}${b && live(o) ? ` · budget ${money(b)} · ${c.total > b + 0.5 ? `<span class="var-neg">${money(c.total - b)} over</span>` : `<span class="var-pos">${money(b - c.total)} under</span>`}` : ''}${!live(o) ? ' · released, not counted' : ''}</span>`;
     if (btn) btn.disabled = !okDates || !!clash.length;
   };
   openDrawer({
@@ -1325,38 +1454,64 @@ function staffDrawer(id) {
   if (id && !s0) return;
   const s = s0 ? structuredClone(s0) : { id: uid(), name: '', title: '', skills: [], dept: '', type: 'employee', phone: '', email: '', city: '', rateType: 'month', rate: '', away: [], notes: '', active: true };
   s.away ||= [];
+  s.roles = structuredClone(rolesOf(s)); if (!s.roles.length) s.roles.push({ role: '', day: '', show: '' });
   const t = today(), books = (idx().byStaff.get(s.id) || []), upcoming = books.filter(a => a.to >= t), past = books.filter(a => a.to < t).reverse();
   const fields = [
     { k: 'name', label: 'Full name', span: true },
-    { k: 'title', label: 'Position', list: 'dlTitles', placeholder: 'e.g. Project manager' },
-    { k: 'skillsText', label: 'Can also work as', list: 'dlTitles', placeholder: 'Comma separated, e.g. Producer, Stage manager' },
     { k: 'dept', label: 'Department', type: 'select', options: [['', 'From the position'], ...DEPTS.map(d => [d, d])] },
     { k: 'type', label: 'Type', type: 'select', options: STAFF_TYPES },
     { k: 'agency', label: 'Agency / company', placeholder: 'If through an agency' },
     { k: 'city', label: 'Based in', placeholder: 'Riyadh' },
     { k: 'phone', label: 'Mobile', type: 'tel', placeholder: '+966 5x xxx xxxx' },
     { k: 'email', label: 'Email', type: 'email' },
-    { k: 'rateType', label: 'Pay', type: 'select', options: [['month', 'Monthly salary'], ['day', 'Day rate'], ['fixed', 'Fixed fee per project']] },
-    { k: 'rate', label: `Amount (${CONFIG.CURRENCY})`, type: 'number', min: 0, hint: 'Used as their cost when they’re assigned. Monthly salaries count pro rata.' },
     { k: 'activeSel', label: 'Status', type: 'select', options: [['1', 'Active'], ['0', 'Inactive — hide from picking']] },
     { k: 'notes', label: 'Notes', type: 'textarea', span: true, placeholder: 'Languages, strengths, uniform size…' },
   ];
+  const syncPay = () => {
+    const rt = $('#f_rateType')?.value || 'day';
+    $('#roleRows')?.classList.toggle('norates', rt !== 'day');
+    const f = $('#f_rate')?.closest('.f'); if (f) f.style.display = rt === 'day' ? 'none' : '';
+    const lb = $('label[for=f_rate]'); if (lb) lb.textContent = `${rt === 'month' ? 'Monthly salary' : 'Fixed fee per project'} (${CONFIG.CURRENCY})`;
+    const h = $('#payHint'); if (h) h.textContent = rt === 'day' ? 'Set a day rate and a show rate for each position below. Show days are the project’s show dates; every other day is paid at the day rate.' : rt === 'month' ? 'Their salary counts pro rata on each project (salary × days ÷ 30).' : 'Their fee counts once on each project they’re assigned to.';
+  };
   const paintRows = () => {
+    $('#roleRows').innerHTML = `<div class="r5h"><span>Position</span><span class="rt">Day rate (${CONFIG.CURRENCY})</span><span class="rt">Show rate (${CONFIG.CURRENCY})</span><span></span></div>` + s.roles.map((r, i) => `<div class="r5">
+      <input class="input rl" list="dlTitles" placeholder="${i ? 'Another position' : 'Main position, e.g. Project manager'}" value="${esc(r.role)}" data-roler="${i}" data-f="role" aria-label="Position">
+      <label class="rt"><span>Day</span><input class="input num" type="number" min="0" placeholder="Day rate" value="${esc(r.day ?? '')}" data-roler="${i}" data-f="day" aria-label="Day rate"></label>
+      <label class="rt"><span>Show</span><input class="input num" type="number" min="0" placeholder="Show rate" value="${esc(r.show ?? '')}" data-roler="${i}" data-f="show" aria-label="Show rate"></label>
+      ${i ? `<button class="btn sm ghost" data-act="roleMain" data-i="${i}" title="Make this their main position" aria-label="Make main position">↑</button>` : '<span class="main" title="Main position">Main</span>'}
+      <button class="btn sm ghost" data-act="roleDel" data-i="${i}" aria-label="Remove position">${ICON.x}</button></div>`).join('');
+    syncPay();
     $('#awayRows').innerHTML = s.away.map((w, i) => `<div class="r4"><input class="input" type="date" value="${esc(w.from || '')}" data-away="${i}" data-f="from" title="From"><input class="input" type="date" value="${esc(w.to || '')}" data-away="${i}" data-f="to" title="To"><input class="input nt" placeholder="Reason (optional)" value="${esc(w.note || '')}" data-away="${i}" data-f="note"><button class="btn sm ghost" data-act="rowDel" data-i="${i}" aria-label="Remove">${ICON.x}</button></div>`).join('') || '<span class="dim" style="font-size:12px">No leave booked.</span>';
   };
   const bk = a => `<div class="bk" data-act="asg" data-id="${esc(a.id)}"><span class="num">${esc(fmtRange(a.from, a.to))}</span><span style="min-width:0"><b>${esc(projName(a.projectId))}</b> <span class="muted">· ${esc(a.title || '')}</span></span><span class="issue ${a.status === 'confirmed' ? 'ok' : 'warn'}">${esc(label(A_STATUS, a.status || 'hold'))}</span></div>`;
   openDrawer({
     title: isNew ? 'Add staff' : s.name, wide: true,
-    body: `<div class="form">${formHTML(fields, { ...s, skillsText: (s.skills || []).join(', '), activeSel: s.active === false ? '0' : '1' })}
+    body: `<div class="form">${formHTML(fields.slice(0, 1), s)}
+      ${formHTML([{ k: 'rateType', label: 'Pay', type: 'select', options: [['day', 'Day & show rates (per position)'], ['month', 'Monthly salary'], ['fixed', 'Fixed fee per project']] }, { k: 'rate', label: `Amount (${CONFIG.CURRENCY})`, type: 'number', min: 0 }], s)}
+      <div class="f span" style="margin-top:-4px"><span class="dim" style="font-size:12px" id="payHint"></span></div>
+      <div class="f span"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><label>Positions</label><button class="btn sm" data-act="roleAdd">${ICON.plus} Add position</button></div><div class="rows-ed" id="roleRows"></div></div>
+      ${formHTML(fields.slice(1), { ...s, activeSel: s.active === false ? '0' : '1' })}
       <div class="sect"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="eyebrow">Leave and unavailable dates</span><button class="btn sm" data-act="rowAdd">${ICON.plus} Add</button></div><div class="rows-ed" id="awayRows"></div></div>
       ${isNew ? '' : `<div class="sect"><div class="eyebrow" style="margin-bottom:6px">Projects · ${upcoming.length} current or upcoming · ${past.length} past</div>${upcoming.map(bk).join('') || '<span class="dim" style="font-size:12px">Nothing booked ahead.</span>'}${past.length ? `<details style="margin-top:8px"><summary class="dim" style="cursor:pointer;font-size:12px">Past projects</summary>${past.slice(0, 30).map(bk).join('')}</details>` : ''}</div>`}
     </div>`,
     extra: !isNew && s.phone ? `<a class="btn" href="${esc(waLink(s.phone))}" target="_blank" rel="noopener">${ICON.chat} WhatsApp</a>` : '',
     saveLabel: isNew ? 'Add staff' : 'Save',
+    onInput: () => syncPay(),
     onSave: async () => {
       const o = readForm($('#drBody').querySelector('.form'), s);
       if (!o.name) return toast('Add their name', true);
-      o.skills = String(o.skillsText || '').split(',').map(x => x.trim()).filter(Boolean); delete o.skillsText;
+      const seen = new Set(), roles = [];
+      for (const r of s.roles) {
+        const role = String(r.role || '').trim(), day = amt(r.day), show = amt(r.show);
+        if (!role) { if (day != null || show != null) return toast('Give each rate a position', true); continue; }
+        if (seen.has(role.toLowerCase())) return toast(`${role} is listed twice`, true);
+        if ((day ?? 0) < 0 || (show ?? 0) < 0) return toast('Rates can’t be negative', true);
+        seen.add(role.toLowerCase()); roles.push({ role, day: day ?? '', show: show ?? '' });
+      }
+      // roles is the source of truth; title, skills and rate stay filled for anything that reads them
+      o.roles = roles; o.title = roles[0]?.role || ''; o.skills = roles.slice(1).map(r => r.role);
+      if (o.rateType === 'day') o.rate = roles[0] ? (amt(roles[0].day) ?? amt(roles[0].show) ?? '') : '';
       o.active = o.activeSel !== '0'; delete o.activeSel;
       if (!o.dept) o.dept = deptOf(o.title) || '';
       o.away = s.away.filter(w => w.from).map(w => ({ ...w, to: w.to && w.to >= w.from ? w.to : w.from }));
@@ -1376,7 +1531,7 @@ function staffDrawer(id) {
 }
 
 /* ---- import staff from a pasted list ---- */
-const IMPORT_COLS = [['name', ['name', 'full name']], ['title', ['position', 'title', 'role', 'job']], ['dept', ['department', 'dept']], ['phone', ['phone', 'mobile', 'number', 'whatsapp']], ['email', ['email', 'e-mail']], ['type', ['type']], ['rate', ['rate', 'salary', 'day rate', 'amount']], ['rateType', ['rate type', 'pay', 'per']], ['city', ['city', 'based']]];
+const IMPORT_COLS = [['name', ['name', 'full name']], ['title', ['position', 'title', 'role', 'job']], ['dept', ['department', 'dept']], ['phone', ['phone', 'mobile', 'number', 'whatsapp']], ['email', ['email', 'e-mail']], ['type', ['type']], ['rate', ['rate', 'salary', 'day rate', 'amount']], ['show', ['show rate', 'show']], ['rateType', ['rate type', 'pay', 'per']], ['city', ['city', 'based']]];
 function parseStaffList(text) {
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   if (!lines.length) return [];
@@ -1393,8 +1548,8 @@ function parseStaffList(text) {
 function importDrawer() {
   openDrawer({
     title: 'Import staff', wide: true,
-    body: `<p class="muted" style="margin-top:0">Copy rows from Excel or Google Sheets and paste them here. Use these columns, in this order or with a header row: <b style="color:var(--text)">Name, Position, Department, Phone, Email, Type, Rate, Rate type, City</b>. Only the name is required. Type is employee, freelancer, contractor or agency; rate type is month, day or fixed.</p>
-      <textarea class="input" id="impText" style="min-height:220px;font-family:var(--mono);font-size:12px" placeholder="Name, Position, Department, Phone, Email, Type, Rate, Rate type, City&#10;Sara Ali, Project manager, Management, 0551234567, , employee, 18000, month, Riyadh"></textarea>
+    body: `<p class="muted" style="margin-top:0">Copy rows from Excel or Google Sheets and paste them here. Use these columns, in this order or with a header row: <b style="color:var(--text)">Name, Position, Department, Phone, Email, Type, Rate, Show rate, Rate type, City</b>. Only the name is required. Type is employee, freelancer, contractor or agency; rate type is month, day or fixed. For day rates, Rate is the day rate and Show rate is paid on show days. To list more positions, separate them with <b style="color:var(--text)">|</b> (e.g. Producer | Stage manager); the rates are for the first one.</p>
+      <textarea class="input" id="impText" style="min-height:220px;font-family:var(--mono);font-size:12px" placeholder="Name, Position, Department, Phone, Email, Type, Rate, Show rate, Rate type, City&#10;Sara Ali, Project manager, Management, 0551234567, , employee, 18000, , month, Riyadh&#10;Tom Lee, Stage manager | Show caller, Production, 0557654321, , freelancer, 1800, 2400, day, Riyadh"></textarea>
       <div id="impPrev" class="dim" style="margin-top:10px;font-size:13px"></div>`,
     saveLabel: 'Import',
     onSave: async () => {
@@ -1409,7 +1564,9 @@ function importDrawer() {
         const type = (STAFF_TYPES.find(([k, l]) => [k, l.toLowerCase()].includes(lc(o.type))) || [lc(o.type).startsWith('free') ? 'freelance' : 'employee'])[0];
         const rt = /day|daily/.test(lc(o.rateType)) ? 'day' : /fix|project/.test(lc(o.rateType)) ? 'fixed' : /month/.test(lc(o.rateType)) ? 'month' : type === 'employee' ? 'month' : 'day';
         const dept = DEPTS.find(d => d.toLowerCase() === lc(o.dept)) || deptOf(o.title) || '';
-        rows.push({ coll: 'staff', id, data: { id, name: o.name, title: o.title || '', skills: [], dept, type, phone: o.phone || '', email: o.email || '', city: o.city || '', rateType: rt, rate: Number(String(o.rate || '').replace(/[^\d.]/g, '')) || '', away: [], notes: '', active: true, createdAt: now } });
+        const n0 = v => Number(String(v || '').replace(/[^\d.]/g, '')) || '', rate = n0(o.rate);
+        const roles = String(o.title || '').split(/\s*\|\s*/).map(x => x.trim()).filter(Boolean).map((role, i) => ({ role, day: rt === 'day' && !i ? rate : '', show: rt === 'day' && !i ? n0(o.show) : '' }));
+        rows.push({ coll: 'staff', id, data: { id, name: o.name, roles, title: roles[0]?.role || '', skills: roles.slice(1).map(r => r.role), dept, type, phone: o.phone || '', email: o.email || '', city: o.city || '', rateType: rt, rate, away: [], notes: '', active: true, createdAt: now } });
         known.add(o.name.toLowerCase());
       }
       if (!rows.length) return toast('Everyone in the list is already in the database', true);
@@ -1484,7 +1641,7 @@ function copyDrawer(pid) {
     const list = idx().byProject.get(st.src) || [], sw = windowOf(getProject(st.src));
     const base = sw.from || list.map(x => x.from).sort()[0];
     $('#cpPrev').innerHTML = `<p>${plural(list.length, 'position')} will be added${dst.from && base ? `, with dates moved to line up with this project (${esc(fmtShort(dst.from))} instead of ${esc(fmtShort(base))})` : ''}. Budget rates and allowances are copied; people aren’t.</p>
-      <div class="tbl-wrap"><table class="tbl"><tbody>${list.slice(0, 40).map(x => `<tr><td>${esc(x.title)}</td><td class="muted">${esc(x.dept || '')}</td><td class="r num">${rateHTML(x.rateType, x.rate)}</td></tr>`).join('')}</tbody></table></div>`;
+      <div class="tbl-wrap"><table class="tbl"><tbody>${list.slice(0, 40).map(x => `<tr><td>${esc(x.title)}</td><td class="muted">${esc(x.dept || '')}</td><td class="r num">${rateHTML(x.rateType, x.rate, x.showRate)}</td></tr>`).join('')}</tbody></table></div>`;
   };
   openDrawer({
     title: `Copy a staff list · ${p.name}`,
@@ -1506,14 +1663,14 @@ function exportCsv(pid) {
   const p = getProject(pid);
   const cell = v => /[",\n]/.test(String(v ?? '')) ? `"${String(v).replace(/"/g, '""')}"` : String(v ?? '');
   const C = CONFIG.CURRENCY;
-  const rows = [['Department', 'Position', 'Name', 'Phone', 'Type', 'From', 'To', 'Days', 'Status', 'Rate type', `Rate (${C})`, `Fee (${C})`, `Per diems (${C})`, `Accommodation (${C})`, `Travel (${C})`, `Other (${C})`, `Booked cost (${C})`, `Position budget (${C})`]];
+  const rows = [['Department', 'Position', 'Name', 'Phone', 'Type', 'From', 'To', 'Days', 'Status', 'Rate type', `Rate (${C})`, `Show rate (${C})`, 'Show days', `Fee (${C})`, `Per diems (${C})`, `Accommodation (${C})`, `Travel (${C})`, `Other (${C})`, `Booked cost (${C})`, `Position budget (${C})`]];
   const r2 = n => Math.round(n * 100) / 100;
   for (const ps of idx().byProject.get(pid) || []) {
     const as = posAssigns(ps.id).filter(live), b = costOf(ps).total;
-    if (!as.length) rows.push([ps.dept, ps.title, '(open)', '', '', ps.from, ps.to, daysIn(ps.from, ps.to), 'Open', label(RATE_TYPES, ps.rateType || 'day'), ps.rate, '', '', '', '', '', 0, r2(b)]);
+    if (!as.length) rows.push([ps.dept, ps.title, '(open)', '', '', ps.from, ps.to, daysIn(ps.from, ps.to), 'Open', label(RATE_TYPES, ps.rateType || 'day'), ps.rate, (ps.rateType || 'day') === 'day' ? ps.showRate ?? '' : '', costOf(ps).showDays || '', '', '', '', '', '', 0, r2(b)]);
     as.forEach((a, i) => {
       const s = db.staff.get(a.staffId) || {}, c = costOf(a);
-      rows.push([ps.dept, ps.title, staffName(a.staffId), s.phone, label(STAFF_TYPES, s.type || 'employee'), a.from, a.to, c.days, label(A_STATUS, a.status || 'hold'), label(RATE_TYPES, a.rateType || 'day'), a.rate, r2(c.fee), r2(c.perDiem), r2(c.acc), r2(c.travel), r2(c.other), r2(c.total), i ? '' : r2(b)]);
+      rows.push([ps.dept, ps.title, staffName(a.staffId), s.phone, label(STAFF_TYPES, s.type || 'employee'), a.from, a.to, c.days, label(A_STATUS, a.status || 'hold'), label(RATE_TYPES, a.rateType || 'day'), a.rate, (a.rateType || 'day') === 'day' ? a.showRate ?? '' : '', c.showDays || '', r2(c.fee), r2(c.perDiem), r2(c.acc), r2(c.travel), r2(c.other), r2(c.total), i ? '' : r2(b)]);
     });
   }
   const blob = new Blob(['﻿' + rows.map(r => r.map(cell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
@@ -1544,9 +1701,18 @@ const actions = {
   sType: el => { ui.sType = el.dataset.v; render(); },
   freeClear: () => { ui.freeFrom = ''; ui.freeTo = ''; render(); },
   rowAdd: () => { const s = drawerState?.staff; if (!s) return; s.away.push({ from: today(), to: today(), note: '' }); drawerState.paintRows(); },
+  roleAdd: () => { const s = drawerState?.staff; if (!s) return; s.roles.push({ role: '', day: '', show: '' }); drawerState.paintRows(); $('#roleRows .r5:last-child input')?.focus(); },
+  roleDel: el => { const s = drawerState?.staff; if (!s) return; s.roles.splice(+el.dataset.i, 1); if (!s.roles.length) s.roles.push({ role: '', day: '', show: '' }); drawerState.paintRows(); },
+  roleMain: el => { const s = drawerState?.staff; if (!s) return; const [r] = s.roles.splice(+el.dataset.i, 1); s.roles.unshift(r); drawerState.paintRows(); },
   rowDel: el => { const s = drawerState?.staff; if (!s) return; s.away.splice(+el.dataset.i, 1); drawerState.paintRows(); },
   tlMove: el => { ui.tlStart = addDays(ui.tlStart || addDays(weekStart(today()), -7), +el.dataset.v); render(); },
   tlToday: () => { ui.tlStart = ''; render(); },
+  tlDays: el => { ui.tlDays = +el.dataset.v; persistUI(); render(); },
+  tlShow: el => { ui.tlShow = el.dataset.v; persistUI(); render(); },
+  tlProject: el => { ui.tlProject = ui.tlProject === el.dataset.id ? '' : el.dataset.id; if (ui.tlProject) { tlJumpToProject(); if (ui.tlShow === 'all') ui.tlShow = 'booked'; } persistUI(); render(); },
+  tlToProject: () => { tlJumpToProject(true); render(); },
+  tlFilters: () => { ui.tlFiltersOpen = !ui.tlFiltersOpen; render(); },
+  tlClear: () => { TL_FILTERS.forEach(k => ui[k] = ''); ui.tlQ = ''; persistUI(); render(); },
   csv: el => exportCsv(el.dataset.id),
   dropOrphan: async el => {
     const ps = idx().byProject.get(el.dataset.id) || [], as = [...db.assign.values()].filter(a => a.projectId === el.dataset.id);
@@ -1569,13 +1735,18 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('change', e => {
   const el = e.target;
+  if (el.dataset.roler != null && drawerState?.staff) { drawerState.staff.roles[+el.dataset.roler][el.dataset.f] = el.value; return; }
   if (el.dataset.away != null && drawerState?.staff) { drawerState.staff.away[+el.dataset.away][el.dataset.f] = el.value; return; }
   if (el.dataset.pk && drawerState?.pick) { drawerState.pick.st[el.dataset.pk] = el.value; if (el.dataset.pk === 'status') { ui.newStatus = el.value; persistUI(); } drawerState.pick.paint(); return; }
   if (el.dataset.pick === 'all') { ui.pickAll = el.checked; drawerState?.pick?.paint(); return; }
   if (el.dataset.cp && drawerState?.copy) { drawerState.copy.st.src = el.value; drawerState.copy.paint(); return; }
   if (el.closest('#drBody') && drawerState?.onInput) { drawerState.onInput(); return; }
   const k = el.dataset.chg; if (!k) return;
+  if (k === 'tlJump') { if (el.value) ui.tlStart = addDays(weekStart(el.value), -7); return render(); }
   ui[k] = el.type === 'checkbox' ? el.checked : el.value;
+  if (k === 'tlProject' && ui.tlProject) tlJumpToProject();
+  // picking a project or status shows the people it applies to; "Everyone" is one click away
+  if ((k === 'tlProject' || k === 'tlStatus') && ui[k] && ui.tlShow === 'all') ui.tlShow = 'booked';
   persistUI(); render();
 });
 document.addEventListener('input', e => {
@@ -1680,7 +1851,9 @@ function seedDemo() {
   ];
   STAFF.forEach(([name, title, skills, type, rateType, rate, city], i) => {
     const id = 's' + i;
-    store.staff[id] = { id, name, title, skills, dept: deptOf(title), type, rateType, rate, city, phone: `+966 5${(i % 9) + 1} ${String(100 + i * 7).padStart(3, '0')} ${String(2000 + i * 131).slice(-4)}`, email: '', away: [], notes: '', active: true, agency: type === 'agency' ? 'Gulf Hospitality Staffing' : '', createdAt: now };
+    const r50 = v => Math.round(v / 50) * 50;
+    const roles = [title, ...skills].map((role, k) => rateType === 'day' ? { role, day: k ? r50(rate * 0.9) : rate, show: r50(rate * (k ? 1.2 : 1.3)) } : { role, day: '', show: '' });
+    store.staff[id] = { id, name, title, skills, roles, dept: deptOf(title), type, rateType, rate, city, phone: `+966 5${(i % 9) + 1} ${String(100 + i * 7).padStart(3, '0')} ${String(2000 + i * 131).slice(-4)}`, email: '', away: [], notes: '', active: true, agency: type === 'agency' ? 'Gulf Hospitality Staffing' : '', createdAt: now };
   });
   store.staff.s9.away = [{ from: addDays(t, 2), to: addDays(t, 5), note: 'Annual leave' }];
   store.staff.s2.away = [{ from: addDays(t, 26), to: addDays(t, 40), note: 'Annual leave' }];
@@ -1717,7 +1890,7 @@ function seedDemo() {
     let k = 0;
     for (const [title, qty, rateType, rate, perDiem, acc, travel, when] of lines) for (let n = 0; n < qty; n++) {
       const id = uid(), dates = when === 'win' ? w : when === 'show' ? show(pid) : { from: addDays(w.from, when[0]), to: addDays(w.to, when[1]) };
-      const ps = { id, projectId: pid, title, dept: deptOf(title), from: dates.from, to: dates.to, rateType, rate, perDiem, accommodation: acc, travel, other: '', note: '', n, createdAt: now };
+      const ps = { id, projectId: pid, title, dept: deptOf(title), from: dates.from, to: dates.to, rateType, rate, showRate: rateType === 'day' ? Math.round(rate * 1.3 / 50) * 50 : '', perDiem, accommodation: acc, travel, other: '', note: '', n, createdAt: now };
       store.positions[id] = ps; k++;
       const [share, mode] = FILL[pid];
       if ((k * 37 % 100) / 100 >= share) continue;
@@ -1725,7 +1898,7 @@ function seedDemo() {
       const s = pool.find(x => free(x.id, ps.from, ps.to)); if (!s) continue;
       busy.push({ sid: s.id, f: ps.from, to: ps.to });
       const aid = uid(), status = mode === 'mix' ? (k % 3 ? 'confirmed' : 'hold') : mode;
-      store.assign[aid] = { id: aid, projectId: pid, positionId: id, staffId: s.id, title, from: ps.from, to: ps.to, status, rateType: s.rateType, rate: s.rate || rate, perDiem, accommodation: acc, travel, other: '', note: '', createdAt: now };
+      store.assign[aid] = { id: aid, projectId: pid, positionId: id, staffId: s.id, title, from: ps.from, to: ps.to, status, ...(({ rateType, rate, showRate }) => ({ rateType, rate, showRate }))(staffRate(s, ps)), perDiem, accommodation: acc, travel, other: '', note: '', createdAt: now };
     }
   }
   // leave added after the fact for someone already booked, to show the warning

@@ -1117,13 +1117,13 @@ function tabCall(e) {
 /* =========================================================================
    View: Planner (who is where over two weeks)
    ========================================================================= */
-/* Move the planner to an event's dates if they're outside the period on screen (always, with force). */
+/* Move the planner to an event's dates unless they're all on screen already (always, with force). */
 function plJumpToEvent(force) {
   const e = getEvent(ui.plEvent); if (!e) return;
   const a = anchorsOf(e); if (!a.build) return;
   const n = [7, 14, 28].includes(+ui.plDays) ? +ui.plDays : 14;
   const st = ui.plStart || weekStart(today()), en = addDays(st, n - 1);
-  if (force || a.build > en || a.derig < st) ui.plStart = weekStart(a.build);
+  if (force || a.build < st || a.derig > en) ui.plStart = weekStart(a.build);
 }
 const weekStart = s => { const d = parse(s); d.setDate(d.getDate() - d.getDay()); return iso(d); }; // weeks start on Sunday
 const PL_SHOW = [['all', 'Everyone'], ['booked', 'Booked in this period'], ['free', 'Free all period'], ['clash', 'With clashes'], ['away', 'On leave / unavailable']];
@@ -1184,7 +1184,7 @@ function viewPlanner() {
   </div>
   <div class="pl-sum">
     ${PL_SHOW.map(([k, l]) => `<button class="chip ${show === k ? 'on' : ''}" data-act="plShow" data-v="${k}">${esc(l)}<b class="num">${counts[k]}</b></button>`).join('')}
-    ${ev ? `<span style="margin-left:6px">Showing <b style="color:var(--text)">${esc(ev.name)}</b> · ${esc(fmtRange(evA.build, evA.derig))}${evA.build > end || evA.derig < start ? ` · <a href="#" data-act="plToEvent">jump to its dates</a>` : ''}</span>` : ''}
+    ${ev ? `<span style="margin-left:6px">Showing <b style="color:var(--text)">${esc(ev.name)}</b> · ${esc(fmtRange(evA.build, evA.derig))}${evA.build < start || evA.derig > end ? ` · <a href="#" data-act="plToEvent">jump to its dates</a>` : ''}</span>` : ''}
   </div>`;
   if (!db.crew.size) return head + `<div class="empty"><b>No crew yet</b>Add your crew on the Crew page to see who’s booked where.<br><br><a class="btn primary" href="#/crew">${ICON.users} Go to Crew</a></div>`;
   const dayHead = days.map(d => { const D = parse(d), we = D.getDay() === 5 || D.getDay() === 6, inEv = evA && d >= evA.build && d <= evA.derig; return `<div class="pl-day ${we ? 'we' : ''} ${d === t ? 'today' : ''} ${inEv ? 'inev' : ''}">${esc(D.toLocaleDateString('en-GB', {weekday: n === 28 ? 'narrow' : 'short'}))}<b class="num">${D.getDate()}</b></div>`; }).join('');
