@@ -13,7 +13,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.117.3";
 
-const ORIGINS = ["https://blackcanvas.live", "https://www.blackcanvas.live", "https://blackcanvasglobal.com", "https://www.blackcanvasglobal.com"];
+const ORIGINS = ["https://blackcanvas.live", "https://www.blackcanvas.live"];
 const FRESH_MINUTES = 30; // don't re-copy more often than this unless asked to
 
 function cors(req: Request): Record<string, string> {
