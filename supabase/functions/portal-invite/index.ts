@@ -5,8 +5,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2.117.3";
 
-const ORIGINS = ["https://blackcanvasglobal.com", "https://www.blackcanvasglobal.com"];
-const PORTAL_URL = "https://blackcanvasglobal.com/portal/";
+const ORIGINS = ["https://blackcanvas.live", "https://www.blackcanvas.live", "https://blackcanvasglobal.com", "https://www.blackcanvasglobal.com"];
+const PORTAL_URL = "https://blackcanvas.live/portal/";
 
 function cors(req: Request): Record<string, string> {
   const origin = req.headers.get("Origin") ?? "";

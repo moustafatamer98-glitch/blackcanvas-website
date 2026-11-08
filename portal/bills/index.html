@@ -1175,7 +1175,7 @@ function toast(msg, err = false) { const t = $('#toast'); t.textContent = msg; t
 function leave(to) { location.replace(CONFIG.PORTAL_HOME + to); }
 async function start() {
   try {
-    if (DEMO) { me = 'you@blackcanvasglobal.com'; myName = 'You'; isAdmin = new URLSearchParams(location.search).get('demo') !== 'team'; }
+    if (DEMO) { me = 'you@blackcanvas.live'; myName = 'You'; isAdmin = new URLSearchParams(location.search).get('demo') !== 'team'; }
     else {
       if (!sb) throw new Error('The portal connection settings are missing (config.js).');
       const { data: { session } } = await sb.auth.getSession();
@@ -1217,20 +1217,20 @@ function seedDemo() {
     ['v4','Office rent, November','','',18000,'',-25,-2,'approved',[],'monthly'],
     ['v5','Internet and mobiles','','99012',2300,300,-10,5,'approved',[],'monthly'],
     ['v6','Creative Cloud team, 5 seats','','',449.95,'',-3,12,'approved',[],'monthly'],
-    ['v1','Lighting hire, AlUla activation','','INV-20388',41400,5400,-50,-20,'paid',[{ id: 'p1', date: addDays(t, -19), amount: 41400, method: 'Bank transfer', ref: 'TRX-55102', by: 'mo.tamer@blackcanvasglobal.com', at }],''],
-    ['v3','Rigging, AlUla activation','','',5600,'',-40,-30,'approved',[{ id: 'p2', date: addDays(t, -25), amount: 2800, method: 'Bank transfer', ref: '', by: 'mo.tamer@blackcanvasglobal.com', at }],''],
+    ['v1','Lighting hire, AlUla activation','','INV-20388',41400,5400,-50,-20,'paid',[{ id: 'p1', date: addDays(t, -19), amount: 41400, method: 'Bank transfer', ref: 'TRX-55102', by: 'mo.tamer@blackcanvas.live', at }],''],
+    ['v3','Rigging, AlUla activation','','',5600,'',-40,-30,'approved',[{ id: 'p2', date: addDays(t, -25), amount: 2800, method: 'Bank transfer', ref: '', by: 'mo.tamer@blackcanvas.live', at }],''],
   ];
   B.forEach(([vendorId, description, eventId, invoiceRef, amount, vat, iss, due, status, payments, recurrence], i) => {
     const id = 'b' + i, v = store.vendors[vendorId];
     store.bills[id] = { id, number: `BILL-${t.slice(0, 4)}-${String(i + 1).padStart(3, '0')}`, vendorId, vendorName: v.name, category: v.category, eventId, description, invoiceRef, amount, vat, currency: v.currency,
       issueDate: addDays(t, iss), dueDate: addDays(t, due), status, payments, files: [], recurrence, standing: !!recurrence, notes: vendorId === 'v4' ? 'Transfer to Al Rajhi · SA03 8000 0000 6080 1016 7519' : '',
-      createdBy: 'w.almalki@blackcanvasglobal.com', createdAt: at, ...(status !== 'pending' ? { approvedBy: 'mo.tamer@blackcanvasglobal.com', approvedAt: at } : {}),
-      history: [{ at, by: 'w.almalki@blackcanvasglobal.com', act: 'added the bill' }] };
+      createdBy: 'w.almalki@blackcanvas.live', createdAt: at, ...(status !== 'pending' ? { approvedBy: 'mo.tamer@blackcanvas.live', approvedAt: at } : {}),
+      history: [{ at, by: 'w.almalki@blackcanvas.live', act: 'added the bill' }] };
   });
   store.recv.r1 = { id: 'r1', number: `BC-INV-${t.slice(0, 4)}-014`, company: 'Horizon Entertainment', contact: 'Sara Al-Qahtani', email: 'accounts@example.com', phone: '0551234567', issueDate: addDays(t, -40), dueDate: addDays(t, -10), currency: 'SAR', total: 230000, paid: 115000, due: 115000, project: 'Desert Lights Concert' };
   store.recv.r2 = { id: 'r2', number: `BC-INV-${t.slice(0, 4)}-016`, company: 'Ace Sports Group', contact: 'Omar', email: 'finance@example.com', phone: '', issueDate: addDays(t, -25), dueDate: addDays(t, 5), currency: 'SAR', total: 95956, paid: 0, due: 95956, project: 'Padel Open Finals' };
   store.recv.r3 = { id: 'r3', number: `BC-INV-${t.slice(0, 4)}-017`, company: 'Northwind Motors', contact: '', email: '', phone: '', issueDate: addDays(t, -5), dueDate: addDays(t, 25), currency: 'SAR', total: 48300, paid: 0, due: 48300, project: '' };
-  store.chase.r1 = { id: 'r1', log: [{ at: new Date(Date.now() - 6 * 864e5).toISOString(), by: 'y.alanazi@blackcanvasglobal.com', kind: 'email' }], nextFollowUp: addDays(t, -1) };
+  store.chase.r1 = { id: 'r1', log: [{ at: new Date(Date.now() - 6 * 864e5).toISOString(), by: 'y.alanazi@blackcanvas.live', kind: 'email' }], nextFollowUp: addDays(t, -1) };
   store.settings.main = { remindDays: 7, prefix: 'BILL' };
   lsSet('bc-bills-demo', store);
   return store;

@@ -1385,22 +1385,22 @@ async function start() {
    Demo data (only used with ?demo)
    ========================================================================= */
 const DEMO_TEAM = [
-  ['you@blackcanvasglobal.com', 'You', 'Producer'],
-  ['ops@blackcanvasglobal.com', 'Omar H.', 'Production Manager'],
-  ['creative@blackcanvasglobal.com', 'Lina M.', 'Creative Lead'],
-  ['tech@blackcanvasglobal.com', 'Faisal A.', 'Technical Manager'],
-  ['logistics@blackcanvasglobal.com', 'Sara K.', 'Logistics Coordinator'],
+  ['you@blackcanvas.live', 'You', 'Producer'],
+  ['ops@blackcanvas.live', 'Omar H.', 'Production Manager'],
+  ['creative@blackcanvas.live', 'Lina M.', 'Creative Lead'],
+  ['tech@blackcanvas.live', 'Faisal A.', 'Technical Manager'],
+  ['logistics@blackcanvas.live', 'Sara K.', 'Logistics Coordinator'],
 ];
 function seedDemo() {
   const t = today(), store = Object.fromEntries(COLLS.map(c => [c, {}]));
   const tpl = { id: 'tpl-standard', ...DEFAULT_TEMPLATE };
   store.templates[tpl.id] = tpl;
   const ev = [
-    ['Desert Lights Concert', 'Horizon Entertainment', 'Boulevard Arena', 'Riyadh', 'Concert', 'build', -2, 3, 4, 6, 'BC-2611', 'you@blackcanvasglobal.com'],
-    ['Padel Open Finals', 'Ace Sports Group', 'Kingdom Courts', 'Riyadh', 'Sports', 'preprod', 19, 24, 26, 28, 'BC-2614', 'ops@blackcanvasglobal.com'],
-    ['Northwind Product Launch', 'Northwind Motors', 'Waterfront Pavilion', 'Jeddah', 'Corporate', 'confirmed', 49, 52, 52, 53, 'BC-2620', 'you@blackcanvasglobal.com'],
-    ['Winter Activation Tour', 'Lumen Beverages', 'Multiple malls', 'Riyadh · Jeddah · Dammam', 'Brand activation', 'pitch', 78, 80, 95, 96, '', 'creative@blackcanvasglobal.com'],
-    ['Autumn Night Festival', 'Horizon Entertainment', 'Al Ula Valley Stage', 'AlUla', 'Festival', 'closed', -40, -35, -33, -30, 'BC-2598', 'ops@blackcanvasglobal.com'],
+    ['Desert Lights Concert', 'Horizon Entertainment', 'Boulevard Arena', 'Riyadh', 'Concert', 'build', -2, 3, 4, 6, 'BC-2611', 'you@blackcanvas.live'],
+    ['Padel Open Finals', 'Ace Sports Group', 'Kingdom Courts', 'Riyadh', 'Sports', 'preprod', 19, 24, 26, 28, 'BC-2614', 'ops@blackcanvas.live'],
+    ['Northwind Product Launch', 'Northwind Motors', 'Waterfront Pavilion', 'Jeddah', 'Corporate', 'confirmed', 49, 52, 52, 53, 'BC-2620', 'you@blackcanvas.live'],
+    ['Winter Activation Tour', 'Lumen Beverages', 'Multiple malls', 'Riyadh · Jeddah · Dammam', 'Brand activation', 'pitch', 78, 80, 95, 96, '', 'creative@blackcanvas.live'],
+    ['Autumn Night Festival', 'Horizon Entertainment', 'Al Ula Valley Stage', 'AlUla', 'Festival', 'closed', -40, -35, -33, -30, 'BC-2598', 'ops@blackcanvas.live'],
   ];
   const owners = DEMO_TEAM.map(x => x[0]);
   ev.forEach(([name, client, venue, city, type, status, b, s, e, r, code, producer], k) => {

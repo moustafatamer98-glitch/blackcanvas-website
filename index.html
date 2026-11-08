@@ -480,7 +480,7 @@ html.intro-on{overflow:hidden}
     <li><a href="#reach"><span>04</span>Our reach</a></li>
     <li><a href="#contact"><span>05</span>Contact us</a></li>
   </ul>
-  <div class="foot">Riyadh · Dubai &nbsp;·&nbsp; info@blackcanvasglobal.com</div>
+  <div class="foot">Riyadh · Dubai &nbsp;·&nbsp; info@blackcanvas.live</div>
 </div>
 
 <header class="hero" id="top" data-tone="stage">
@@ -718,14 +718,14 @@ html.intro-on{overflow:hidden}
       </div>
       <div>
         <h4>Contact</h4>
-        <div class="val"><span id="em">info@blackcanvasglobal.com</span></div>
+        <div class="val"><span id="em">info@blackcanvas.live</span></div>
         <div class="val"><span id="ph">+966 53 053 4848</span></div>
         <p>Riyadh · Dubai</p>
       </div>
     </div>
   </div>
   <div class="giant" aria-hidden="true"><span class="lockup"><span class="lk">Black</span><span class="lc">Canvas</span></span></div>
-  <div class="wrap"><div class="fbar"><span>© 2026 Black Canvas</span><span>blackcanvasglobal.com</span></div></div>
+  <div class="wrap"><div class="fbar"><span>© 2026 Black Canvas</span><span>blackcanvas.live</span></div></div>
 </footer>
 
 <div class="lb" id="lb" hidden role="dialog" aria-modal="true" aria-label="Project">
@@ -1149,7 +1149,7 @@ ${name||'[Your name]'}${org?`\n${org}`:''}${email?`\n${email}`:''}`;
 }
 function renderBrief(){$('#guestsOut').textContent=fmt(guestSteps[$('#guests').value])}
 function mailHref(){const subj=`Event brief${selType!=null?': '+single(services[selType][0]):''}${$('#city').value?' in '+$('#city').value:''}`;
-  return `mailto:info@blackcanvasglobal.com?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(briefText())}`}
+  return `mailto:info@blackcanvas.live?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(briefText())}`}
 $('#briefForm').addEventListener('input',renderBrief);
 /* ---------- send: saved to this site's database ---------- */
 const dbP=window.claude&&typeof claude.use==='function'?claude.use('db'):Promise.resolve(null);
@@ -1161,7 +1161,7 @@ function record(){return{
   email:$('#email').value.trim(),notes:$('#notes').value.trim(),sentAt:new Date().toISOString()}}
 function showFallback(){
   statusBox.replaceChildren();
-  const p=document.createElement('p');p.textContent="This page could not send your brief. Email it to info@blackcanvasglobal.com instead. Your details are already in the message.";
+  const p=document.createElement('p');p.textContent="This page could not send your brief. Email it to info@blackcanvas.live instead. Your details are already in the message.";
   const acts=document.createElement('div');acts.className='acts';
   const a=document.createElement('a');a.className='btn';a.href=mailHref();a.textContent='Open email app';
   const c=document.createElement('button');c.type='button';c.className='btn line no-arrow';c.textContent='Copy brief';
@@ -1171,7 +1171,7 @@ function showFallback(){
 }
 function showMailStatus(){
   statusBox.replaceChildren();
-  const p=document.createElement('p');p.textContent="Your email app should open with your brief addressed to info@blackcanvasglobal.com. Press send there to deliver it. If it did not open copy the brief and email it to us.";
+  const p=document.createElement('p');p.textContent="Your email app should open with your brief addressed to info@blackcanvas.live. Press send there to deliver it. If it did not open copy the brief and email it to us.";
   const acts=document.createElement('div');acts.className='acts';
   const a=document.createElement('a');a.className='btn';a.href=mailHref();a.textContent='Open email app again';
   const c=document.createElement('button');c.type='button';c.className='btn line no-arrow';c.textContent='Copy brief';

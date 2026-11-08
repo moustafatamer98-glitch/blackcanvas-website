@@ -954,5 +954,5 @@ create trigger pm_records_dates_guard before update on public.pm_records
 
 -- First admin (run once, with your own email):
 -- insert into public.portal_access (email, apps, is_admin)
--- values ('you@blackcanvasglobal.com', array['billing','crew','projects','bills','staff'], true)
+-- values ('you@blackcanvas.live', array['billing','crew','projects','bills','staff'], true)
 -- on conflict (email) do update set apps = excluded.apps, is_admin = true;

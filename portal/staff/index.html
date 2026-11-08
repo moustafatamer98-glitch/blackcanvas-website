@@ -1621,7 +1621,7 @@ function leave(to) { location.replace(CONFIG.PORTAL_HOME + to); }
 
 async function start() {
   try {
-    if (DEMO) { me = 'you@blackcanvasglobal.com'; myName = 'You'; }
+    if (DEMO) { me = 'you@blackcanvas.live'; myName = 'You'; }
     else {
       if (!sb) throw new Error('The portal connection settings are missing (config.js).');
       const { data: { session } } = await sb.auth.getSession();
