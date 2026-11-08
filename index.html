@@ -99,7 +99,10 @@ section{padding-block:clamp(80px,10vw,150px)}
 .reel{position:absolute;inset:0;z-index:-3}
 .reel div{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1.12);transition:opacity 1.6s ease,transform 7s linear;filter:saturate(1.05)}
 .reel div.on{opacity:1;transform:scale(1.0)}
-.hero::before{content:"";position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,rgba(11,11,12,.78) 0%,rgba(11,11,12,.35) 55%,rgba(11,11,12,.15) 100%),linear-gradient(180deg,rgba(11,11,12,.72) 0%,rgba(11,11,12,.55) 35%,rgba(11,11,12,.86) 78%,var(--stage) 100%),radial-gradient(60vmax 50vmax at var(--gx,80%) var(--gy,30%),rgba(240,78,35,.28),transparent 65%)}
+.reel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--stage)}
+.reel-ui .prog{width:120px;height:3px;background:rgba(244,243,239,.25);position:relative;overflow:hidden}
+.reel-ui .prog i{position:absolute;inset:0;background:var(--ember);transform:scaleX(0);transform-origin:left;transition:transform .3s linear}
+.hero::before{content:"";position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,rgba(11,11,12,.62) 0%,rgba(11,11,12,.22) 55%,rgba(11,11,12,.06) 100%),linear-gradient(180deg,rgba(11,11,12,.55) 0%,rgba(11,11,12,.25) 35%,rgba(11,11,12,.7) 80%,var(--stage) 100%),radial-gradient(60vmax 50vmax at var(--gx,80%) var(--gy,30%),rgba(240,78,35,.28),transparent 65%)}
 #heroCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
 .hero .wrap{width:100%}
 .hero .kicker{color:var(--ember)}
@@ -477,12 +480,11 @@ html.intro-on{overflow:hidden}
 </div>
 
 <header class="hero" id="top" data-tone="stage">
-  <div class="reel" id="reel" aria-hidden="true"></div>
+  <div class="reel" id="reel" aria-hidden="true"><video id="reelVid" muted loop playsinline autoplay preload="auto" poster="img/showreel-poster.jpg"><source src="video/showreel-1080.mp4" type="video/mp4" media="(min-width: 1100px)"><source src="video/showreel-720.mp4" type="video/mp4"></video></div>
   <canvas id="heroCanvas" aria-hidden="true"></canvas>
   <div class="reel-ui" aria-label="Showreel">
     <span>Showreel</span>
-    <span class="now" id="reelNow">MDL SS25 · Riyadh</span>
-    <div class="bars" id="reelBars"></div>
+    <div class="prog"><i id="reelProg"></i></div>
   </div>
   <div class="wrap">
     <p class="kicker">We are an</p>
@@ -841,15 +843,14 @@ document.addEventListener('click',e=>{const b=e.target.closest('.spark');if(b&&b
 
 /* ---------- showreel ---------- */
 (()=>{
-  const reel=$('#reel'),bars=$('#reelBars'),now=$('#reelNow');
-  reel.innerHTML=work.map(w=>`<div style="background-image:url('${w.img}')"></div>`).join('');
-  bars.innerHTML=work.map((w,i)=>`<button type="button" aria-label="Show ${w.t}"></button>`).join('');
-  const layers=[...reel.children],btns=[...bars.children];let i=0,timer;
-  function show(k){i=k;layers.forEach((l,j)=>l.classList.toggle('on',j===k));btns.forEach((b,j)=>{b.classList.remove('on');if(j===k){void b.offsetWidth;b.classList.add('on')}});now.textContent=`${work[k].t} · ${work[k].city}`}
-  function next(){show((i+1)%work.length)}
-  function run(){clearInterval(timer);if(!REDUCED)timer=setInterval(()=>{if(!document.hidden)next()},5500)}
-  btns.forEach((b,k)=>b.addEventListener('click',()=>{show(k);run()}));
-  show(0);run();
+  const v=$('#reelVid'),p=$('#reelProg');if(!v)return;
+  if(REDUCED){v.removeAttribute('autoplay');v.pause();return}
+  let inView=true;
+  const go=()=>{if(inView&&!document.hidden)v.play().catch(()=>{});else v.pause()};
+  v.addEventListener('timeupdate',()=>{if(v.duration)p.style.transform=`scaleX(${v.currentTime/v.duration})`});
+  document.addEventListener('visibilitychange',go);
+  new IntersectionObserver(([e])=>{inView=e.isIntersecting;go()}).observe($('#reel'));
+  go();
 })();
 
 /* ---------- hero particles ---------- */
