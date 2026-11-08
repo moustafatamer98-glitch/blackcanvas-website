@@ -100,6 +100,10 @@ section{padding-block:clamp(80px,10vw,150px)}
 .reel div{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1.12);transition:opacity 1.6s ease,transform 7s linear;filter:saturate(1.05)}
 .reel div.on{opacity:1;transform:scale(1.0)}
 .reel video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--stage)}
+.reel-play{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:12px;font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--bone)}
+.reel-play b{display:grid;place-items:center;width:38px;height:38px;background:var(--ember);color:var(--ink);font-size:.72rem;transition:transform .25s,background .25s}
+.reel-play:hover b{transform:scale(1.08);background:#FF6A3D}
+.reel-play:focus-visible{outline:2px solid var(--bone);outline-offset:4px}
 .reel-ui .prog{width:120px;height:3px;background:rgba(244,243,239,.25);position:relative;overflow:hidden}
 .reel-ui .prog i{position:absolute;inset:0;background:var(--ember);transform:scaleX(0);transform-origin:left;transition:transform .3s linear}
 .hero::before{content:"";position:absolute;inset:0;z-index:-2;background:linear-gradient(90deg,rgba(11,11,12,.62) 0%,rgba(11,11,12,.22) 55%,rgba(11,11,12,.06) 100%),linear-gradient(180deg,rgba(11,11,12,.55) 0%,rgba(11,11,12,.25) 35%,rgba(11,11,12,.7) 80%,var(--stage) 100%),radial-gradient(60vmax 50vmax at var(--gx,80%) var(--gy,30%),rgba(240,78,35,.28),transparent 65%)}
@@ -483,7 +487,7 @@ html.intro-on{overflow:hidden}
   <div class="reel" id="reel" aria-hidden="true"><video id="reelVid" muted loop playsinline autoplay preload="auto" poster="img/showreel-poster.jpg"><source src="video/showreel-1080.mp4" type="video/mp4" media="(min-width: 1100px)"><source src="video/showreel-720.mp4" type="video/mp4"></video></div>
   <canvas id="heroCanvas" aria-hidden="true"></canvas>
   <div class="reel-ui" aria-label="Showreel">
-    <span>Showreel</span>
+    <button type="button" class="reel-play" id="reelPlay" aria-haspopup="dialog"><b aria-hidden="true">▶</b>Watch showreel</button>
     <div class="prog"><i id="reelProg"></i></div>
   </div>
   <div class="wrap">
@@ -1069,9 +1073,12 @@ let lbI=0,lastFocus=null;
 const visibleWork=()=>work.map((w,i)=>i).filter(i=>filter==='all'||work[i].r===filter);
 let lbG=0;
 function showPhoto(w,g){lbG=g;const it=w.gallery[g],im=$('#lbImg'),vd=$('#lbVid');if(it.video){im.hidden=true;vd.hidden=false;vd.poster=it.poster||'';if(vd.getAttribute('src')!==it.video)vd.src=it.video;try{vd.currentTime=0}catch(e){}vd.play().catch(()=>{})}else{vd.pause();vd.hidden=true;im.hidden=false;im.src=it.src;im.alt=it.alt}$$('#lbThumbs button').forEach((b,j)=>b.setAttribute('aria-current',j===g))}
-function openLb(i,g){lbI=i;const w=work[i];const im=$('#lbImg'),vd=$('#lbVid'),th=$('#lbThumbs');th.hidden=!w.gallery;if(w.gallery&&th.dataset.for!==w.t){th.dataset.for=w.t;th.innerHTML=w.gallery.map((p,j)=>`<button type="button" data-g="${j}" class="${p.video?'vid':''}" aria-label="${p.video?'Video':'Photo '+(j+1)+' of '+w.gallery.length}" style="background-image:url('${p.th||p.poster||p.src}')"></button>`).join('')}if(w.gallery)showPhoto(w,g||0);else if(w.video){im.hidden=true;vd.hidden=false;vd.poster=w.img;if(vd.getAttribute('src')!==w.video)vd.src=w.video;try{vd.currentTime=0}catch(e){}vd.play().catch(()=>{})}else{vd.pause();vd.hidden=true;im.hidden=false;im.src=w.img;im.alt=w.alt}$('#lbTitle').textContent=w.t;$('#lbSub').innerHTML=`<span style="color:var(--ember)">${w.type}</span> · ${w.city} · ${w.y}`;$('#lb').hidden=false;document.body.style.overflow='hidden';$('#lbClose').focus()}
-function closeLb(){$('#lbVid').pause();$('#lb').hidden=true;document.body.style.overflow='';lastFocus&&lastFocus.focus()}
-function stepLb(d){const w=work[lbI];if(w&&w.gallery){const g=lbG+d;if(g>=0&&g<w.gallery.length){showPhoto(w,g);return}}const v=visibleWork();let k=v.indexOf(lbI);if(k<0)k=0;const n=v[(k+d+v.length)%v.length],nw=work[n];openLb(n,d<0&&nw.gallery?nw.gallery.length-1:0)}
+function openLb(i,g){lbReel=false;$('.lb .nav-arrows').hidden=false;lbI=i;const w=work[i];const im=$('#lbImg'),vd=$('#lbVid'),th=$('#lbThumbs');th.hidden=!w.gallery;if(w.gallery&&th.dataset.for!==w.t){th.dataset.for=w.t;th.innerHTML=w.gallery.map((p,j)=>`<button type="button" data-g="${j}" class="${p.video?'vid':''}" aria-label="${p.video?'Video':'Photo '+(j+1)+' of '+w.gallery.length}" style="background-image:url('${p.th||p.poster||p.src}')"></button>`).join('')}if(w.gallery)showPhoto(w,g||0);else if(w.video){im.hidden=true;vd.hidden=false;vd.poster=w.img;if(vd.getAttribute('src')!==w.video)vd.src=w.video;try{vd.currentTime=0}catch(e){}vd.play().catch(()=>{})}else{vd.pause();vd.hidden=true;im.hidden=false;im.src=w.img;im.alt=w.alt}$('#lbTitle').textContent=w.t;$('#lbSub').innerHTML=`<span style="color:var(--ember)">${w.type}</span> · ${w.city} · ${w.y}`;$('#lb').hidden=false;document.body.style.overflow='hidden';$('#lbClose').focus()}
+let lbReel=false;
+function openReel(){lbReel=true;lbI=-1;const vd=$('#lbVid'),rv=$('#reelVid');$('#lbImg').hidden=true;$('#lbThumbs').hidden=true;$('.lb .nav-arrows').hidden=true;vd.hidden=false;vd.poster='img/showreel-poster.jpg';vd.src=(rv&&rv.currentSrc)||'video/showreel-720.mp4';vd.muted=false;try{vd.currentTime=0}catch(e){}if(rv)rv.pause();$('#lbTitle').textContent='Black Canvas Showreel';$('#lbSub').textContent='Selected work';$('#lb').hidden=false;document.body.style.overflow='hidden';$('#lbClose').focus();vd.play().catch(()=>{})}
+$('#reelPlay').addEventListener('click',e=>{lastFocus=e.currentTarget;openReel()});
+function closeLb(){if(lbReel){lbReel=false;const vd=$('#lbVid');vd.pause();vd.removeAttribute('src');vd.load();$('.lb .nav-arrows').hidden=false;const rv=$('#reelVid');if(rv&&!REDUCED)rv.play().catch(()=>{})}$('#lbVid').pause();$('#lb').hidden=true;document.body.style.overflow='';lastFocus&&lastFocus.focus()}
+function stepLb(d){if(lbReel)return;const w=work[lbI];if(w&&w.gallery){const g=lbG+d;if(g>=0&&g<w.gallery.length){showPhoto(w,g);return}}const v=visibleWork();let k=v.indexOf(lbI);if(k<0)k=0;const n=v[(k+d+v.length)%v.length],nw=work[n];openLb(n,d<0&&nw.gallery?nw.gallery.length-1:0)}
 $('#lbThumbs').addEventListener('click',e=>{const b=e.target.closest('button');if(b)showPhoto(work[lbI],+b.dataset.g)});
 $('#lbImg').addEventListener('click',()=>{const w=work[lbI];if(w&&w.gallery)stepLb(1)});
 $('#workGrid').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;lastFocus=b;openLb(+b.dataset.i)});
