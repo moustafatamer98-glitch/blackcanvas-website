@@ -774,10 +774,8 @@ const work=[
  {t:'Riyadh Season Tennis Cup',type:'Sports event',city:'Riyadh',y:'2023',img:'img/rs-tennis-01.jpg',r:'ksa',alt:'Packed arena around the tennis court',gallery:[{src:'img/rs-tennis-01.jpg',th:'img/rs-tennis-01-t.jpg',alt:'Packed arena around the tennis court'},{src:'img/rs-tennis-02.jpg',th:'img/rs-tennis-02-t.jpg',alt:'Control desk facing the LED screens at the arena'},{src:'img/rs-tennis-03.jpg',th:'img/rs-tennis-03-t.jpg',alt:'Court under green and white light with LED walls'}]},
  {t:'Al-Alamein Festival',type:'Festival',city:'New Alamein',y:'2025',img:'img/alamein-01.jpg',r:'intl',alt:'Flame jets firing across the festival stage',gallery:[{src:'img/alamein-01.jpg',th:'img/alamein-01-t.jpg',alt:'Flame jets firing across the festival stage'},{src:'img/alamein-02.jpg',th:'img/alamein-02-t.jpg',alt:'Festival stage with purple LED visuals'},{src:'img/alamein-03.jpg',th:'img/alamein-03-t.jpg',alt:'Wide stage with patterned LED visuals at night'},{src:'img/alamein-04.jpg',th:'img/alamein-04-t.jpg',alt:'Fireworks over the stage and crowd'},{src:'img/alamein-05.jpg',th:'img/alamein-05-t.jpg',alt:'DJ booth framed by LED portraits'}]},
  {t:'Clubbing Purposes',type:'Nightlife',city:'Riyadh',y:'2025',img:'img/clubbing-01.jpg',r:'ksa',alt:'DJ silhouetted against a fiery LED wall',gallery:[{src:'img/clubbing-01.jpg',th:'img/clubbing-01-t.jpg',alt:'DJ silhouetted against a fiery LED wall'},{src:'img/clubbing-02.jpg',th:'img/clubbing-02-t.jpg',alt:'DJ at the decks in front of orange LED frames'},{src:'img/clubbing-03.jpg',th:'img/clubbing-03-t.jpg',alt:'Club room with radial ceiling lights and LED wall'},{src:'img/clubbing-04.jpg',th:'img/clubbing-04-t.jpg',alt:'Tall LED panel with fiery visuals'},{src:'img/clubbing-05.jpg',th:'img/clubbing-05-t.jpg',alt:'Packed dance floor under a red lit ceiling'}]},
- {t:'Qassim Baja × Toyota',type:'Brand activation',city:'Qassim',y:'2025',img:'img/baja.jpg',r:'ksa',alt:'Driver stepping out of a rally buggy at a branded desert arch'},
  {t:'Saudi Pavilion Expo 2020',type:'Expo pavilion',city:'Dubai',y:'2021 to 2022',img:'img/expo.jpg',r:'intl',alt:'The Saudi Pavilion with its illuminated angled LED canopy'},
  {t:'Ring Magazine Awards',type:'Award ceremony',city:'New York',y:'2026',img:'img/ring.jpg',r:'intl',alt:'Formal group photo of guests at the awards'},
- {t:'Literary Partner',type:'Ceremony',city:'Riyadh',y:'2025',img:'img/literary.jpg',r:'ksa',alt:'Speaker on stage framed by branded red and teal panels'}
 ];
 const W_BY=Object.fromEntries(work.map(w=>[w.t,w]));
 const services=[
@@ -789,7 +787,7 @@ const services=[
  ['Festivals','Multi stage music and cultural festivals at scale.','MDL SS25'],
  ['Corporate Events','Town halls offsites and milestone celebrations.',null],
  ['Private Events','Exclusive gatherings and VIP occasions discreetly delivered.',null],
- ['Brand Activations','Experiential campaigns that put brands in hands.','Qassim Baja × Toyota']
+ ['Brand Activations','Experiential campaigns that put brands in hands.',null]
 ];
 const single=t=>({'Exhibitions and Conferences':'Exhibition or conference'})[t]||t.replace(/s$/,'');
 const withA=t=>(/^[aeiou]/i.test(t)?'an ':'a ')+t;
